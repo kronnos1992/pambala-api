@@ -12,6 +12,7 @@ import cartRoutes from "./routes/cart";
 import orderRoutes from "./routes/orders";
 import reviewRoutes from "./routes/reviews";
 import uploadRoutes from "./routes/uploads";
+import adminRoutes from "./routes/admin";
 
 const app = new Hono();
 
@@ -27,6 +28,7 @@ app.route("/api/cart", cartRoutes);
 app.route("/api/orders", orderRoutes);
 app.route("/api/reviews", reviewRoutes);
 app.route("/api/uploads", uploadRoutes);
+app.route("/api/admin", adminRoutes);
 
 app.get("/uploads/*", serveStatic({ root: "./" }));
 

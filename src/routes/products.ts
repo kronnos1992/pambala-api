@@ -113,6 +113,7 @@ products.get("/", async (c) => {
   const limit = parseInt(c.req.query("limit") || "20");
   const q = c.req.query("q");
   const categoryId = c.req.query("categoryId");
+  const categorySlug = c.req.query("categorySlug");
   const storeId = c.req.query("storeId");
   const minPrice = c.req.query("minPrice");
   const maxPrice = c.req.query("maxPrice");
@@ -125,11 +126,15 @@ products.get("/", async (c) => {
 
   if (q) {
     where.OR = [
-      { name: { contains: q, mode: "insensitive" } },
-      { description: { contains: q, mode: "insensitive" } },
+      { name: { contains: q } },
+      { description: { contains: q } },
     ];
   }
   if (categoryId) where.categoryId = categoryId;
+  if (categorySlug) {
+    const cat = await prisma.category.findUnique({ where: { slug: categorySlug } });
+    if (cat) where.categoryId = cat.id;
+  }
   if (storeId) where.storeId = storeId;
   if (minPrice) where.price = { ...where.price, gte: parseFloat(minPrice) };
   if (maxPrice) where.price = { ...where.price, lte: parseFloat(maxPrice) };
