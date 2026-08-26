@@ -215,7 +215,7 @@ orders.get("/:id", authMiddleware, async (c) => {
   const role = (c as any).get("role") as string;
   const id = c.req.param("id");
 
-  const order = await prisma.order.findUnique({
+  let order = await prisma.order.findUnique({
     where: { id },
     include: {
       user: {
@@ -230,6 +230,24 @@ orders.get("/:id", authMiddleware, async (c) => {
       },
     },
   });
+
+  if (!order) {
+    order = await prisma.order.findUnique({
+      where: { orderNumber: id },
+      include: {
+        user: {
+          select: { id: true, name: true, email: true, phone: true },
+        },
+        items: {
+          include: {
+            product: {
+              select: { id: true, name: true, images: true, slug: true },
+            },
+          },
+        },
+      },
+    });
+  }
 
   if (!order) {
     return c.json({ error: "Pedido não encontrado" }, 404);

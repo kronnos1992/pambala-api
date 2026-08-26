@@ -24,6 +24,132 @@ function adminMiddleware(c: any, next: any) {
 admin.use("*", authMiddleware);
 admin.use("*", adminMiddleware);
 
+// Chart data
+admin.get("/stats/charts/revenue", async (c) => {
+  const days = parseInt(c.req.query("days") || "30");
+  const now = new Date();
+  const results = [];
+  for (let i = days - 1; i >= 0; i--) {
+    const dayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+    dayStart.setHours(0, 0, 0, 0);
+    const dayEnd = new Date(dayStart);
+    dayEnd.setHours(23, 59, 59, 999);
+    const [rev, orderCount] = await Promise.all([
+      prisma.order.aggregate({ _sum: { total: true }, where: { createdAt: { gte: dayStart, lte: dayEnd }, status: { not: "CANCELLED" } } }),
+      prisma.order.count({ where: { createdAt: { gte: dayStart, lte: dayEnd } } }),
+    ]);
+    results.push({
+      date: dayStart.toISOString().split("T")[0],
+      label: `${dayStart.getDate()}/${dayStart.getMonth() + 1}`,
+      revenue: rev._sum.total || 0,
+      orders: orderCount,
+    });
+  }
+  return c.json({ data: results });
+});
+
+admin.get("/stats/charts/users", async (c) => {
+  const days = parseInt(c.req.query("days") || "30");
+  const now = new Date();
+  const results = [];
+  for (let i = days - 1; i >= 0; i--) {
+    const dayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+    dayStart.setHours(0, 0, 0, 0);
+    const dayEnd = new Date(dayStart);
+    dayEnd.setHours(23, 59, 59, 999);
+    const count = await prisma.user.count({ where: { createdAt: { gte: dayStart, lte: dayEnd } } });
+    results.push({
+      date: dayStart.toISOString().split("T")[0],
+      label: `${dayStart.getDate()}/${dayStart.getMonth() + 1}`,
+      users: count,
+    });
+  }
+  return c.json({ data: results });
+});
+
+// Section-specific stats
+admin.get("/stats/orders", async (c) => {
+  const now = new Date();
+  const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const [total, thisMonthCount, lastMonthCount, thisMonthRevenue, lastMonthRevenue, pending, byStatus] = await Promise.all([
+    prisma.order.count(),
+    prisma.order.count({ where: { createdAt: { gte: thisMonth } } }),
+    prisma.order.count({ where: { createdAt: { gte: lastMonth, lt: thisMonth } } }),
+    prisma.order.aggregate({ _sum: { total: true }, where: { createdAt: { gte: thisMonth }, status: { not: "CANCELLED" } } }),
+    prisma.order.aggregate({ _sum: { total: true }, where: { createdAt: { gte: lastMonth, lt: thisMonth }, status: { not: "CANCELLED" } } }),
+    prisma.order.count({ where: { status: "PENDING" } }),
+    prisma.order.groupBy({ by: ["status"], _count: true }),
+  ]);
+  const avgOrder = total > 0 ? (thisMonthRevenue._sum.total || 0) / (thisMonthCount || 1) : 0;
+  return c.json({
+    total, thisMonth: thisMonthCount, lastMonth: lastMonthCount,
+    thisMonthRevenue: thisMonthRevenue._sum.total || 0, lastMonthRevenue: lastMonthRevenue._sum.total || 0,
+    pending, avgOrderValue: Math.round(avgOrder),
+    byStatus: byStatus.map((s) => ({ status: s.status, count: s._count })),
+  });
+});
+
+admin.get("/stats/users", async (c) => {
+  const [total, buyers, sellers, admins, newThisWeek, newThisMonth, byRole] = await Promise.all([
+    prisma.user.count(),
+    prisma.user.count({ where: { role: "BUYER" } }),
+    prisma.user.count({ where: { role: "SELLER" } }),
+    prisma.user.count({ where: { role: "ADMIN" } }),
+    prisma.user.count({ where: { createdAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) } } }),
+    prisma.user.count({ where: { createdAt: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } } }),
+    prisma.user.groupBy({ by: ["role"], _count: true }),
+  ]);
+  return c.json({ total, buyers, sellers, admins, newThisWeek, newThisMonth, byRole: byRole.map((r) => ({ role: r.role, count: r._count })) });
+});
+
+admin.get("/stats/stores", async (c) => {
+  const [total, verified, unverified, avgRating, byProvince] = await Promise.all([
+    prisma.store.count(),
+    prisma.store.count({ where: { isVerified: true } }),
+    prisma.store.count({ where: { isVerified: false } }),
+    prisma.review.aggregate({ _avg: { rating: true } }),
+    prisma.store.groupBy({ by: ["province"], _count: true, orderBy: { _count: { province: "desc" } }, take: 8 }),
+  ]);
+  return c.json({ total, verified, unverified, avgRating: avgRating._avg.rating || 0, byProvince: byProvince.map((p) => ({ province: p.province, count: p._count })) });
+});
+
+admin.get("/stats/products", async (c) => {
+  const [total, active, inactive, avgPrice, avgRating, byCategory, newThisWeek] = await Promise.all([
+    prisma.product.count(),
+    prisma.product.count({ where: { isActive: true } }),
+    prisma.product.count({ where: { isActive: false } }),
+    prisma.product.aggregate({ _avg: { price: true } }),
+    prisma.review.aggregate({ _avg: { rating: true } }),
+    prisma.category.findMany({ select: { name: true, _count: { select: { products: true } } }, orderBy: { _count: { products: "desc" } }, take: 6 }),
+    prisma.product.count({ where: { createdAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) } } }),
+  ]);
+  return c.json({ total, active, inactive, avgPrice: Math.round(avgPrice._avg.price || 0), avgRating: avgRating._avg.rating || 0, newThisWeek, byCategory: byCategory.map((c) => ({ name: c.name, count: c._count.products })) });
+});
+
+admin.get("/stats/categories", async (c) => {
+  const [total, withProducts, empty, totalSubcategories] = await Promise.all([
+    prisma.category.count(),
+    prisma.category.count({ where: { products: { some: {} } } }),
+    prisma.category.count({ where: { products: { none: {} } } }),
+    prisma.category.count({ where: { parentId: { not: null } } }),
+  ]);
+  const totalProductsInCategories = await prisma.product.count();
+  return c.json({ total, withProducts, empty, totalSubcategories, totalProducts: totalProductsInCategories });
+});
+
+admin.get("/stats/reviews", async (c) => {
+  const [total, avgRating, fiveStar, thisMonth, ratingDist] = await Promise.all([
+    prisma.review.count(),
+    prisma.review.aggregate({ _avg: { rating: true } }),
+    prisma.review.count({ where: { rating: 5 } }),
+    prisma.review.count({ where: { createdAt: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } } }),
+    prisma.review.groupBy({ by: ["rating"], _count: true, orderBy: { rating: "asc" } }),
+  ]);
+  const fiveStarPct = total > 0 ? Math.round((fiveStar / total) * 100) : 0;
+  return c.json({ total, avgRating: avgRating._avg.rating || 0, fiveStar, fiveStarPct, thisMonth, ratingDist: ratingDist.map((r) => ({ rating: r.rating, count: r._count })) });
+});
+
 // Dashboard stats
 admin.get("/stats", async (c) => {
   const [

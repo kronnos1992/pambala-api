@@ -2,6 +2,16 @@ import { Hono } from "hono";
 import { prisma } from "../lib/prisma";
 import { authMiddleware } from "../lib/auth";
 
+function parseImages(images: any): string[] {
+  if (Array.isArray(images)) return images;
+  try { return JSON.parse(images); } catch { return []; }
+}
+
+function parseCartProduct(product: any) {
+  if (!product) return product;
+  return { ...product, images: parseImages(product.images) };
+}
+
 const cart = new Hono();
 
 cart.use("*", authMiddleware);
@@ -50,7 +60,16 @@ cart.get("/", async (c) => {
     0
   );
 
-  return c.json({ cart: { ...cartRecord, total } });
+  return c.json({
+    cart: {
+      ...cartRecord,
+      total,
+      items: cartRecord.items.map((item) => ({
+        ...item,
+        product: parseCartProduct(item.product),
+      })),
+    },
+  });
 });
 
 cart.post("/items", async (c) => {
@@ -134,7 +153,16 @@ cart.post("/items", async (c) => {
     0
   );
 
-  return c.json({ cart: { ...updatedCart, total } });
+  return c.json({
+    cart: {
+      ...updatedCart!,
+      total,
+      items: updatedCart!.items.map((item) => ({
+        ...item,
+        product: parseCartProduct(item.product),
+      })),
+    },
+  });
 });
 
 cart.put("/items/:itemId", async (c) => {

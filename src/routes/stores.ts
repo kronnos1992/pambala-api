@@ -5,6 +5,11 @@ import { storeSchema } from "../lib/validators";
 
 const stores = new Hono();
 
+function parseImages(images: any): string[] {
+  if (Array.isArray(images)) return images;
+  try { return JSON.parse(images); } catch { return []; }
+}
+
 function slugify(text: string): string {
   return text
     .toLowerCase()
@@ -216,6 +221,7 @@ stores.get("/:id/products", async (c) => {
 
   const productsWithRating = items.map((p) => ({
     ...p,
+    images: parseImages(p.images),
     avgRating:
       p.reviews.length > 0
         ? p.reviews.reduce((sum, r) => sum + r.rating, 0) / p.reviews.length
