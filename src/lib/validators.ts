@@ -39,7 +39,13 @@ export const orderSchema = z.object({
   shippingAddress: z.string().min(1),
   shippingProvince: z.string().min(1),
   shippingDistrict: z.string().optional(),
-  paymentMethod: z.enum(["MULTICAIXA", "TRANSFER", "CASH_ON_DELIVERY"]),
+  paymentMethod: z.enum([
+    "MULTICAIXA",
+    "TRANSFER",
+    "CASH_ON_DELIVERY",
+    "APPY_PAY_GPO",
+    "APPY_PAY_REF",
+  ]),
   notes: z.string().optional(),
 });
 
