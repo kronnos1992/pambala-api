@@ -248,6 +248,12 @@ async function main() {
         userId: user.id, isVerified: true, rating: 4.5,
         logo: img(`store-${s.storeSlug}`),
         banner: img(`banner-${s.storeSlug}`),
+        paymentMethods: JSON.stringify([
+          { type: "EXPRESS", enabled: true, phone: s.phone },
+          { type: "TRANSFER", enabled: true, phone: s.phone, ownerName: s.name, bankName: "BAI", iban: "AO06000000000000000000001", bankAccount: "123456789" },
+          { type: "REFERENCE", enabled: true, entity: "12345", reference: "000 123 456" },
+          { type: "CASH_ON_DELIVERY", enabled: true },
+        ]),
       },
     });
     storeMap[s.storeSlug] = store.id;

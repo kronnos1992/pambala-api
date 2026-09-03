@@ -79,6 +79,12 @@ stores.post("/", authMiddleware, async (c) => {
       province: data.province,
       district: data.district,
       userId,
+      paymentMethods: JSON.stringify([
+        { type: "EXPRESS", enabled: false, phone: "" },
+        { type: "TRANSFER", enabled: false, phone: "", ownerName: "", bankName: "", iban: "", bankAccount: "" },
+        { type: "REFERENCE", enabled: false, entity: "", reference: "" },
+        { type: "CASH_ON_DELIVERY", enabled: true },
+      ]),
     },
   });
 
@@ -141,7 +147,7 @@ stores.get("/:idOrSlug", async (c) => {
     return c.json({ error: "Loja não encontrada" }, 404);
   }
 
-  return c.json({ store });
+  return c.json({ store: { ...store, paymentMethods: parsePaymentMethods(store.paymentMethods) } });
 });
 
 stores.put("/", authMiddleware, async (c) => {
@@ -181,6 +187,47 @@ stores.put("/", authMiddleware, async (c) => {
   });
 
   return c.json({ store });
+});
+
+function parsePaymentMethods(raw: any): any[] {
+  if (Array.isArray(raw)) return raw;
+  try { return JSON.parse(raw); } catch { return []; }
+}
+
+stores.get("/payment-methods", authMiddleware, async (c) => {
+  const userId = (c as any).get("userId") as string;
+
+  const store = await prisma.store.findUnique({ where: { userId } });
+
+  if (!store) {
+    return c.json({ error: "Loja não encontrada" }, 404);
+  }
+
+  return c.json({ paymentMethods: parsePaymentMethods(store.paymentMethods) });
+});
+
+stores.put("/payment-methods", authMiddleware, async (c) => {
+  const userId = (c as any).get("userId") as string;
+
+  const store = await prisma.store.findUnique({ where: { userId } });
+
+  if (!store) {
+    return c.json({ error: "Loja não encontrada" }, 404);
+  }
+
+  const body = await c.req.json();
+  const { paymentMethods } = body;
+
+  if (!Array.isArray(paymentMethods)) {
+    return c.json({ error: "paymentMethods deve ser um array" }, 400);
+  }
+
+  const updated = await prisma.store.update({
+    where: { id: store.id },
+    data: { paymentMethods: JSON.stringify(paymentMethods) },
+  });
+
+  return c.json({ paymentMethods: parsePaymentMethods(updated.paymentMethods) });
 });
 
 stores.get("/:id/products", async (c) => {

@@ -26,6 +26,12 @@ function generateOrderNumber(): string {
   return `PAM-${year}${month}${day}-${random}`;
 }
 
+function parsePaymentMethods(raw: any): any[] {
+  if (!raw) return [];
+  if (Array.isArray(raw)) return raw;
+  try { return JSON.parse(raw); } catch { return []; }
+}
+
 orders.get("/seller/orders", authMiddleware, async (c) => {
   const userId = (c as any).get("userId") as string;
 
@@ -109,7 +115,26 @@ orders.post("/", authMiddleware, async (c) => {
     return c.json({ error: "Carrinho vazio" }, 400);
   }
 
-  for (const item of cartRecord.items) {
+  const store = await prisma.store.findUnique({
+    where: { id: data.storeId },
+  });
+
+  if (!store) {
+    return c.json({ error: "Loja não encontrada" }, 404);
+  }
+
+  const storeItems = cartRecord.items.filter(
+    (item) => item.product.storeId === data.storeId
+  );
+
+  if (storeItems.length === 0) {
+    return c.json(
+      { error: "Nenhum item desta loja no carrinho" },
+      400
+    );
+  }
+
+  for (const item of storeItems) {
     if (item.product.stock < item.quantity) {
       return c.json(
         { error: `Estoque insuficiente para ${item.product.name}` },
@@ -118,10 +143,22 @@ orders.post("/", authMiddleware, async (c) => {
     }
   }
 
-  const total = cartRecord.items.reduce(
+  const total = storeItems.reduce(
     (sum, item) => sum + item.product.price * item.quantity,
     0
   );
+
+  const paymentMethods = parsePaymentMethods(store.paymentMethods);
+  const method = paymentMethods.find((m) => m.type === data.paymentMethod);
+
+  if (data.paymentMethod !== "CASH_ON_DELIVERY" && !method?.enabled) {
+    return c.json(
+      { error: "Método de pagamento indisponível para esta loja" },
+      400
+    );
+  }
+
+  const paymentDetails = data.paymentMethod === "CASH_ON_DELIVERY" ? null : JSON.stringify(method);
 
   const orderNumber = generateOrderNumber();
 
@@ -131,6 +168,7 @@ orders.post("/", authMiddleware, async (c) => {
       total,
       shippingFee: 0,
       paymentMethod: data.paymentMethod,
+      paymentDetails,
       shippingName: data.shippingName,
       shippingPhone: data.shippingPhone,
       shippingAddress: data.shippingAddress,
@@ -139,7 +177,7 @@ orders.post("/", authMiddleware, async (c) => {
       notes: data.notes,
       userId,
       items: {
-        create: cartRecord.items.map((item) => ({
+        create: storeItems.map((item) => ({
           productId: item.productId,
           quantity: item.quantity,
           price: item.product.price,
@@ -158,7 +196,8 @@ orders.post("/", authMiddleware, async (c) => {
     },
   });
 
-  for (const item of cartRecord.items) {
+  const removedIds = storeItems.map((item) => item.id);
+  for (const item of storeItems) {
     await prisma.product.update({
       where: { id: item.productId },
       data: {
@@ -168,7 +207,7 @@ orders.post("/", authMiddleware, async (c) => {
   }
 
   await prisma.cartItem.deleteMany({
-    where: { cartId: cartRecord.id },
+    where: { id: { in: removedIds } },
   });
 
   return c.json({ order }, 201);
@@ -299,6 +338,96 @@ orders.put("/:id/status", authMiddleware, async (c) => {
   });
 
   return c.json({ order: { ...order, items: parseOrderItemImages(order.items) } });
+});
+
+async function findOrderByIdentifier(identifier: string) {
+  return prisma.order.findFirst({
+    where: {
+      OR: [{ id: identifier }, { orderNumber: identifier }],
+    },
+  });
+}
+
+orders.post("/:id/receipt", authMiddleware, async (c) => {
+  const userId = (c as any).get("userId") as string;
+  const id = c.req.param("id");
+
+  const order = await findOrderByIdentifier(id as string);
+
+  if (!order) {
+    return c.json({ error: "Pedido não encontrado" }, 404);
+  }
+
+  if (order.userId !== userId) {
+    return c.json({ error: "Não autorizado" }, 403);
+  }
+
+  if (order.paymentMethod === "CASH_ON_DELIVERY") {
+    return c.json(
+      { error: "Pagamento na entrega não requer comprovativo" },
+      400
+    );
+  }
+
+  const body = await c.req.json();
+  const { receiptImage } = body;
+
+  if (!receiptImage) {
+    return c.json({ error: "Comprovativo obrigatório" }, 400);
+  }
+
+  const updated = await prisma.order.update({
+    where: { id: order.id },
+    data: { receiptImage, paymentStatus: "AWAITING_PAYMENT" },
+  });
+
+  return c.json({ order: updated });
+});
+
+orders.put("/:id/payment-status", authMiddleware, async (c) => {
+  const userId = (c as any).get("userId") as string;
+  const role = (c as any).get("role") as string;
+  const id = c.req.param("id");
+
+  const order = await findOrderByIdentifier(id as string);
+
+  if (!order) {
+    return c.json({ error: "Pedido não encontrado" }, 404);
+  }
+
+  const isAdmin = role === "ADMIN";
+  const isSeller = role === "SELLER";
+
+  if (!isAdmin && !isSeller) {
+    return c.json({ error: "Não autorizado" }, 403);
+  }
+
+  if (isSeller && !isAdmin) {
+    const store = await prisma.store.findUnique({ where: { userId } });
+    const orderBelongsToStore = await prisma.orderItem.findFirst({
+      where: { orderId: order.id, storeId: store?.id },
+    });
+    if (!store || !orderBelongsToStore) {
+      return c.json({ error: "Não autorizado" }, 403);
+    }
+  }
+
+  const body = await c.req.json();
+  const { paymentStatus } = body;
+
+  if (!["PENDING", "AWAITING_PAYMENT", "PAID", "CANCELLED"].includes(paymentStatus)) {
+    return c.json({ error: "Status de pagamento inválido" }, 400);
+  }
+
+  const updated = await prisma.order.update({
+    where: { id: order.id },
+    data: {
+      paymentStatus,
+      status: paymentStatus === "PAID" ? "CONFIRMED" : order.status,
+    },
+  });
+
+  return c.json({ order: updated });
 });
 
 export default orders;

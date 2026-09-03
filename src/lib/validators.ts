@@ -39,8 +39,25 @@ export const orderSchema = z.object({
   shippingAddress: z.string().min(1),
   shippingProvince: z.string().min(1),
   shippingDistrict: z.string().optional(),
-  paymentMethod: z.enum(["MULTICAIXA", "TRANSFER", "CASH_ON_DELIVERY"]),
+  storeId: z.string().min(1),
+  paymentMethod: z.enum(["EXPRESS", "TRANSFER", "REFERENCE", "CASH_ON_DELIVERY"]),
   notes: z.string().optional(),
+});
+
+export const paymentMethodSchema = z.object({
+  payments: z.array(
+    z.object({
+      type: z.enum(["EXPRESS", "TRANSFER", "REFERENCE", "CASH_ON_DELIVERY"]),
+      enabled: z.boolean().default(true),
+      phone: z.string().optional(),
+      bankName: z.string().optional(),
+      bankAccount: z.string().optional(),
+      iban: z.string().optional(),
+      entity: z.string().optional(),
+      reference: z.string().optional(),
+      ownerName: z.string().optional(),
+    })
+  ),
 });
 
 export const reviewSchema = z.object({
