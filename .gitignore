@@ -1,7 +1,7 @@
 node_modules/
 dist/
 build/
-uploads/
+/uploads/
 .env
 .env.local
 *.db
@@ -10,3 +10,4 @@ uploads/
 coverage/
 .DS_Store
 npm-debug.log*
+langdata/

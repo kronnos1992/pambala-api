@@ -2,15 +2,25 @@ import { z } from "zod";
 
 export const registerSchema = z.object({
   name: z.string().min(1),
-  email: z.string().email(),
+  email: z.string().email().transform((val) => val.trim().toLowerCase()),
   phone: z.string().optional(),
   password: z.string().min(6),
   role: z.enum(["BUYER", "SELLER"]).optional(),
+  aiValidationConsent: z.boolean().optional(),
 });
 
 export const loginSchema = z.object({
-  email: z.string().email(),
+  email: z.string().email().transform((val) => val.trim().toLowerCase()),
   password: z.string().min(1),
+});
+
+export const updateProfileSchema = z.object({
+  name: z.string().min(1).optional(),
+  phone: z.string().optional(),
+  avatar: z.string().optional(),
+  aiValidationConsent: z.boolean().optional(),
+  currentPassword: z.string().optional(),
+  newPassword: z.string().min(6).optional(),
 });
 
 export const productSchema = z.object({
@@ -23,6 +33,15 @@ export const productSchema = z.object({
   stock: z.number().min(0).default(1),
   categoryId: z.string().min(1),
   isActive: z.boolean().optional(),
+  translations: z
+    .array(
+      z.object({
+        locale: z.string().min(1),
+        name: z.string().optional(),
+        description: z.string().optional(),
+      })
+    )
+    .optional(),
 });
 
 export const storeSchema = z.object({
@@ -66,3 +85,11 @@ export const reviewSchema = z.object({
   productId: z.string().optional(),
   storeId: z.string().optional(),
 });
+
+export type RegisterInput = z.infer<typeof registerSchema>;
+export type LoginInput = z.infer<typeof loginSchema>;
+export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
+export type ProductInput = z.infer<typeof productSchema>;
+export type StoreInput = z.infer<typeof storeSchema>;
+export type OrderInput = z.infer<typeof orderSchema>;
+export type ReviewInput = z.infer<typeof reviewSchema>;

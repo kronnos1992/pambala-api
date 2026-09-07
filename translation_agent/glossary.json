@@ -1,0 +1,4004 @@
+{
+  "terms": {
+    "Angola": {
+      "en": "Angola",
+      "es": "Angola",
+      "fr": "Angola",
+      "zh": "安哥拉",
+      "ar": "أنغولا"
+    },
+    "Luanda": {
+      "en": "Luanda",
+      "es": "Luanda",
+      "fr": "Luanda",
+      "zh": "罗安达",
+      "ar": "لواندا"
+    },
+    "Multicaixa Express": {
+      "en": "Multicaixa Express",
+      "es": "Multicaixa Express",
+      "fr": "Multicaixa Express",
+      "zh": "Multicaixa Express",
+      "ar": "ملتيكايكا إكسبريس"
+    },
+    "iPhone": {
+      "en": "iPhone",
+      "es": "iPhone",
+      "fr": "iPhone",
+      "zh": "iPhone",
+      "ar": "آيفون"
+    },
+    "Samsung Galaxy": {
+      "en": "Samsung Galaxy",
+      "es": "Samsung Galaxy",
+      "fr": "Samsung Galaxy",
+      "zh": "三星Galaxy",
+      "ar": "سامسونج جالاكسي"
+    },
+    "Xiaomi": {
+      "en": "Xiaomi",
+      "es": "Xiaomi",
+      "fr": "Xiaomi",
+      "zh": "小米",
+      "ar": "شاومي"
+    },
+    "Nike": {
+      "en": "Nike",
+      "es": "Nike",
+      "fr": "Nike",
+      "zh": "耐克",
+      "ar": "نايكي"
+    },
+    "Adidas": {
+      "en": "Adidas",
+      "es": "Adidas",
+      "fr": "Adidas",
+      "zh": "阿迪达斯",
+      "ar": "أديداس"
+    },
+    "Samsung": {
+      "en": "Samsung",
+      "es": "Samsung",
+      "fr": "Samsung",
+      "zh": "三星",
+      "ar": "سامسونج"
+    },
+    "Apple": {
+      "en": "Apple",
+      "es": "Apple",
+      "fr": "Apple",
+      "zh": "苹果",
+      "ar": "آبل"
+    },
+    "Android": {
+      "en": "Android",
+      "es": "Android",
+      "fr": "Android",
+      "zh": "安卓",
+      "ar": "أندرويد"
+    },
+    "iOS": {
+      "en": "iOS",
+      "es": "iOS",
+      "fr": "iOS",
+      "zh": "iOS",
+      "ar": "آي أو إس"
+    }
+  },
+  "memory": {
+    "Pambala - Marketplace de Angola": {
+      "en": "Pambala - Marketplace of Angola",
+      "fr": "Pambala - Marketplace d'Angola",
+      "zh": "Pambala - 安哥拉商城",
+      "ar": "Pambala - سوق أنغولا"
+    },
+    "O maior marketplace de Angola. Compre e venda de forma simples, segura e rápida. Encontre os melhores produtos e lojas em todo o país.": {
+      "en": "Angola's largest marketplace. Buy and sell simply, safely, and quickly. Find the best products and stores across the country.",
+      "es": "El mayor marketplace de Angola. Compre y venda de forma simple, segura y rápida. Encuentre los mejores productos y tiendas en todo el país.",
+      "fr": "Le plus grand marketplace d'Angola. Achetez et vendez de façon simple, sûre et rapide. Trouvez les meilleurs produits et boutiques dans tout le pays.",
+      "zh": "安哥拉最大的商城。简单、安全、快速地购物和出售。在全国范围内找到最好的产品和商店。",
+      "ar": "أكبر سوق في أنغولا. اشترِ وبِع بطريقة بسيطة وآمنة وسريعة. اعثر على أفضل المنتجات والمتاجر في جميع أنحاء البلاد."
+    },
+    "O que procura?": {
+      "en": "What are you looking for?",
+      "es": "¿Qué busca?",
+      "fr": "Que recherchez-vous ?",
+      "zh": "您想找什么？",
+      "ar": "ماذا تبحث؟"
+    },
+    "Pesquisar": {
+      "en": "Search",
+      "es": "Buscar",
+      "fr": "Rechercher",
+      "zh": "搜索",
+      "ar": "بحث"
+    },
+    "Categorias": {
+      "en": "Categories",
+      "es": "Categorías",
+      "fr": "Catégories",
+      "zh": "分类",
+      "ar": "الفئات"
+    },
+    "Minha Conta": {
+      "en": "My Account",
+      "es": "Mi Cuenta",
+      "fr": "Mon Compte",
+      "zh": "我的账户",
+      "ar": "حسابي"
+    },
+    "Pedidos": {
+      "en": "Orders",
+      "fr": "Commandes",
+      "zh": "订单",
+      "ar": "الطلبات"
+    },
+    "Painel Vendedor": {
+      "en": "Seller Dashboard",
+      "es": "Panel Vendedor",
+      "fr": "Tableau Vendeur",
+      "zh": "卖家面板",
+      "ar": "لوحة البائع"
+    },
+    "Painel Admin": {
+      "en": "Admin Dashboard",
+      "es": "Panel Admin",
+      "fr": "Tableau Admin",
+      "zh": "管理员面板",
+      "ar": "لوحة الإدارة"
+    },
+    "Sair": {
+      "en": "Log out",
+      "es": "Cerrar sesión",
+      "fr": "Se déconnecter",
+      "zh": "退出",
+      "ar": "خروج"
+    },
+    "Entrar": {
+      "en": "Log in",
+      "es": "Iniciar sesión",
+      "fr": "Se connecter",
+      "zh": "登录",
+      "ar": "دخول"
+    },
+    "Registar": {
+      "en": "Sign up",
+      "es": "Registrarse",
+      "fr": "S'inscrire",
+      "zh": "注册",
+      "ar": "تسجيل"
+    },
+    "O maior marketplace de Angola. Compre e venda de forma simples, segura e rápida.": {
+      "en": "Angola's largest marketplace. Buy and sell simply, safely, and quickly.",
+      "es": "El mayor marketplace de Angola. Compre y venda de forma simple, segura y rápida.",
+      "fr": "Le plus grand marketplace d'Angola. Achetez et vendez de façon simple, sûre et rapide.",
+      "zh": "安哥拉最大的商城。简单、安全、快速地购物和出售。",
+      "ar": "أكبر سوق في أنغولا. اشترِ وبِع بطريقة بسيطة وآمنة وسريعة."
+    },
+    "Links Rápidos": {
+      "en": "Quick Links",
+      "es": "Enlaces Rápidos",
+      "fr": "Liens Rapides",
+      "zh": "快捷链接",
+      "ar": "روابط سريعة"
+    },
+    "Como Funciona": {
+      "en": "How It Works",
+      "es": "Cómo Funciona",
+      "fr": "Comment ça Marche",
+      "zh": "使用指南",
+      "ar": "كيف يعمل"
+    },
+    "Segurança": {
+      "en": "Security",
+      "es": "Seguridad",
+      "fr": "Sécurité",
+      "zh": "安全保障",
+      "ar": "الأمان"
+    },
+    "Termos de Uso": {
+      "en": "Terms of Use",
+      "es": "Términos de Uso",
+      "fr": "Conditions d'utilisation",
+      "zh": "使用条款",
+      "ar": "شروط الاستخدام"
+    },
+    "Contacto": {
+      "en": "Contact",
+      "fr": "Contact",
+      "zh": "联系我们",
+      "ar": "اتصل بنا"
+    },
+    "Tecnologia": {
+      "en": "Technology",
+      "es": "Tecnología",
+      "fr": "Technologie",
+      "zh": "科技",
+      "ar": "التقنية"
+    },
+    "Moda": {
+      "en": "Fashion",
+      "fr": "Mode",
+      "zh": "时尚",
+      "ar": "الأزياء"
+    },
+    "Casa & Jardim": {
+      "en": "Home & Garden",
+      "es": "Hogar y Jardín",
+      "fr": "Maison & Jardin",
+      "zh": "家居与园艺",
+      "ar": "المنزل والحديقة"
+    },
+    "Veículos": {
+      "en": "Vehicles",
+      "es": "Vehículos",
+      "fr": "Véhicules",
+      "zh": "车辆",
+      "ar": "المركبات"
+    },
+    "Eletrónicos": {
+      "en": "Electronics",
+      "es": "Electrónicos",
+      "fr": "Électronique",
+      "zh": "电子产品",
+      "ar": "الإلكترونيات"
+    },
+    "Beleza": {
+      "en": "Beauty",
+      "es": "Belleza",
+      "fr": "Beauté",
+      "zh": "美妆",
+      "ar": "الجمال"
+    },
+    "Receba ofertas e novidades no seu email.": {
+      "en": "Get offers and updates straight to your inbox.",
+      "es": "Reciba ofertas y novedades en su email.",
+      "fr": "Recevez des offres et des nouveautés sur votre email.",
+      "zh": "在您的邮箱接收优惠和最新动态。",
+      "ar": "استلم العروض والجديد على بريدك الإلكتروني."
+    },
+    "Seu email": {
+      "en": "Your email",
+      "es": "Su email",
+      "fr": "Votre email",
+      "zh": "您的邮箱",
+      "ar": "بريدك الإلكتروني"
+    },
+    "Todos os direitos reservados.": {
+      "en": "All rights reserved.",
+      "es": "Todos los derechos reservados.",
+      "fr": "Tous droits réservés.",
+      "zh": "版权所有。",
+      "ar": "جميع الحقوق محفوظة."
+    },
+    "Feito em Angola": {
+      "en": "Made in Angola",
+      "es": "Hecho en Angola",
+      "fr": "Fabriqué en Angola",
+      "zh": "安哥拉制造",
+      "ar": "صُنع في أنغولا"
+    },
+    "Idioma": {
+      "en": "Language",
+      "fr": "Langue",
+      "zh": "语言",
+      "ar": "اللغة"
+    },
+    "A carregar…": {
+      "en": "Loading…",
+      "es": "Cargando…",
+      "fr": "Chargement…",
+      "zh": "加载中…",
+      "ar": "جارٍ التحميل…"
+    },
+    "Erro ao carregar os dados.": {
+      "en": "Error loading data.",
+      "es": "Error al cargar los datos.",
+      "fr": "Erreur lors du chargement des données.",
+      "zh": "加载数据时出错。",
+      "ar": "خطأ في تحميل البيانات."
+    },
+    "Tentar novamente": {
+      "en": "Try again",
+      "es": "Intentar de nuevo",
+      "fr": "Réessayer",
+      "zh": "重试",
+      "ar": "إعادة المحاولة"
+    },
+    "Guardar": {
+      "en": "Save",
+      "fr": "Enregistrer",
+      "zh": "保存",
+      "ar": "حفظ"
+    },
+    "A guardar…": {
+      "en": "Saving…",
+      "es": "Guardando…",
+      "fr": "Enregistrement…",
+      "zh": "保存中…",
+      "ar": "جارٍ الحفظ…"
+    },
+    "Cancelar": {
+      "en": "Cancel",
+      "fr": "Annuler",
+      "zh": "取消",
+      "ar": "إلغاء"
+    },
+    "Eliminar": {
+      "en": "Delete",
+      "fr": "Supprimer",
+      "zh": "删除",
+      "ar": "حذف"
+    },
+    "Editar": {
+      "en": "Edit",
+      "fr": "Modifier",
+      "zh": "编辑",
+      "ar": "تعديل"
+    },
+    "Voltar": {
+      "en": "Back",
+      "es": "Volver",
+      "fr": "Retour",
+      "zh": "返回",
+      "ar": "رجوع"
+    },
+    "Sem resultados": {
+      "en": "No results",
+      "es": "Sin resultados",
+      "fr": "Aucun résultat",
+      "zh": "无结果",
+      "ar": "لا توجد نتائج"
+    },
+    "opcional": {
+      "en": "optional",
+      "fr": "facultatif",
+      "zh": "选填",
+      "ar": "اختياري"
+    },
+    "Fechar": {
+      "en": "Close",
+      "es": "Cerrar",
+      "fr": "Fermer",
+      "zh": "关闭",
+      "ar": "إغلاق"
+    },
+    "Confirmar": {
+      "en": "Confirm",
+      "fr": "Confirmer",
+      "zh": "确认密码",
+      "ar": "تأكيد"
+    },
+    "Submeter": {
+      "en": "Submit",
+      "es": "Enviar",
+      "fr": "Envoyer",
+      "zh": "提交",
+      "ar": "إرسال"
+    },
+    "Operação concluída com sucesso.": {
+      "en": "Operation completed successfully.",
+      "es": "Operación completada con éxito.",
+      "fr": "Opération terminée avec succès.",
+      "zh": "操作成功完成。",
+      "ar": "تمت العملية بنجاح."
+    },
+    "Ocorreu um erro. Tente novamente.": {
+      "en": "An error occurred. Please try again.",
+      "es": "Ocurrió un error. Intente de nuevo.",
+      "fr": "Une erreur est survenue. Veuillez réessayer.",
+      "zh": "发生错误，请重试。",
+      "ar": "حدث خطأ. حاول مرة أخرى."
+    },
+    "Não encontrado.": {
+      "en": "Not found.",
+      "es": "No encontrado.",
+      "fr": "Introuvable.",
+      "zh": "未找到。",
+      "ar": "غير موجود."
+    },
+    "Todos": {
+      "en": "All",
+      "fr": "Tous",
+      "zh": "全部",
+      "ar": "الكل"
+    },
+    "Nenhum": {
+      "en": "None",
+      "es": "Ninguno",
+      "fr": "Aucun",
+      "zh": "无",
+      "ar": "لا شيء"
+    },
+    "itens": {
+      "en": "items",
+      "es": "artículos",
+      "fr": "articles",
+      "zh": "件商品",
+      "ar": "عناصر"
+    },
+    "Início": {
+      "en": "Home",
+      "es": "Inicio",
+      "fr": "Accueil",
+      "zh": "首页",
+      "ar": "الرئيسية"
+    },
+    "Produtos": {
+      "en": "Products",
+      "es": "Productos",
+      "fr": "Produits",
+      "zh": "商品",
+      "ar": "المنتجات"
+    },
+    "Lojas": {
+      "en": "Stores",
+      "es": "Tiendas",
+      "fr": "Boutiques",
+      "zh": "店铺",
+      "ar": "المتاجر"
+    },
+    "Como funciona": {
+      "en": "How it works",
+      "es": "Cómo funciona",
+      "fr": "Comment ça marche",
+      "zh": "使用指南",
+      "ar": "كيف يعمل"
+    },
+    "Carrinho": {
+      "en": "Cart",
+      "es": "Carrito",
+      "fr": "Panier",
+      "zh": "购物车",
+      "ar": "سلة التسوق"
+    },
+    "Finalizar compra": {
+      "en": "Checkout",
+      "fr": "Finaliser l'achat",
+      "zh": "结算",
+      "ar": "إتمام الشراء"
+    },
+    "Bem-vindo de volta!": {
+      "en": "Welcome back!",
+      "es": "¡Bienvenido de nuevo!",
+      "fr": "Bon retour parmi nous !",
+      "zh": "欢迎回来！",
+      "ar": "مرحباً بعودتك!"
+    },
+    "Não foi possível iniciar sessão.": {
+      "en": "Unable to sign in.",
+      "es": "No fue posible iniciar sesión.",
+      "fr": "Impossible de se connecter.",
+      "zh": "登录失败。",
+      "ar": "تعذر تسجيل الدخول."
+    },
+    "Credenciais inválidas.": {
+      "en": "Invalid credentials.",
+      "es": "Credenciales inválidas.",
+      "fr": "Identifiants invalides.",
+      "zh": "凭据无效。",
+      "ar": "بيانات الدخول غير صحيحة."
+    },
+    "Endereço de email": {
+      "en": "Email address",
+      "es": "Dirección de email",
+      "fr": "Adresse email",
+      "zh": "邮箱地址",
+      "ar": "البريد الإلكتروني"
+    },
+    "Palavra-passe": {
+      "en": "Password",
+      "es": "Contraseña",
+      "fr": "Mot de passe",
+      "zh": "密码",
+      "ar": "كلمة المرور"
+    },
+    "Ocultar palavra-passe": {
+      "en": "Hide password",
+      "es": "Ocultar contraseña",
+      "fr": "Masquer le mot de passe",
+      "zh": "隐藏密码",
+      "ar": "إخفاء كلمة المرور"
+    },
+    "Mostrar palavra-passe": {
+      "en": "Show password",
+      "es": "Mostrar contraseña",
+      "fr": "Afficher le mot de passe",
+      "zh": "显示密码",
+      "ar": "إظهار كلمة المرور"
+    },
+    "Lembrar-me": {
+      "en": "Remember me",
+      "es": "Recordarme",
+      "fr": "Se souvenir de moi",
+      "zh": "记住我",
+      "ar": "تذكرني"
+    },
+    "Esqueceu-se da palavra-passe?": {
+      "en": "Forgot your password?",
+      "es": "¿Olvidó su contraseña?",
+      "fr": "Mot de passe oublié ?",
+      "zh": "忘记密码？",
+      "ar": "هل نسيت كلمة المرور؟"
+    },
+    "A iniciar sessão...": {
+      "en": "Signing in...",
+      "es": "Iniciando sesión...",
+      "fr": "Connexion en cours...",
+      "zh": "登录中...",
+      "ar": "جارٍ تسجيل الدخول..."
+    },
+    "Iniciar sessão": {
+      "en": "Sign in",
+      "es": "Iniciar sesión",
+      "fr": "Se connecter",
+      "zh": "登录",
+      "ar": "تسجيل الدخول"
+    },
+    "ou continua com": {
+      "en": "or continue with",
+      "es": "o continúa con",
+      "fr": "ou continuer avec",
+      "zh": "或继续使用",
+      "ar": "أو تابع مع"
+    },
+    "Continuar com Google": {
+      "en": "Continue with Google",
+      "es": "Continuar con Google",
+      "fr": "Continuer avec Google",
+      "zh": "使用 Google 继续",
+      "ar": "المتابعة مع جوجل"
+    },
+    "Não tem conta?": {
+      "en": "Don't have an account?",
+      "es": "¿No tiene cuenta?",
+      "fr": "Vous n'avez pas de compte ?",
+      "zh": "还没有账户？",
+      "ar": "ليس لديك حساب؟"
+    },
+    "Demo admin: admin@pambala.ao · admin123": {
+      "en": "Admin demo: admin@pambala.ao · admin123",
+      "fr": "Démo admin : admin@pambala.ao · admin123",
+      "zh": "管理员演示：admin@pambala.ao · admin123",
+      "ar": "تجربة الأدمن: admin@pambala.ao · admin123"
+    },
+    "A redirecionar...": {
+      "en": "Redirecting...",
+      "es": "Redirigiendo...",
+      "fr": "Redirection...",
+      "zh": "正在跳转...",
+      "ar": "جارٍ إعادة التوجيه..."
+    },
+    "Bem-vindo de volta": {
+      "en": "Welcome back",
+      "es": "Bienvenido de nuevo",
+      "fr": "Bon retour parmi nous",
+      "zh": "欢迎回来",
+      "ar": "مرحباً بعودتك"
+    },
+    "Inicie sessão para continuar": {
+      "en": "Sign in to continue",
+      "es": "Inicie sesión para continuar",
+      "fr": "Connectez-vous pour continuer",
+      "zh": "登录以继续",
+      "ar": "سجّل دخولك للمتابعة"
+    },
+    "Sessão iniciada com sucesso": {
+      "en": "Signed in successfully",
+      "es": "Sesión iniciada con éxito",
+      "fr": "Session démarrée avec succès",
+      "zh": "登录成功",
+      "ar": "تم تسجيل الدخول بنجاح"
+    },
+    "O email é obrigatório": {
+      "en": "Email is required",
+      "es": "El email es obligatorio",
+      "fr": "L'email est obligatoire",
+      "zh": "邮箱为必填项",
+      "ar": "البريد الإلكتروني مطلوب"
+    },
+    "O email é inválido": {
+      "en": "Email is invalid",
+      "es": "El email es inválido",
+      "fr": "L'email est invalide",
+      "zh": "邮箱格式无效",
+      "ar": "البريد الإلكتروني غير صالح"
+    },
+    "A palavra-passe é obrigatória": {
+      "en": "Password is required",
+      "es": "La contraseña es obligatoria",
+      "fr": "Le mot de passe est obligatoire",
+      "zh": "密码为必填项",
+      "ar": "كلمة المرور مطلوبة"
+    },
+    "Mínimo de 6 caracteres": {
+      "en": "Minimum 6 characters",
+      "fr": "Minimum de 6 caractères",
+      "zh": "至少 6 个字符",
+      "ar": "6 أحرف على الأقل"
+    },
+    "Comprador": {
+      "en": "Buyer",
+      "fr": "Acheteur",
+      "zh": "买家",
+      "ar": "مشترٍ"
+    },
+    "Vendedor (Criar loja)": {
+      "en": "Seller (Create store)",
+      "es": "Vendedor (Crear tienda)",
+      "fr": "Vendeur (Créer une boutique)",
+      "zh": "卖家（创建店铺）",
+      "ar": "بائع (إنشاء متجر)"
+    },
+    "Fraca": {
+      "en": "Weak",
+      "es": "Débil",
+      "fr": "Faible",
+      "zh": "弱",
+      "ar": "ضعيفة"
+    },
+    "Média": {
+      "en": "Fair",
+      "es": "Media",
+      "fr": "Moyenne",
+      "zh": "中",
+      "ar": "متوسطة"
+    },
+    "Boa": {
+      "en": "Good",
+      "es": "Buena",
+      "fr": "Bonne",
+      "zh": "良好",
+      "ar": "جيدة"
+    },
+    "Forte": {
+      "en": "Strong",
+      "es": "Fuerte",
+      "zh": "强",
+      "ar": "قوية",
+      "fr": "Fort"
+    },
+    "Criar uma conta": {
+      "en": "Create an account",
+      "es": "Crear una cuenta",
+      "fr": "Créer un compte",
+      "zh": "创建账户",
+      "ar": "إنشاء حساب"
+    },
+    "Rápido e sem taxas de adesão": {
+      "en": "Quick and free to join",
+      "es": "Rápido y sin cuotas de inscripción",
+      "fr": "Rapide et sans frais d'inscription",
+      "zh": "快速注册，免入会费",
+      "ar": "سريع وبدون رسوم اشتراك"
+    },
+    "Nome completo": {
+      "en": "Full name",
+      "es": "Nombre completo",
+      "fr": "Nom complet",
+      "zh": "全名",
+      "ar": "الاسم الكامل"
+    },
+    "Telefone": {
+      "en": "Phone",
+      "es": "Teléfono",
+      "fr": "Téléphone",
+      "zh": "电话",
+      "ar": "الهاتف"
+    },
+    "Senha": {
+      "en": "Password",
+      "es": "Contraseña",
+      "fr": "Mot de passe",
+      "zh": "密码",
+      "ar": "كلمة المرور"
+    },
+    "Mostrar": {
+      "en": "Show",
+      "fr": "Afficher",
+      "zh": "显示",
+      "ar": "إظهار"
+    },
+    "Ocultar": {
+      "en": "Hide",
+      "fr": "Masquer",
+      "zh": "隐藏",
+      "ar": "إخفاء"
+    },
+    "Aceito os": {
+      "en": "I accept the",
+      "es": "Acepto los",
+      "fr": "J'accepte les",
+      "zh": "我同意",
+      "ar": "أقبل"
+    },
+    "Termos": {
+      "en": "Terms",
+      "es": "Términos",
+      "fr": "Conditions",
+      "zh": "条款",
+      "ar": "الشروط"
+    },
+    "e a": {
+      "en": "and the",
+      "es": "y la",
+      "fr": "et la",
+      "zh": "及",
+      "ar": "و"
+    },
+    "Política de Privacidade": {
+      "en": "Privacy Policy",
+      "es": "Política de Privacidad",
+      "fr": "Politique de Confidentialité",
+      "zh": "隐私政策",
+      "ar": "سياسة الخصوصية"
+    },
+    "A criar conta...": {
+      "en": "Creating account...",
+      "es": "Creando cuenta...",
+      "fr": "Création du compte...",
+      "zh": "创建账户中...",
+      "ar": "جارٍ إنشاء الحساب..."
+    },
+    "Criar Conta": {
+      "en": "Create Account",
+      "es": "Crear Cuenta",
+      "fr": "Créer un Compte",
+      "zh": "创建账户",
+      "ar": "إنشاء حساب"
+    },
+    "Conta criada com sucesso!": {
+      "en": "Account created successfully!",
+      "es": "¡Cuenta creada con éxito!",
+      "fr": "Compte créé avec succès !",
+      "zh": "账户创建成功！",
+      "ar": "تم إنشاء الحساب بنجاح!"
+    },
+    "Erro ao criar conta. Tente novamente.": {
+      "en": "Error creating account. Please try again.",
+      "es": "Error al crear cuenta. Intente de nuevo.",
+      "fr": "Erreur lors de la création du compte. Veuillez réessayer.",
+      "zh": "创建账户时出错，请重试。",
+      "ar": "خطأ في إنشاء الحساب. حاول مرة أخرى."
+    },
+    "Já tem conta?": {
+      "en": "Already have an account?",
+      "es": "¿Ya tiene cuenta?",
+      "fr": "Vous avez déjà un compte ?",
+      "zh": "已有账户？",
+      "ar": "لديك حساب بالفعل؟"
+    },
+    "Nome obrigatório": {
+      "en": "Name is required",
+      "es": "Nombre obligatorio",
+      "fr": "Nom obligatoire",
+      "zh": "姓名为必填项",
+      "ar": "الاسم مطلوب"
+    },
+    "Mínimo de 3 caracteres": {
+      "en": "Minimum 3 characters",
+      "fr": "Minimum de 3 caractères",
+      "zh": "至少 3 个字符",
+      "ar": "3 أحرف على الأقل"
+    },
+    "Email obrigatório": {
+      "en": "Email is required",
+      "es": "Email obligatorio",
+      "fr": "Email obligatoire",
+      "zh": "邮箱为必填项",
+      "ar": "البريد الإلكتروني مطلوب"
+    },
+    "Email inválido": {
+      "en": "Invalid email",
+      "fr": "Email invalide",
+      "zh": "邮箱格式无效",
+      "ar": "البريد الإلكتروني غير صالح"
+    },
+    "Telefone inválido": {
+      "en": "Invalid phone number",
+      "es": "Teléfono inválido",
+      "fr": "Téléphone invalide",
+      "zh": "电话号码无效",
+      "ar": "رقم الهاتف غير صالح"
+    },
+    "Senhas não coincidem": {
+      "en": "Passwords do not match",
+      "es": "Las contraseñas no coinciden",
+      "fr": "Les mots de passe ne correspondent pas",
+      "zh": "两次输入的密码不一致",
+      "ar": "كلمتا المرور غير متطابقتين"
+    },
+    "Aceite os termos para continuar": {
+      "en": "Accept the terms to continue",
+      "es": "Acepte los términos para continuar",
+      "fr": "Acceptez les conditions pour continuer",
+      "zh": "请同意条款以继续",
+      "ar": "اقبل الشروط للمتابعة"
+    },
+    "Sessão de autenticação expirada. Tente novamente.": {
+      "en": "Authentication session expired. Please try again.",
+      "es": "Sesión de autenticación expirada. Intente de nuevo.",
+      "fr": "Session d'authentification expirée. Veuillez réessayer.",
+      "zh": "身份验证会话已过期，请重试。",
+      "ar": "انتهت صلاحية جلسة المصادقة. حاول مرة أخرى."
+    },
+    "Resposta do fornecedor inválida. Tente novamente.": {
+      "en": "Invalid provider response. Please try again.",
+      "es": "Respuesta del proveedor inválida. Intente de nuevo.",
+      "fr": "Réponse du fournisseur invalide. Veuillez réessayer.",
+      "zh": "提供商响应无效，请重试。",
+      "ar": "استجابة غير صحيحة من المزوّد. حاول مرة أخرى."
+    },
+    "Não foi possível autenticar com o fornecedor escolhido.": {
+      "en": "Unable to authenticate with the chosen provider.",
+      "es": "No fue posible autenticar con el proveedor elegido.",
+      "fr": "Impossible de s'authentifier avec le fournisseur choisi.",
+      "zh": "无法使用所选提供商进行验证。",
+      "ar": "تعذرت المصادقة مع المزوّد المختار."
+    },
+    "Falha na autenticação social.": {
+      "en": "Social authentication failed.",
+      "es": "Error en la autenticación social.",
+      "fr": "Échec de l'authentification sociale.",
+      "zh": "社交登录失败。",
+      "ar": "فشل المصادقة الاجتماعية."
+    },
+    "Token de autenticação em falta.": {
+      "en": "Missing authentication token.",
+      "es": "Token de autenticación faltante.",
+      "fr": "Jeton d'authentification manquant.",
+      "zh": "缺少身份验证令牌。",
+      "ar": "رمز المصادقة مفقود."
+    },
+    "Algo correu mal": {
+      "en": "Something went wrong",
+      "es": "Algo salió mal",
+      "fr": "Une erreur est survenue",
+      "zh": "出错了",
+      "ar": "حدث خطأ ما"
+    },
+    "A entrar...": {
+      "en": "Signing in...",
+      "es": "Entrando...",
+      "fr": "Connexion en cours...",
+      "zh": "正在进入...",
+      "ar": "جارٍ الدخول..."
+    },
+    "Voltar ao login": {
+      "en": "Back to login",
+      "es": "Volver al inicio de sesión",
+      "fr": "Retour à la connexion",
+      "zh": "返回登录",
+      "ar": "العودة إلى تسجيل الدخول"
+    },
+    "Redirecionando para a sua conta...": {
+      "en": "Redirecting to your account...",
+      "es": "Redirigiendo a su cuenta...",
+      "fr": "Redirection vers votre compte...",
+      "zh": "正在跳转到您的账户...",
+      "ar": "جارٍ إعادة التوجيه إلى حسابك..."
+    },
+    "Supermercado online de Angola": {
+      "en": "Angola's online supermarket",
+      "fr": "Supermarché en ligne d'Angola",
+      "zh": "安哥拉线上超市",
+      "ar": "سوبرماركت أنغولا أونلاين"
+    },
+    "Auscultadores sem fios": {
+      "en": "Wireless headphones",
+      "es": "Auriculares inalámbricos",
+      "fr": "Casque sans fil",
+      "zh": "无线耳机",
+      "ar": "سماعات لاسلكية"
+    },
+    "Ténis desportivos": {
+      "en": "Athletic sneakers",
+      "es": "Zapatillas deportivas",
+      "fr": "Baskets de sport",
+      "zh": "运动鞋",
+      "ar": "حذاء رياضي"
+    },
+    "Sofá moderno para sala": {
+      "en": "Modern living room sofa",
+      "fr": "Canapé moderne pour le salon",
+      "zh": "客厅现代沙发",
+      "ar": "أريكة عصرية للصالة"
+    },
+    "Planta para decorar a casa": {
+      "en": "Plant to decorate your home",
+      "es": "Planta para decorar el hogar",
+      "fr": "Plante pour décorer la maison",
+      "zh": "装饰家居的绿植",
+      "ar": "نبتة لزخرفة المنزل"
+    },
+    "Relógio clássico": {
+      "en": "Classic watch",
+      "es": "Reloj clásico",
+      "fr": "Montre classique",
+      "zh": "经典腕表",
+      "ar": "ساعة كلاسيكية"
+    },
+    "Entrega ao domicílio": {
+      "en": "Home delivery",
+      "es": "Entrega a domicilio",
+      "fr": "Livraison à domicile",
+      "zh": "送货上门",
+      "ar": "توصيل إلى المنزل"
+    },
+    "Pagamento seguro": {
+      "en": "Secure payment",
+      "es": "Pago seguro",
+      "fr": "Paiement sécurisé",
+      "zh": "安全支付",
+      "ar": "دفع آمن"
+    },
+    "Milhares de lojas": {
+      "en": "Thousands of stores",
+      "es": "Miles de tiendas",
+      "fr": "Des milliers de boutiques",
+      "zh": "数千家店铺",
+      "ar": "آلاف المتاجر"
+    },
+    "Ocultar senha": {
+      "en": "Hide password",
+      "es": "Ocultar contraseña",
+      "fr": "Masquer le mot de passe",
+      "zh": "隐藏密码",
+      "ar": "إخفاء كلمة المرور"
+    },
+    "Mostrar senha": {
+      "en": "Show password",
+      "es": "Mostrar contraseña",
+      "fr": "Afficher le mot de passe",
+      "zh": "显示密码",
+      "ar": "إظهار كلمة المرور"
+    },
+    "Compra e Venda": {
+      "en": "Buy and Sell",
+      "es": "Compra y Vende",
+      "fr": "Achetez et Vendez",
+      "zh": "购物与出售",
+      "ar": "اشترِ وبِع"
+    },
+    "em Angola": {
+      "en": "in Angola",
+      "es": "en Angola",
+      "fr": "en Angola",
+      "zh": "安哥拉",
+      "ar": "في أنغولا"
+    },
+    "O maior marketplace angolano. Milhares de produtos e lojas ao alcance da sua mao.": {
+      "en": "Angola's largest marketplace. Thousands of products and stores at your fingertips.",
+      "es": "El mayor marketplace angolano. Miles de productos y tiendas al alcance de su mano.",
+      "fr": "Le plus grand marketplace angolais. Des milliers de produits et de boutiques à portée de main.",
+      "zh": "安哥拉最大的商城。成千上万的产品和店铺触手可及。",
+      "ar": "أكبر سوق أنغولي. آلاف المنتجات والمتاجر في متناول يدك."
+    },
+    "Pesquisar smartphones, roupas, mobilia...": {
+      "en": "Search smartphones, clothing, furniture...",
+      "es": "Buscar smartphones, ropa, muebles...",
+      "fr": "Rechercher smartphones, vêtements, meubles...",
+      "zh": "搜索手机、服饰、家具等...",
+      "ar": "ابحث عن هواتف ذكية، ملابس، أثاث..."
+    },
+    "Explorar Produtos": {
+      "en": "Browse Products",
+      "es": "Explorar Productos",
+      "fr": "Explorer les Produits",
+      "zh": "浏览商品",
+      "ar": "استكشف المنتجات"
+    },
+    "Tornar-se Vendedor": {
+      "en": "Become a Seller",
+      "es": "Convertirse en Vendedor",
+      "fr": "Devenir Vendeur",
+      "zh": "成为卖家",
+      "ar": "كن بائعاً"
+    },
+    "Mais Visitados": {
+      "en": "Most Visited",
+      "es": "Más Visitados",
+      "fr": "Les Plus Visités",
+      "zh": "热门店铺",
+      "ar": "الأكثر زيارة"
+    },
+    "Categorias Populares": {
+      "en": "Popular Categories",
+      "es": "Categorías Populares",
+      "fr": "Catégories Populaires",
+      "zh": "热门分类",
+      "ar": "الفئات الشائعة"
+    },
+    "Comprar no Pambala e simples, seguro e rapido": {
+      "en": "Shopping on Pambala is simple, safe, and fast",
+      "es": "Comprar en Pambala es simple, seguro y rápido",
+      "fr": "Acheter sur Pambala est simple, sûr et rapide",
+      "zh": "在 Pambala 购物简单、安全、快捷",
+      "ar": "الشراء في Pambala بسيط وآمن وسريع"
+    },
+    "Encontre": {
+      "en": "Find",
+      "es": "Encuentre",
+      "fr": "Trouvez",
+      "zh": "查找",
+      "ar": "اعثر"
+    },
+    "Pesquise entre milhares de produtos de lojas e vendedores verificados em toda Angola.": {
+      "en": "Browse thousands of products from verified stores and sellers across Angola.",
+      "es": "Busque entre miles de productos de tiendas y vendedores verificados en toda Angola.",
+      "fr": "Parcourez des milliers de produits de boutiques et de vendeurs vérifiés dans toute l'Angola.",
+      "zh": "在安哥拉各地经过验证的商店和卖家中搜索成千上万的产品。",
+      "ar": "ابحث بين آلاف المنتجات من متاجر وبائعين موثوقين في جميع أنحاء أنغولا."
+    },
+    "Compre": {
+      "en": "Buy",
+      "fr": "Achetez",
+      "zh": "购买",
+      "ar": "اشترِ",
+      "es": "Comprar"
+    },
+    "Escolha o metodo de pagamento ideal: Multicaixa Express, transferencia ou pagamento na entrega.": {
+      "en": "Choose your preferred payment method: Multicaixa Express, bank transfer, or cash on delivery.",
+      "es": "Elija el método de pago ideal: Multicaixa Express, transferencia o pago en la entrega.",
+      "fr": "Choisissez le mode de paiement idéal : Multicaixa Express, virement ou paiement à la livraison.",
+      "zh": "选择最适合您的支付方式：Multicaixa Express、银行转账或货到付款。",
+      "ar": "اختر طريقة الدفع المثالية: ملتيكاشا إكسبرس أو تحويل أو دفع عند الاستلام."
+    },
+    "Receba": {
+      "en": "Receive",
+      "es": "Reciba",
+      "fr": "Recevez",
+      "zh": "收货",
+      "ar": "استلم"
+    },
+    "Receba o seu produto em casa com seguranca ou retire na loja mais proxima.": {
+      "en": "Get your product delivered safely to your door or pick it up at the nearest store.",
+      "es": "Reciba su producto en casa con seguridad o retírelo en la tienda más cercana.",
+      "fr": "Recevez votre produit chez vous en toute sécurité ou retirez-le dans la boutique la plus proche.",
+      "zh": "在家安全收取您的产品，或在最近的商店自提。",
+      "ar": "استلم منتجك في المنزل بأمان أو استلمه من أقرب متجر."
+    },
+    "Produtos em Destaque": {
+      "en": "Featured Products",
+      "es": "Productos Destacados",
+      "fr": "Produits en Vedette",
+      "zh": "精选商品",
+      "ar": "منتجات مميزة"
+    },
+    "Ver todos": {
+      "en": "View all",
+      "fr": "Voir tout",
+      "zh": "查看全部",
+      "ar": "عرض الكل"
+    },
+    "Melhores Lojas": {
+      "en": "Top Stores",
+      "es": "Mejores Tiendas",
+      "fr": "Meilleures Boutiques",
+      "zh": "优质店铺",
+      "ar": "أفضل المتاجر"
+    },
+    "Ver todas": {
+      "en": "View all",
+      "fr": "Voir toutes",
+      "zh": "查看全部",
+      "ar": "عرض الكل"
+    },
+    "O que dizem os nossos utilizadores": {
+      "en": "What our users are saying",
+      "es": "Lo que dicen nuestros usuarios",
+      "fr": "Ce que disent nos utilisateurs",
+      "zh": "用户评价",
+      "ar": "ماذا يقول مستخدموا"
+    },
+    "Pambala mudou a forma como compro online em Angola. Seguro, rapido e com excelentes precos!": {
+      "en": "Pambala changed the way I shop online in Angola. Safe, fast, and great prices!",
+      "es": "Pambala cambió la forma en que compro online en Angola. ¡Seguro, rápido y con excelentes precios!",
+      "fr": "Pambala a changé ma façon d'acheter en ligne en Angola. Sûr, rapide et avec d'excellents prix !",
+      "zh": "Pambala 改变了我在安哥拉网购的方式。安全、快速，而且价格超值！",
+      "ar": "غيّر Pambala طريقة شرائي أونلاين في أنغولا. آمن وسريع وبأسعار ممتازة!"
+    },
+    "Como vendedor, o Pambala aumentou muito as minhas vendas. A plataforma e facil de usar.": {
+      "en": "As a seller, Pambala has greatly increased my sales. The platform is easy to use.",
+      "es": "Como vendedor, Pambala aumentó mucho mis ventas. La plataforma es fácil de usar.",
+      "fr": "En tant que vendeur, Pambala a considérablement augmenté mes ventes. La plateforme est facile à utiliser.",
+      "zh": "作为卖家，Pambala 大大增加了我的销量。平台操作简便。",
+      "ar": "كبائع، زاد Pambala مبيعاتي كثيراً. المنصة سهلة الاستخدام."
+    },
+    "Adoro a variedade de produtos disponiveis. Ja comprei varias vezes e sempre fui bem atendida.": {
+      "en": "I love the variety of products available. I've bought several times and always had great service.",
+      "es": "Me encanta la variedad de productos disponibles. Ya he comprado varias veces y siempre fui bien atendido.",
+      "fr": "J'adore la variété des produits disponibles. J'ai déjà acheté plusieurs fois et j'ai toujours été bien servie.",
+      "zh": "我很喜欢这里丰富的商品种类。我已经买过好几次，服务一直很好。",
+      "ar": "أحب تنوع المنتجات المتاحة. شرت عدة مرات وكانت الخدمة ممتازة دائماً."
+    },
+    "Compradora": {
+      "en": "Buyer",
+      "fr": "Acheteuse",
+      "zh": "买家",
+      "ar": "مشترية"
+    },
+    "Vendedor": {
+      "en": "Seller",
+      "fr": "Vendeur",
+      "zh": "卖家",
+      "ar": "بائع"
+    },
+    "Compre de qualquer lugar de Angola": {
+      "en": "Shop from anywhere in Angola",
+      "es": "Compre desde cualquier lugar de Angola",
+      "fr": "Achetez depuis n'importe où en Angola",
+      "zh": "在安哥拉任何地方都能购买",
+      "ar": "اشترِ من أي مكان في أنغولا"
+    },
+    "Aceda a milhares de produtos de lojas e vendedores de todas as provincias. Entrega segura em todo o pais.": {
+      "en": "Access thousands of products from stores and sellers across all provinces. Safe delivery nationwide.",
+      "es": "Acceda a miles de productos de tiendas y vendedores de todas las provincias. Entrega segura en todo el país.",
+      "fr": "Accédez à des milliers de produits de boutiques et de vendeurs de toutes les provinces. Livraison sécurisée dans tout le pays.",
+      "zh": "访问来自全国各地商店和卖家的成千上万产品。全国安全送货。",
+      "ar": "وصول إلى آلاف المنتجات من متاجر وبائعين من جميع المقاطعات. توصيل آمن في جميع أنحاء البلاد."
+    },
+    "Em Breve no App Store": {
+      "en": "Coming Soon to the App Store",
+      "es": "Próximamente en App Store",
+      "fr": "Bientôt sur l'App Store",
+      "zh": "即将上线 App Store",
+      "ar": "قريباً على آب ستور"
+    },
+    "Em Breve no Google Play": {
+      "en": "Coming Soon to Google Play",
+      "es": "Próximamente en Google Play",
+      "fr": "Bientôt sur Google Play",
+      "zh": "即将上线 Google Play",
+      "ar": "قريباً على جوجل بلاي"
+    },
+    "100% Seguro": {
+      "en": "100% Secure",
+      "fr": "100% Sécurisé",
+      "zh": "100% 安全",
+      "ar": "آمن 100%"
+    },
+    "Compras protegidas": {
+      "en": "Protected purchases",
+      "fr": "Achats protégés",
+      "zh": "购物全程受保护",
+      "ar": "مشتريات محمية"
+    },
+    "Fique por dentro": {
+      "en": "Stay in the loop",
+      "es": "Manténgase al día",
+      "fr": "Restez informé",
+      "zh": "掌握最新动态",
+      "ar": "ابقَ على اطلاع"
+    },
+    "Receba ofertas exclusivas e novidades direto no seu email.": {
+      "en": "Get exclusive offers and updates straight to your inbox.",
+      "es": "Reciba ofertas exclusivas y novedades directamente en su email.",
+      "fr": "Recevez des offres exclusives et des nouveautés directement sur votre email.",
+      "zh": "直接在您的邮箱接收专属优惠和最新消息。",
+      "ar": "استلم العروض الحصرية والجديد مباشرة على بريدك الإلكتروني."
+    },
+    "Seu melhor email": {
+      "en": "Your best email",
+      "es": "Su mejor email",
+      "fr": "Votre meilleur email",
+      "zh": "您最好的邮箱",
+      "ar": "أفضل بريدك الإلكتروني"
+    },
+    "A carregar produtos…": {
+      "en": "Loading products…",
+      "es": "Cargando productos…",
+      "fr": "Chargement des produits…",
+      "zh": "正在加载商品…",
+      "ar": "جارٍ تحميل المنتجات…"
+    },
+    "Todos os Produtos": {
+      "en": "All Products",
+      "es": "Todos los Productos",
+      "fr": "Tous les Produits",
+      "zh": "全部商品",
+      "ar": "جميع المنتجات"
+    },
+    "A carregar...": {
+      "en": "Loading...",
+      "es": "Cargando...",
+      "fr": "Chargement...",
+      "zh": "加载中...",
+      "ar": "جارٍ التحميل..."
+    },
+    "Filtros": {
+      "en": "Filters",
+      "fr": "Filtres",
+      "zh": "筛选",
+      "ar": "الفلاتر"
+    },
+    "Nenhum produto encontrado": {
+      "en": "No products found",
+      "es": "Ningún producto encontrado",
+      "fr": "Aucun produit trouvé",
+      "zh": "未找到商品",
+      "ar": "لم يتم العثور على أي منتج"
+    },
+    "Tente ajustar os filtros ou pesquisar por algo diferente.": {
+      "en": "Try adjusting your filters or searching for something else.",
+      "es": "Intente ajustar los filtros o buscar algo diferente.",
+      "fr": "Essayez d'ajuster les filtres ou de rechercher autre chose.",
+      "zh": "请尝试调整筛选条件或搜索其他内容。",
+      "ar": "حاول تعديل الفلاتر أو البحث عن شيء آخر."
+    },
+    "Produto nao encontrado": {
+      "en": "Product not found",
+      "es": "Producto no encontrado",
+      "fr": "Produit introuvable",
+      "zh": "未找到商品",
+      "ar": "المنتج غير موجود"
+    },
+    "Voltar aos produtos": {
+      "en": "Back to products",
+      "es": "Volver a los productos",
+      "fr": "Retour aux produits",
+      "zh": "返回商品列表",
+      "ar": "العودة إلى المنتجات"
+    },
+    "Loja": {
+      "en": "Store",
+      "es": "Tienda",
+      "fr": "Boutique",
+      "zh": "店铺",
+      "ar": "المتجر"
+    },
+    "Esgotado": {
+      "en": "Out of stock",
+      "es": "Agotado",
+      "fr": "Épuisé",
+      "zh": "已售罄",
+      "ar": "نفد المخزون"
+    },
+    "Adicionar ao Carrinho": {
+      "en": "Add to Cart",
+      "es": "Añadir al Carrito",
+      "fr": "Ajouter au Panier",
+      "zh": "加入购物车",
+      "ar": "أضف إلى السلة"
+    },
+    "Entrega disponivel": {
+      "en": "Delivery available",
+      "es": "Entrega disponible",
+      "fr": "Livraison disponible",
+      "zh": "支持送货",
+      "ar": "التوصيل متاح"
+    },
+    "Envio para todo o pais": {
+      "en": "Shipping nationwide",
+      "es": "Envío a todo el país",
+      "fr": "Expédition dans tout le pays",
+      "zh": "全国配送",
+      "ar": "شحن إلى جميع أنحاء البلاد"
+    },
+    "Compra protegida": {
+      "en": "Protected purchase",
+      "fr": "Achat protégé",
+      "zh": "购物保障",
+      "ar": "شراء محمي"
+    },
+    "Devolucao em 7 dias": {
+      "en": "7-day returns",
+      "es": "Devolución en 7 días",
+      "fr": "Retour sous 7 jours",
+      "zh": "7 天退换",
+      "ar": "إرجاع خلال 7 أيام"
+    },
+    "Devolucao gratuita": {
+      "en": "Free returns",
+      "es": "Devolución gratuita",
+      "fr": "Retour gratuit",
+      "zh": "免费退货",
+      "ar": "إرجاع مجاني"
+    },
+    "Se nao estiver satisfeito": {
+      "en": "If you're not satisfied",
+      "es": "Si no está satisfecho",
+      "fr": "Si vous n'êtes pas satisfait",
+      "zh": "如不满意",
+      "ar": "إذا لم تكن راضياً"
+    },
+    "Visitar Loja": {
+      "en": "Visit Store",
+      "es": "Visitar Tienda",
+      "fr": "Visiter la Boutique",
+      "zh": "访问店铺",
+      "ar": "زيارة المتجر"
+    },
+    "Descrição": {
+      "en": "Description",
+      "es": "Descripción",
+      "fr": "Description",
+      "zh": "描述",
+      "ar": "الوصف"
+    },
+    "Sem descricao disponivel.": {
+      "en": "No description available.",
+      "es": "Sin descripción disponible.",
+      "fr": "Aucune description disponible.",
+      "zh": "暂无描述。",
+      "ar": "لا يوجد وصف متاح."
+    },
+    "Anonimo": {
+      "en": "Anonymous",
+      "es": "Anónimo",
+      "fr": "Anonyme",
+      "zh": "匿名",
+      "ar": "مجهول"
+    },
+    "Nenhuma avaliação ainda.": {
+      "en": "No reviews yet.",
+      "es": "Ninguna evaluación aún.",
+      "fr": "Aucun avis pour l'instant.",
+      "zh": "暂无评价。",
+      "ar": "لا توجد تقييمات بعد."
+    },
+    "Produtos Relacionados": {
+      "en": "Related Products",
+      "es": "Productos Relacionados",
+      "fr": "Produits Associés",
+      "zh": "相关商品",
+      "ar": "منتجات ذات صلة"
+    },
+    "Mais vendido": {
+      "en": "Best seller",
+      "es": "Más vendido",
+      "fr": "Meilleure vente",
+      "zh": "热卖",
+      "ar": "الأكثر مبيعاً"
+    },
+    "Aplicar": {
+      "en": "Apply",
+      "fr": "Appliquer",
+      "zh": "应用",
+      "ar": "تطبيق"
+    },
+    "Condicao": {
+      "en": "Condition",
+      "es": "Condición",
+      "fr": "Condition",
+      "zh": "成色",
+      "ar": "الحالة"
+    },
+    "Ordenar por": {
+      "en": "Sort by",
+      "fr": "Trier par",
+      "zh": "排序方式",
+      "ar": "ترتيب حسب"
+    },
+    "Mais recente": {
+      "en": "Newest",
+      "es": "Más reciente",
+      "fr": "Plus récent",
+      "zh": "最新上架",
+      "ar": "الأحدث"
+    },
+    "Menor preco": {
+      "en": "Lowest price",
+      "es": "Menor precio",
+      "fr": "Prix croissant",
+      "zh": "价格从低到高",
+      "ar": "الأقل سعراً"
+    },
+    "Maior preco": {
+      "en": "Highest price",
+      "es": "Mayor precio",
+      "fr": "Prix décroissant",
+      "zh": "价格从高到低",
+      "ar": "الأعلى سعراً"
+    },
+    "Mais popular": {
+      "en": "Most popular",
+      "es": "Más popular",
+      "fr": "Plus populaire",
+      "zh": "最受欢迎",
+      "ar": "الأكثر شعبية"
+    },
+    "Mais vendidos": {
+      "en": "Best sellers",
+      "es": "Más vendidos",
+      "fr": "Meilleures ventes",
+      "zh": "热卖商品",
+      "ar": "الأكثر مبيعاً"
+    },
+    "Provincia": {
+      "en": "Province",
+      "fr": "Province",
+      "zh": "省份",
+      "ar": "المقاطعة"
+    },
+    "Todas": {
+      "en": "All",
+      "fr": "Toutes",
+      "zh": "全部",
+      "ar": "الكل",
+      "es": "Todos"
+    },
+    "Limpar Filtros": {
+      "en": "Clear Filters",
+      "es": "Limpiar Filtros",
+      "fr": "Effacer les Filtres",
+      "zh": "清除筛选",
+      "ar": "مسح الفلاتر"
+    },
+    "Escolha pelo menos 1 estrela": {
+      "en": "Choose at least 1 star",
+      "es": "Elija al menos 1 estrella",
+      "fr": "Choisissez au moins 1 étoile",
+      "zh": "请至少选择 1 颗星",
+      "ar": "اختر نجمة واحدة على الأقل"
+    },
+    "Avaliação enviada! Obrigado.": {
+      "en": "Review submitted! Thank you.",
+      "es": "¡Evaluación enviada! Gracias.",
+      "fr": "Avis envoyé ! Merci.",
+      "zh": "评价已提交！谢谢。",
+      "ar": "تم إرسال التقييم! شكراً لك."
+    },
+    "Erro ao enviar avaliação": {
+      "en": "Error submitting review",
+      "es": "Error al enviar evaluación",
+      "fr": "Erreur lors de l'envoi de l'avis",
+      "zh": "提交评价时出错",
+      "ar": "خطأ في إرسال التقييم"
+    },
+    "Quer avaliar?": {
+      "en": "Want to review?",
+      "es": "¿Quiere evaluar?",
+      "fr": "Vous voulez donner votre avis ?",
+      "zh": "想评价一下？",
+      "ar": "هل تريد التقييم؟"
+    },
+    "Inicie sessão para dar estrelas e partilhar a sua opinião.": {
+      "en": "Sign in to rate and share your opinion.",
+      "es": "Inicie sesión para poner estrellas y compartir su opinión.",
+      "fr": "Connectez-vous pour attribuer des étoiles et partager votre opinion.",
+      "zh": "请登录后给星并分享您的意见。",
+      "ar": "سجّل دخولك لإعطاء النجوم ومشاركة رأيك."
+    },
+    "Avaliar produto": {
+      "en": "Rate product",
+      "es": "Evaluar producto",
+      "fr": "Évaluer le produit",
+      "zh": "评价商品",
+      "ar": "قيّم المنتج"
+    },
+    "Avaliar loja": {
+      "en": "Rate store",
+      "es": "Evaluar tienda",
+      "fr": "Évaluer la boutique",
+      "zh": "评价店铺",
+      "ar": "قيّم المتجر"
+    },
+    "A enviar...": {
+      "en": "Submitting...",
+      "es": "Enviando...",
+      "fr": "Envoi en cours...",
+      "zh": "上传中...",
+      "ar": "جارٍ الإرسال..."
+    },
+    "Enviar avaliação": {
+      "en": "Submit review",
+      "es": "Enviar evaluación",
+      "fr": "Envoyer l'avis",
+      "zh": "提交评价",
+      "ar": "إرسال التقييم"
+    },
+    "Mais recentes": {
+      "en": "Newest",
+      "es": "Más recientes",
+      "fr": "Plus récentes",
+      "zh": "最新",
+      "ar": "الأحدث"
+    },
+    "Mais visitadas": {
+      "en": "Most visited",
+      "es": "Más visitadas",
+      "fr": "Plus visitées",
+      "zh": "最受欢迎",
+      "ar": "الأكثر زيارة"
+    },
+    "Pesquisar lojas...": {
+      "en": "Search stores...",
+      "es": "Buscar tiendas...",
+      "fr": "Rechercher des boutiques...",
+      "zh": "搜索店铺...",
+      "ar": "ابحث عن متاجر..."
+    },
+    "Vista de mapa em breve": {
+      "en": "Map view coming soon",
+      "es": "Vista de mapa próximamente",
+      "fr": "Vue carte bientôt disponible",
+      "zh": "地图视图即将上线",
+      "ar": "عرض الخريطة قريباً"
+    },
+    "Nenhuma loja encontrada.": {
+      "en": "No stores found.",
+      "es": "Ninguna tienda encontrada.",
+      "fr": "Aucune boutique trouvée.",
+      "zh": "未找到店铺。",
+      "ar": "لم يتم العثور على أي متجر."
+    },
+    "Loja não encontrada": {
+      "en": "Store not found",
+      "es": "Tienda no encontrada",
+      "fr": "Boutique introuvable",
+      "zh": "未找到店铺",
+      "ar": "المتجر غير موجود"
+    },
+    "Voltar às lojas": {
+      "en": "Back to stores",
+      "es": "Volver a las tiendas",
+      "fr": "Retour aux boutiques",
+      "zh": "返回店铺列表",
+      "ar": "العودة إلى المتاجر"
+    },
+    "Contactar": {
+      "en": "Contact",
+      "fr": "Contacter",
+      "zh": "联系",
+      "ar": "اتصال"
+    },
+    "Anónimo": {
+      "en": "Anonymous",
+      "fr": "Anonyme",
+      "zh": "匿名",
+      "ar": "مجهول"
+    },
+    "Mais visitada": {
+      "en": "Most visited",
+      "es": "Más visitada",
+      "fr": "La plus visitée",
+      "zh": "热门店铺",
+      "ar": "الأكثر زيارة"
+    },
+    "O seu carrinho está vazio": {
+      "en": "Your cart is empty",
+      "es": "Su carrito está vacío",
+      "fr": "Votre panier est vide",
+      "zh": "您的购物车是空的",
+      "ar": "سلتك فارغة"
+    },
+    "Adicione produtos ao carrinho para continuar a comprar.": {
+      "en": "Add products to your cart to start shopping.",
+      "es": "Añada productos al carrito para seguir comprando.",
+      "fr": "Ajoutez des produits au panier pour continuer vos achats.",
+      "zh": "将商品加入购物车以继续购物。",
+      "ar": "أضف منتجات إلى السلة لمتابعة التسوق."
+    },
+    "Limpar carrinho": {
+      "en": "Clear cart",
+      "es": "Vaciar carrito",
+      "fr": "Vider le panier",
+      "zh": "清空购物车",
+      "ar": "مسح السلة"
+    },
+    "Resumo": {
+      "en": "Summary",
+      "es": "Resumen",
+      "fr": "Résumé",
+      "zh": "摘要",
+      "ar": "الملخص"
+    },
+    "Finalizar Compra": {
+      "en": "Checkout",
+      "fr": "Finaliser l'Achat",
+      "zh": "去结算",
+      "ar": "إتمام الشراء",
+      "es": "Finalizar compra"
+    },
+    "Telefone obrigatório": {
+      "en": "Phone is required",
+      "es": "Teléfono obligatorio",
+      "fr": "Téléphone obligatoire",
+      "zh": "电话为必填项",
+      "ar": "الهاتف مطلوب"
+    },
+    "Endereço obrigatório": {
+      "en": "Address is required",
+      "es": "Dirección obligatoria",
+      "fr": "Adresse obligatoire",
+      "zh": "地址为必填项",
+      "ar": "العنوان مطلوب"
+    },
+    "Distrito/bairro obrigatório": {
+      "en": "District/neighbourhood is required",
+      "es": "Distrito/barrio obligatorio",
+      "fr": "Quartier/bairro obligatoire",
+      "zh": "区/街区为必填项",
+      "ar": "المنطقة/الحي مطلوب"
+    },
+    "Pedido realizado com sucesso!": {
+      "en": "Order placed successfully!",
+      "es": "¡Pedido realizado con éxito!",
+      "fr": "Commande effectuée avec succès !",
+      "zh": "下单成功！",
+      "ar": "تم الطلب بنجاح!"
+    },
+    "Erro ao processar pedido": {
+      "en": "Error processing order",
+      "es": "Error al procesar pedido",
+      "fr": "Erreur lors du traitement de la commande",
+      "zh": "处理订单时出错",
+      "ar": "خطأ في معالجة الطلب"
+    },
+    "Pagamento via Multicaixa Express": {
+      "en": "Pay via Multicaixa Express",
+      "es": "Pago vía Multicaixa Express",
+      "fr": "Paiement via Multicaixa Express",
+      "zh": "通过 Multicaixa Express 支付",
+      "ar": "الدفع عبر ملتيكاشا إكسبرس"
+    },
+    "Transferência para conta bancária do vendedor": {
+      "en": "Transfer to seller's bank account",
+      "es": "Transferencia a cuenta bancaria del vendedor",
+      "fr": "Virement vers le compte bancaire du vendeur",
+      "zh": "转账到卖家银行账户",
+      "ar": "تحويل إلى الحساب البنكي للبائع"
+    },
+    "Pague quando receber o produto": {
+      "en": "Pay on delivery",
+      "es": "Pague al recibir el producto",
+      "fr": "Payez à la réception du produit",
+      "zh": "收到商品时付款",
+      "ar": "ادفع عند استلام المنتج"
+    },
+    "O seu carrinho está vazio.": {
+      "en": "Your cart is empty.",
+      "es": "Su carrito está vacío.",
+      "fr": "Votre panier est vide.",
+      "zh": "您的购物车是空的。",
+      "ar": "سلتك فارغة."
+    },
+    "Informações de Envio": {
+      "en": "Shipping Information",
+      "es": "Información de Envío",
+      "fr": "Informations de Livraison",
+      "zh": "配送信息",
+      "ar": "معلومات الشحن"
+    },
+    "Endereço completo": {
+      "en": "Full address",
+      "es": "Dirección completa",
+      "fr": "Adresse complète",
+      "zh": "完整地址",
+      "ar": "العنوان الكامل"
+    },
+    "Rua, número, referência...": {
+      "en": "Street, number, reference...",
+      "es": "Calle, número, referencia...",
+      "fr": "Rue, numéro, référence...",
+      "zh": "街道、门牌号、参考点...",
+      "ar": "الشارع، الرقم، المرجع..."
+    },
+    "Província": {
+      "en": "Province",
+      "es": "Provincia",
+      "fr": "Province",
+      "zh": "省份",
+      "ar": "المقاطعة"
+    },
+    "Distrito/Bairro": {
+      "en": "District/Neighbourhood",
+      "es": "Distrito/Barrio",
+      "fr": "Quartier/Bairro",
+      "zh": "区/街区",
+      "ar": "المنطقة/الحي"
+    },
+    "Método de Pagamento": {
+      "en": "Payment Method",
+      "es": "Método de Pago",
+      "fr": "Mode de Paiement",
+      "zh": "支付方式",
+      "ar": "طريقة الدفع"
+    },
+    "Resumo do Pedido": {
+      "en": "Order Summary",
+      "es": "Resumen del Pedido",
+      "fr": "Résumé de la Commande",
+      "zh": "订单摘要",
+      "ar": "ملخص الطلب"
+    },
+    "A processar...": {
+      "en": "Processing...",
+      "es": "Procesando...",
+      "fr": "Traitement en cours...",
+      "zh": "处理中...",
+      "ar": "جارٍ المعالجة..."
+    },
+    "Confirmar Pedidos": {
+      "en": "Confirm Orders",
+      "fr": "Confirmer les Commandes",
+      "zh": "确认订单",
+      "ar": "تأكيد الطلبات"
+    },
+    "Será criado um pedido por loja. Após o pedido, faça o upload do comprovativo de pagamento.": {
+      "en": "An order will be created for each store. After placing the order, upload your payment proof.",
+      "es": "Se creará un pedido por tienda. Después del pedido, suba el comprobante de pago.",
+      "fr": "Une commande sera créée par boutique. Après la commande, téléchargez le justificatif de paiement.",
+      "zh": "每家店铺会分别生成一个订单。下单后，请上传付款凭证。",
+      "ar": "سيتم إنشاء طلب لكل متجر. بعد الطلب، ارفع إثبات الدفع."
+    },
+    "Efectue o pagamento em dinheiro quando receber o produto.": {
+      "en": "Pay in cash when you receive the product.",
+      "es": "Realice el pago en efectivo al recibir el producto.",
+      "fr": "Effectuez le paiement en espèces à la réception du produit.",
+      "zh": "请在收到商品时以现金付款。",
+      "ar": "ادفع نقداً عند استلام المنتج."
+    },
+    "Dados para pagamento": {
+      "en": "Payment Details",
+      "es": "Datos para el pago",
+      "fr": "Coordonnées de paiement",
+      "zh": "付款信息",
+      "ar": "بيانات الدفع"
+    },
+    "Método": {
+      "en": "Method",
+      "fr": "Méthode",
+      "zh": "方式",
+      "ar": "الطريقة"
+    },
+    "Titular": {
+      "en": "Account holder",
+      "fr": "Titulaire",
+      "zh": "户主",
+      "ar": "صاحب الحساب"
+    },
+    "Banco": {
+      "en": "Bank",
+      "fr": "Banque",
+      "zh": "银行",
+      "ar": "البنك"
+    },
+    "Nº de conta": {
+      "en": "Account number",
+      "es": "Nº de cuenta",
+      "fr": "N° de compte",
+      "zh": "账号",
+      "ar": "رقم الحساب"
+    },
+    "Entidade": {
+      "en": "Entity",
+      "es": "Entidad",
+      "fr": "Entité",
+      "zh": "实体",
+      "ar": "الجهة"
+    },
+    "Referência": {
+      "en": "Reference",
+      "es": "Referencia",
+      "fr": "Référence",
+      "zh": "参考号",
+      "ar": "المرجع"
+    },
+    "Após efectuar o pagamento, fará o upload do comprovativo no seu pedido.": {
+      "en": "After making the payment, upload your proof on your order.",
+      "es": "Después de realizar el pago, suba el comprobante en su pedido.",
+      "fr": "Après avoir effectué le paiement, vous devrez télécharger le justificatif sur votre commande.",
+      "zh": "完成付款后，您需要在订单中上传付款凭证。",
+      "ar": "بعد إتمام الدفع، سترفع إثبات الدفع في طلبك."
+    },
+    "Como Funciona o Pambala": {
+      "en": "How Pambala Works",
+      "es": "Cómo Funciona Pambala",
+      "fr": "Comment Fonctionne Pambala",
+      "zh": "Pambala 的使用方法",
+      "ar": "كيف يعمل Pambala"
+    },
+    "O Pambala conecta compradores e vendedores em toda Angola. Veja como é simples comprar e vender na nossa plataforma.": {
+      "en": "Pambala connects buyers and sellers across Angola. See how easy it is to buy and sell on our platform.",
+      "es": "Pambala conecta compradores y vendedores en toda Angola. Vea cómo es simple comprar y vender en nuestra plataforma.",
+      "fr": "Pambala connecte acheteurs et vendeurs dans toute l'Angola. Découvrez à quel point il est simple d'acheter et de vendre sur notre plateforme.",
+      "zh": "Pambala 连接安哥拉各地的买家和卖家。了解在我们的平台上购物和出售有多么简单。",
+      "ar": "يربط Pambala المشترين والبائعين في جميع أنحاء أنغولا. انظر كم هو بسيط الشراء والبيع على منصتنا."
+    },
+    "3 Passos Simples": {
+      "en": "3 Simple Steps",
+      "es": "3 Pasos Simples",
+      "fr": "3 Étapes Simples",
+      "zh": "3 个简单步骤",
+      "ar": "3 خطوات بسيطة"
+    },
+    "Comprar no Pambala é fácil e seguro": {
+      "en": "Shopping on Pambala is easy and secure",
+      "es": "Comprar en Pambala es fácil y seguro",
+      "fr": "Acheter sur Pambala est facile et sûr",
+      "zh": "在 Pambala 购物简单又安全",
+      "ar": "الشراء في Pambala سهل وآمن"
+    },
+    "Pesquise o que precisa": {
+      "en": "Search for what you need",
+      "es": "Busque lo que necesita",
+      "fr": "Recherchez ce dont vous avez besoin",
+      "zh": "搜索您需要的商品",
+      "ar": "ابحث عما تحتاجه"
+    },
+    "Navegue por categorias, pesquise por produtos específicos ou explore as lojas parceiras. Encontre milhares de produtos de vendedores verificados em todo o país.": {
+      "en": "Browse categories, search for specific products, or explore partner stores. Find thousands of products from verified sellers nationwide.",
+      "es": "Navegue por categorías, busque productos específicos o explore las tiendas asociadas. Encuentre miles de productos de vendedores verificados en todo el país.",
+      "fr": "Parcourez les catégories, recherchez des produits spécifiques ou explorez les boutiques partenaires. Trouvez des milliers de produits de vendeurs vérifiés dans tout le pays.",
+      "zh": "按分类浏览、搜索具体商品或探索合作店铺。在安哥拉各地找到大量经过验证的卖家的产品。",
+      "ar": "تصفح الفئات، وابحث عن منتجات محددة أو استكشف المتاجر الشريكة. اعثر على آلاف المنتجات من بائعين موثوقين في جميع أنحاء البلاد."
+    },
+    "Escolha como pagar": {
+      "en": "Choose how to pay",
+      "es": "Elija cómo pagar",
+      "fr": "Choisissez comment payer",
+      "zh": "选择支付方式",
+      "ar": "اختر طريقة الدفع"
+    },
+    "Opte por Multicaixa Express, transferência bancária ou pagamento na entrega. O sistema garante que o pagamento só é liberado quando você confirmar o recebimento.": {
+      "en": "Choose Multicaixa Express, bank transfer, or cash on delivery. Our system ensures payment is only released once you confirm receipt.",
+      "es": "Opte por Multicaixa Express, transferencia bancaria o pago en la entrega. El sistema garantiza que el pago solo se libera cuando confirme la recepción.",
+      "fr": "Optez pour Multicaixa Express, virement bancaire ou paiement à la livraison. Le système garantit que le paiement n'est libéré que lorsque vous confirmez la réception.",
+      "zh": "选择 Multicaixa Express、银行转账或货到付款。系统确保只有在您确认收货后，货款才会解冻。",
+      "ar": "اختر ملتيكاشا إكسبرس أو تحويل بنكي أو الدفع عند الاستلام. يضمن النظام ألا يتم تحرير الدفع إلا عند تأكيدك لاستلام المنتج."
+    },
+    "Receba em segurança": {
+      "en": "Receive safely",
+      "es": "Reciba con seguridad",
+      "fr": "Recevez en toute sécurité",
+      "zh": "安全收货",
+      "ar": "استلم بأمان"
+    },
+    "O produto é enviado diretamente do vendedor até à sua porta. Acompanhe o estado do seu pedido em tempo real. Entrega em todas as províncias de Angola.": {
+      "en": "Your product is shipped directly from the seller to your door. Track your order status in real time. Delivery to all provinces of Angola.",
+      "es": "El producto se envía directamente del vendedor hasta su puerta. Siga el estado de su pedido en tiempo real. Entrega en todas las provincias de Angola.",
+      "fr": "Le produit est expédié directement du vendeur jusqu'à votre porte. Suivez l'état de votre commande en temps réel. Livraison dans toutes les provinces d'Angola.",
+      "zh": "商品由卖家直接发货送到您家门口。实时跟踪订单状态。配送范围覆盖安哥拉所有省份。",
+      "ar": "يُرسل المنتج مباشرة من البائع حتى باب منزلك. تابع حالة طلبك في الوقت الفعلي. التوصيل إلى جميع مقاطعات أنغولا."
+    },
+    "Por que escolher o Pambala?": {
+      "en": "Why choose Pambala?",
+      "es": "¿Por qué elegir Pambala?",
+      "fr": "Pourquoi choisir Pambala ?",
+      "zh": "为什么选择 Pambala？",
+      "ar": "لماذا تختار Pambala؟"
+    },
+    "Compras Protegidas": {
+      "en": "Protected Purchases",
+      "fr": "Achats Protégés",
+      "zh": "购物保障",
+      "ar": "مشتريات محمية"
+    },
+    "Se o produto não chegar ou não corresponder à descrição, devolvemos o seu dinheiro.": {
+      "en": "If the product doesn't arrive or doesn't match the description, we'll refund your money.",
+      "es": "Si el producto no llega o no corresponde a la descripción, le devolvemos su dinero.",
+      "fr": "Si le produit n'arrive pas ou ne correspond pas à la description, nous vous remboursons.",
+      "zh": "如果商品未送达或与描述不符，我们将退还您的款项。",
+      "ar": "إذا لم يصل المنتج أو لم يطابق الوصف، نعيد لك أموالك."
+    },
+    "Entrega Rápida": {
+      "en": "Fast Delivery",
+      "fr": "Livraison Rapide",
+      "zh": "快速配送",
+      "ar": "توصيل سريع",
+      "es": "Entrega rápida"
+    },
+    "Entrega em 24-72 horas em Luanda e 3-7 dias para outras províncias.": {
+      "en": "Delivery in 24-72 hours in Luanda and 3-7 days for other provinces.",
+      "es": "Entrega en 24-72 horas en Luanda y 3-7 días para otras provincias.",
+      "fr": "Livraison en 24-72 heures à Luanda et 3-7 jours pour les autres provinces.",
+      "zh": "Luanda 24-72 小时内送达，其他省份 3-7 天。",
+      "ar": "توصيل خلال 24-72 ساعة في Luanda و3-7 أيام للمقاطعات الأخرى."
+    },
+    "Suporte 24/7": {
+      "en": "24/7 Support",
+      "es": "Soporte 24/7",
+      "fr": "Support 24/7",
+      "zh": "24/7 客服",
+      "ar": "دعم 24/7"
+    },
+    "A nossa equipa está disponível para ajudar sempre que precisar.": {
+      "en": "Our team is available to help whenever you need it.",
+      "es": "Nuestro equipo está disponible para ayudar siempre que lo necesite.",
+      "fr": "Notre équipe est disponible pour vous aider dès que vous en avez besoin.",
+      "zh": "我们的团队随时为您提供帮助。",
+      "ar": "فريقنا متاح لمساعدتك متى احتجت."
+    },
+    "Vendedores Verificados": {
+      "en": "Verified Sellers",
+      "fr": "Vendeurs Vérifiés",
+      "zh": "卖家经过验证",
+      "ar": "بائعون موثوقون"
+    },
+    "Todos os vendedores passam por um processo rigoroso de verificação.": {
+      "en": "All sellers go through a rigorous verification process.",
+      "es": "Todos los vendedores pasan por un proceso riguroso de verificación.",
+      "fr": "Tous les vendeurs passent par un processus de vérification rigoureux.",
+      "zh": "所有卖家都经过严格的验证流程。",
+      "ar": "جميع البائعين يخضعون لعملية تحقق صارمة."
+    },
+    "Perguntas Frequentes": {
+      "en": "Frequently Asked Questions",
+      "es": "Preguntas Frecuentes",
+      "fr": "Questions Fréquentes",
+      "zh": "常见问题",
+      "ar": "الأسئلة الشائعة"
+    },
+    "Como me registro no Pambala?": {
+      "en": "How do I sign up for Pambala?",
+      "es": "¿Cómo me registro en Pambala?",
+      "fr": "Comment m'inscrire sur Pambala ?",
+      "zh": "如何在 Pambala 注册？",
+      "ar": "كيف أسجل في Pambala؟"
+    },
+    "Clique em \"Registar\" no canto superior direito. Preencha os seus dados e escolha se quer ser comprador ou vendedor. É gratuito!": {
+      "en": "Click \"Sign up\" in the top-right corner. Fill in your details and choose whether you want to be a buyer or seller. It's free!",
+      "es": "Haga clic en \"Registrarse\" en la esquina superior derecha. Complete sus datos y elija si quiere ser comprador o vendedor. ¡Es gratuito!",
+      "fr": "Cliquez sur \"S'inscrire\" en haut à droite. Renseignez vos informations et choisissez si vous voulez être acheteur ou vendeur. C'est gratuit !",
+      "zh": "点击右上角的\"注册\"。填写您的信息，并选择您是买家还是卖家。完全免费！",
+      "ar": "انقر على \"تسجيل\" في الزاوية العلوية اليمنى. املأ بياناتك واختر ما إذا كنت تريد أن تكون مشترياً أو بائعاً. إنه مجاني!"
+    },
+    "Como vendo os meus produtos?": {
+      "en": "How do I sell my products?",
+      "es": "¿Cómo vendo mis productos?",
+      "fr": "Comment vendre mes produits ?",
+      "zh": "如何出售我的商品？",
+      "ar": "كيف أبيع منتجاتي؟"
+    },
+    "Registe-se como vendedor, crie a sua loja e comece a anunciar os seus produtos. É simples e rápido.": {
+      "en": "Register as a seller, set up your store, and start listing your products. It's simple and fast.",
+      "es": "Regístrese como vendedor, cree su tienda y comience a anunciar sus productos. Es simple y rápido.",
+      "fr": "Inscrivez-vous en tant que vendeur, créez votre boutique et commencez à publier vos produits. C'est simple et rapide.",
+      "zh": "注册成为卖家，创建您的店铺并开始发布商品。操作简单快捷。",
+      "ar": "سجّل كبائع، وأنشئ متجرك وابدأ بعرض منتجاتك. إنه بسيط وسريع."
+    },
+    "O pagamento é seguro?": {
+      "en": "Is payment secure?",
+      "es": "¿El pago es seguro?",
+      "fr": "Le paiement est-il sécurisé ?",
+      "zh": "支付安全吗？",
+      "ar": "هل الدفع آمن؟"
+    },
+    "Sim! Usamos sistema de escrow. O pagamento só é liberado para o vendedor quando você confirma o recebimento do produto.": {
+      "en": "Yes! We use an escrow system. Payment is only released to the seller when you confirm receipt of the product.",
+      "es": "¡Sí! Usamos sistema de escrow. El pago solo se libera al vendedor cuando confirma la recepción del producto.",
+      "fr": "Oui ! Nous utilisons un système d'escrow. Le paiement n'est libéré au vendeur que lorsque vous confirmez la réception du produit.",
+      "zh": "安全！我们使用托管支付系统。只有您在确认收到商品后，货款才会释放给卖家。",
+      "ar": "نعم! نستخدم نظاماً مضموناً. لا يُحرر الدفع للبائع إلا عند تأكيد استلام المنتج."
+    },
+    "Qual o prazo de entrega?": {
+      "en": "What is the delivery timeframe?",
+      "es": "¿Cuál es el plazo de entrega?",
+      "fr": "Quel est le délai de livraison ?",
+      "zh": "配送需要多长时间？",
+      "ar": "ما هي مدة التوصيل؟"
+    },
+    "Em Luanda: 24-72 horas. Noutras províncias: 3-7 dias úteis. O prazo pode variar conforme o vendedor e localização.": {
+      "en": "In Luanda: 24-72 hours. Other provinces: 3-7 business days. Timeframes may vary depending on the seller and location.",
+      "es": "En Luanda: 24-72 horas. En otras provincias: 3-7 días hábiles. El plazo puede variar según el vendedor y la ubicación.",
+      "fr": "À Luanda : 24-72 heures. Dans les autres provinces : 3-7 jours ouvrables. Le délai peut varier selon le vendeur et la localisation.",
+      "zh": "Luanda：24-72 小时。其他省份：3-7 个工作日。时效可能因卖家和地点而异。",
+      "ar": "في Luanda: 24-72 ساعة. في المقاطعات الأخرى: 3-7 أيام عمل. قد تختلف المدة حسب البائع والموقع."
+    },
+    "Posso devolver um produto?": {
+      "en": "Can I return a product?",
+      "es": "¿Puedo devolver un producto?",
+      "fr": "Puis-je retourner un produit ?",
+      "zh": "可以退货吗？",
+      "ar": "هل يمكنني إرجاع منتج؟"
+    },
+    "Sim, tem 7 dias para devolver o produto se não estiver satisfeito. O reembolso é processado em até 48 horas.": {
+      "en": "Yes, you have 7 days to return the product if you're not satisfied. Refunds are processed within 48 hours.",
+      "es": "Sí, tiene 7 días para devolver el producto si no está satisfecho. El reembolso se procesa en hasta 48 horas.",
+      "fr": "Oui, vous avez 7 jours pour retourner le produit si vous n'êtes pas satisfait. Le remboursement est traité sous 48 heures.",
+      "zh": "可以，如不满意可在 7 天内退货。退款将在 48 小时内处理。",
+      "ar": "نعم، لديك 7 أيام لإرجاع المنتج إذا لم تكن راضياً. يتم معالجة الاسترداد خلال 48 ساعة."
+    },
+    "Pronto para começar?": {
+      "en": "Ready to get started?",
+      "es": "¿Listo para comenzar?",
+      "fr": "Prêt à commencer ?",
+      "zh": "准备好开始了吗？",
+      "ar": "مستعد للبدء؟"
+    },
+    "Junte-se a milhares de angolanos que já compram e vendem no Pambala.": {
+      "en": "Join thousands of Angolans already buying and selling on Pambala.",
+      "es": "Únase a miles de angolanos que ya compran y venden en Pambala.",
+      "fr": "Rejoignez des milliers d'Angolais qui achètent et vendent déjà sur Pambala.",
+      "zh": "加入成千上万已经在 Pambala 购物和出售的安哥拉人。",
+      "ar": "انضم إلى آلاف الأنغوليين الذين يشترون ويبيعون بالفعل على Pambala."
+    },
+    "Criar Conta Grátis": {
+      "en": "Create Free Account",
+      "es": "Crear Cuenta Gratis",
+      "fr": "Créer un Compte Gratuit",
+      "zh": "免费创建账户",
+      "ar": "إنشاء حساب مجاني"
+    },
+    "Fale Connosco": {
+      "en": "Contact Us",
+      "es": "Contáctenos",
+      "fr": "Contactez-Nous",
+      "zh": "联系我们",
+      "ar": "تحدث إلينا"
+    },
+    "Tem alguma dúvida ou sugestão? Estamos aqui para ajudar.": {
+      "en": "Have a question or suggestion? We're here to help.",
+      "es": "¿Tiene alguna duda o sugerencia? Estamos aquí para ayudar.",
+      "fr": "Vous avez une question ou une suggestion ? Nous sommes là pour vous aider.",
+      "zh": "有任何疑问或建议？我们随时为您提供帮助。",
+      "ar": "هل لديك سؤال أو اقتراح؟ نحن هنا للمساعدة."
+    },
+    "Informações de Contacto": {
+      "en": "Contact Information",
+      "es": "Información de Contacto",
+      "fr": "Informations de Contact",
+      "zh": "联系信息",
+      "ar": "معلومات الاتصال"
+    },
+    "Resposta rápida": {
+      "en": "Quick response",
+      "es": "Respuesta rápida",
+      "fr": "Réponse rapide",
+      "zh": "快速回复",
+      "ar": "رد سريع"
+    },
+    "Para assuntos gerais": {
+      "en": "For general enquiries",
+      "es": "Para asuntos generales",
+      "fr": "Pour les demandes générales",
+      "zh": "一般事项",
+      "ar": "للأمور العامة"
+    },
+    "Seg-Sex, 8h-17h": {
+      "en": "Mon-Fri, 8am-5pm",
+      "es": "Lun-Vie, 8h-17h",
+      "fr": "Lun-Ven, 8h-17h",
+      "zh": "周一至周五，8:00-17:00",
+      "ar": "الاثنين - الجمعة، 8ص - 5م"
+    },
+    "Endereço": {
+      "en": "Address",
+      "es": "Dirección",
+      "fr": "Adresse",
+      "zh": "地址",
+      "ar": "العنوان"
+    },
+    "Horário": {
+      "en": "Business Hours",
+      "es": "Horario",
+      "fr": "Horaires",
+      "zh": "营业时间",
+      "ar": "ساعات العمل"
+    },
+    "Segunda a Sexta: 8h00 - 17h00": {
+      "en": "Monday to Friday: 8:00 AM - 5:00 PM",
+      "es": "Lunes a Viernes: 8:00 - 17:00",
+      "fr": "Lundi à Vendredi : 8h00 - 17h00",
+      "zh": "周一至周五：8:00 - 17:00",
+      "ar": "الاثنين إلى الجمعة: 8h00 - 17h00"
+    },
+    "Sábado: 9h00 - 13h00": {
+      "en": "Saturday: 9:00 AM - 1:00 PM",
+      "es": "Sábado: 9:00 - 13:00",
+      "fr": "Samedi : 9h00 - 13h00",
+      "zh": "周六：9:00 - 13:00",
+      "ar": "السبت: 9h00 - 13h00"
+    },
+    "Domingo: Fechado": {
+      "en": "Sunday: Closed",
+      "es": "Domingo: Cerrado",
+      "fr": "Dimanche : Fermé",
+      "zh": "周日：休息",
+      "ar": "الأحد: مغلق"
+    },
+    "Contactar via WhatsApp": {
+      "en": "Contact via WhatsApp",
+      "es": "Contactar vía WhatsApp",
+      "fr": "Contacter via WhatsApp",
+      "zh": "通过 WhatsApp 联系",
+      "ar": "اتصل عبر واتساب"
+    },
+    "Envie-nos uma mensagem": {
+      "en": "Send us a message",
+      "es": "Envíenos un mensaje",
+      "fr": "Envoyez-nous un message",
+      "zh": "给我们留言",
+      "ar": "أرسل لنا رسالة"
+    },
+    "Nome": {
+      "en": "Name",
+      "es": "Nombre",
+      "fr": "Nom",
+      "zh": "姓名",
+      "ar": "الاسم"
+    },
+    "Seu nome completo": {
+      "en": "Your full name",
+      "es": "Su nombre completo",
+      "fr": "Votre nom complet",
+      "zh": "您的全名",
+      "ar": "اسمك الكامل"
+    },
+    "seu@email.com": {
+      "en": "you@email.com",
+      "es": "su@email.com",
+      "fr": "votre@email.com",
+      "zh": "您的@邮箱.com",
+      "ar": "your@email.com"
+    },
+    "Assunto": {
+      "en": "Subject",
+      "es": "Asunto",
+      "fr": "Sujet",
+      "zh": "主题",
+      "ar": "الموضوع"
+    },
+    "Em que podemos ajudar?": {
+      "en": "How can we help?",
+      "es": "¿En qué podemos ayudar?",
+      "fr": "En quoi pouvons-nous vous aider ?",
+      "zh": "有什么可以帮您？",
+      "ar": "كيف يمكننا مساعدتك؟"
+    },
+    "Mensagem": {
+      "en": "Message",
+      "es": "Mensaje",
+      "fr": "Message",
+      "zh": "留言",
+      "ar": "الرسالة"
+    },
+    "Escreva a sua mensagem...": {
+      "en": "Write your message...",
+      "es": "Escriba su mensaje...",
+      "fr": "Écrivez votre message...",
+      "zh": "写下您的留言...",
+      "ar": "اكتب رسالتك..."
+    },
+    "Enviar Mensagem": {
+      "en": "Send Message",
+      "es": "Enviar Mensaje",
+      "fr": "Envoyer le Message",
+      "zh": "发送留言",
+      "ar": "إرسال الرسالة"
+    },
+    "Mensagem enviada com sucesso!": {
+      "en": "Message sent successfully!",
+      "es": "¡Mensaje enviado con éxito!",
+      "fr": "Message envoyé avec succès !",
+      "zh": "留言发送成功！",
+      "ar": "تم إرسال الرسالة بنجاح!"
+    },
+    "Erro ao enviar mensagem": {
+      "en": "Error sending message",
+      "es": "Error al enviar mensaje",
+      "fr": "Erreur lors de l'envoi du message",
+      "zh": "发送留言时出错",
+      "ar": "خطأ في إرسال الرسالة"
+    },
+    "Pesquisar produtos, lojas e mais...": {
+      "en": "Search products, stores, and more...",
+      "es": "Buscar productos, tiendas y más...",
+      "fr": "Rechercher des produits, des boutiques et plus...",
+      "zh": "搜索商品、店铺等...",
+      "ar": "ابحث عن منتجات ومتاجر والمزيد..."
+    },
+    "Utilizador": {
+      "en": "User",
+      "es": "Usuario",
+      "fr": "Utilisateur",
+      "zh": "用户",
+      "ar": "المستخدم"
+    },
+    "Perfil": {
+      "en": "Profile",
+      "fr": "Profil",
+      "zh": "个人资料",
+      "ar": "الملف الشخصي"
+    },
+    "Endereços": {
+      "en": "Addresses",
+      "es": "Direcciones",
+      "fr": "Adresses",
+      "zh": "收货地址",
+      "ar": "العناوين"
+    },
+    "Favoritos": {
+      "en": "Favorites",
+      "fr": "Favoris",
+      "zh": "我的收藏",
+      "ar": "المفضلة"
+    },
+    "Meu Perfil": {
+      "en": "My Profile",
+      "es": "Mi Perfil",
+      "fr": "Mon Profil",
+      "zh": "我的个人资料",
+      "ar": "ملفي الشخصي"
+    },
+    "Alterar foto": {
+      "en": "Change photo",
+      "es": "Cambiar foto",
+      "fr": "Changer la photo",
+      "zh": "更换照片",
+      "ar": "تغيير الصورة"
+    },
+    "Guardar Alterações": {
+      "en": "Save Changes",
+      "es": "Guardar Cambios",
+      "fr": "Enregistrer les Modifications",
+      "zh": "保存更改",
+      "ar": "حفظ التغييرات"
+    },
+    "Perfil atualizado com sucesso!": {
+      "en": "Profile updated successfully!",
+      "es": "¡Perfil actualizado con éxito!",
+      "fr": "Profil mis à jour avec succès !",
+      "zh": "个人资料更新成功！",
+      "ar": "تم تحديث الملف الشخصي بنجاح!"
+    },
+    "Erro ao atualizar perfil": {
+      "en": "Error updating profile",
+      "es": "Error al actualizar perfil",
+      "fr": "Erreur lors de la mise à jour du profil",
+      "zh": "更新个人资料时出错",
+      "ar": "خطأ في تحديث الملف الشخصي"
+    },
+    "Os Meus Pedidos": {
+      "en": "My Orders",
+      "es": "Mis Pedidos",
+      "fr": "Mes Commandes",
+      "zh": "我的订单",
+      "ar": "طلباتي"
+    },
+    "Nenhum pedido ainda.": {
+      "en": "No orders yet.",
+      "es": "Ningún pedido aún.",
+      "fr": "Aucune commande pour l'instant.",
+      "zh": "暂无订单。",
+      "ar": "لا توجد طلبات بعد."
+    },
+    "Endereços de Entrega": {
+      "en": "Delivery Addresses",
+      "es": "Direcciones de Entrega",
+      "fr": "Adresses de Livraison",
+      "zh": "收货地址",
+      "ar": "عناوين التوصيل"
+    },
+    "Nenhum endereço registrado.": {
+      "en": "No addresses on file.",
+      "es": "Ninguna dirección registrada.",
+      "fr": "Aucune adresse enregistrée.",
+      "zh": "尚未登记地址。",
+      "ar": "لا توجد عناوين مسجلة."
+    },
+    "Adicionar Endereço": {
+      "en": "Add Address",
+      "es": "Añadir Dirección",
+      "fr": "Ajouter une Adresse",
+      "zh": "添加地址",
+      "ar": "إضافة عنوان"
+    },
+    "Nenhum favorito ainda.": {
+      "en": "No favourites yet.",
+      "es": "Ningún favorito aún.",
+      "fr": "Aucun favori pour l'instant.",
+      "zh": "暂无收藏。",
+      "ar": "لا توجد مفضلة بعد."
+    },
+    "Pendente": {
+      "en": "Pending",
+      "es": "Pendiente",
+      "fr": "En attente",
+      "zh": "待处理",
+      "ar": "قيد الانتظار"
+    },
+    "Processando": {
+      "en": "Processing",
+      "es": "Procesando",
+      "fr": "En cours de traitement",
+      "zh": "处理中",
+      "ar": "قيد المعالجة"
+    },
+    "Enviado": {
+      "en": "Shipped",
+      "fr": "Expédié",
+      "zh": "已发货",
+      "ar": "تم الشحن"
+    },
+    "Entregue": {
+      "en": "Delivered",
+      "es": "Entregado",
+      "fr": "Livré",
+      "zh": "已送达",
+      "ar": "تم التوصيل"
+    },
+    "Cancelado": {
+      "en": "Cancelled",
+      "fr": "Annulé",
+      "zh": "已取消",
+      "ar": "ملغى"
+    },
+    "Nenhum pedido encontrado.": {
+      "en": "No orders found.",
+      "es": "Ningún pedido encontrado.",
+      "fr": "Aucune commande trouvée.",
+      "zh": "未找到订单。",
+      "ar": "لم يتم العثور على أي طلب."
+    },
+    "Pedido não encontrado": {
+      "en": "Order not found",
+      "es": "Pedido no encontrado",
+      "fr": "Commande introuvable",
+      "zh": "未找到订单",
+      "ar": "الطلب غير موجود"
+    },
+    "Voltar aos pedidos": {
+      "en": "Back to orders",
+      "es": "Volver a los pedidos",
+      "fr": "Retour aux commandes",
+      "zh": "返回订单列表",
+      "ar": "العودة إلى الطلبات"
+    },
+    "Estado do Pedido": {
+      "en": "Order Status",
+      "es": "Estado del Pedido",
+      "fr": "État de la Commande",
+      "zh": "订单状态",
+      "ar": "حالة الطلب"
+    },
+    "Pedido realizado": {
+      "en": "Order placed",
+      "fr": "Commande effectuée",
+      "zh": "已下单",
+      "ar": "تم إجراء الطلب"
+    },
+    "Pagamento confirmado": {
+      "en": "Payment confirmed",
+      "es": "Pago confirmado",
+      "fr": "Paiement confirmé",
+      "zh": "付款已确认",
+      "ar": "تم تأكيد الدفع"
+    },
+    "Em preparação": {
+      "en": "Being prepared",
+      "es": "En preparación",
+      "fr": "En préparation",
+      "zh": "备货中",
+      "ar": "قيد التحضير"
+    },
+    "Itens do Pedido": {
+      "en": "Order Items",
+      "es": "Artículos del Pedido",
+      "fr": "Articles de la Commande",
+      "zh": "订单商品",
+      "ar": "عناصر الطلب"
+    },
+    "Produto": {
+      "en": "Product",
+      "es": "Producto",
+      "fr": "Produit",
+      "zh": "商品",
+      "ar": "المنتج"
+    },
+    "Detalhes do pedido não disponíveis.": {
+      "en": "Order details unavailable.",
+      "es": "Detalles del pedido no disponibles.",
+      "fr": "Détails de la commande non disponibles.",
+      "zh": "暂无订单详情。",
+      "ar": "تفاصيل الطلب غير متاحة."
+    },
+    "Envio": {
+      "en": "Shipping",
+      "es": "Envío",
+      "fr": "Livraison",
+      "zh": "运费",
+      "ar": "الشحن"
+    },
+    "Grátis": {
+      "en": "Free",
+      "es": "Gratis",
+      "fr": "Gratuit",
+      "zh": "免运费",
+      "ar": "مجاناً"
+    },
+    "Pagamento": {
+      "en": "Payment",
+      "es": "Pago",
+      "fr": "Paiement",
+      "zh": "付款",
+      "ar": "الدفع"
+    },
+    "Estado": {
+      "en": "Status",
+      "fr": "État",
+      "zh": "状态",
+      "ar": "الحالة"
+    },
+    "Aguardando pagamento": {
+      "en": "Awaiting payment",
+      "es": "Esperando pago",
+      "fr": "En attente de paiement",
+      "zh": "等待付款",
+      "ar": "بانتظار الدفع"
+    },
+    "Aguardando confirmação": {
+      "en": "Awaiting confirmation",
+      "es": "Esperando confirmación",
+      "fr": "En attente de confirmation",
+      "zh": "等待确认",
+      "ar": "بانتظار التأكيد"
+    },
+    "Recebido pelo vendedor": {
+      "en": "Received by seller",
+      "es": "Recibido por el vendedor",
+      "fr": "Reçu par le vendeur",
+      "zh": "卖家已收到",
+      "ar": "تسلمه البائع"
+    },
+    "Pago": {
+      "en": "Paid",
+      "es": "Pagado",
+      "fr": "Payé",
+      "zh": "已付款",
+      "ar": "مدفوع"
+    },
+    "Rejeitado": {
+      "en": "Rejected",
+      "es": "Rechazado",
+      "fr": "Rejeté",
+      "zh": "已拒绝",
+      "ar": "مرفوض"
+    },
+    "Comprovativo enviado": {
+      "en": "Proof submitted",
+      "es": "Comprobante enviado",
+      "fr": "Justificatif envoyé",
+      "zh": "凭证已发送",
+      "ar": "تم إرسال الإثبات"
+    },
+    "Ver comprovativo": {
+      "en": "View proof",
+      "es": "Ver comprobante",
+      "fr": "Voir le justificatif",
+      "zh": "查看凭证",
+      "ar": "عرض الإثبات"
+    },
+    "O seu comprovativo foi rejeitado. Envie um novo comprovativo válido.": {
+      "en": "Your proof was rejected. Please submit a new valid proof.",
+      "es": "Su comprobante fue rechazado. Envíe un nuevo comprobante válido.",
+      "fr": "Votre justificatif a été rejeté. Envoyez un nouveau justificatif valide.",
+      "zh": "您的凭证已被拒绝。请重新上传有效的凭证。",
+      "ar": "تم رفض إثباتك. أرسل إثباتاً جديداً صالحاً."
+    },
+    "Após efectuar o pagamento, faça o upload do comprovativo.": {
+      "en": "After making the payment, upload your proof.",
+      "es": "Después de realizar el pago, suba el comprobante.",
+      "fr": "Après avoir effectué le paiement, téléchargez le justificatif.",
+      "zh": "完成付款后，请上传付款凭证。",
+      "ar": "بعد إتمام الدفع، ارفع الإثبات."
+    },
+    "Enviar comprovativo": {
+      "en": "Submit proof",
+      "es": "Enviar comprobante",
+      "fr": "Envoyer le justificatif",
+      "zh": "上传凭证",
+      "ar": "إرسال الإثبات"
+    },
+    "Enviar novo comprovativo": {
+      "en": "Submit new proof",
+      "es": "Enviar nuevo comprobante",
+      "fr": "Envoyer un nouveau justificatif",
+      "zh": "重新上传凭证",
+      "ar": "إرسال إثبات جديد"
+    },
+    "Comprovativo enviado! Aguarde a confirmação.": {
+      "en": "Proof submitted! Awaiting confirmation.",
+      "es": "¡Comprobante enviado! Espere la confirmación.",
+      "fr": "Justificatif envoyé ! En attente de confirmation.",
+      "zh": "凭证已上传！请等待确认。",
+      "ar": "تم إرسال الإثبات! انتظر التأكيد."
+    },
+    "Erro ao enviar comprovativo": {
+      "en": "Error submitting proof",
+      "es": "Error al enviar comprobante",
+      "fr": "Erreur lors de l'envoi du justificatif",
+      "zh": "上传凭证时出错",
+      "ar": "خطأ في إرسال الإثبات"
+    },
+    "Comprovativo válido": {
+      "en": "Valid proof",
+      "es": "Comprobante válido",
+      "fr": "Justificatif valide",
+      "zh": "凭证有效",
+      "ar": "إثبات صالح"
+    },
+    "Necessita revisão manual": {
+      "en": "Manual review required",
+      "es": "Requiere revisión manual",
+      "fr": "Nécessite une vérification manuelle",
+      "zh": "需要人工审核",
+      "ar": "يتطلب مراجعة يدوية"
+    },
+    "Comprovativo suspeito": {
+      "en": "Suspicious proof",
+      "es": "Comprobante sospechoso",
+      "fr": "Justificatif suspect",
+      "zh": "凭证可疑",
+      "ar": "إثبات مشبوه"
+    },
+    "Não foi possível validar": {
+      "en": "Unable to validate",
+      "es": "No fue posible validar",
+      "fr": "Impossible de valider",
+      "zh": "无法验证",
+      "ar": "تعذر التحقق"
+    },
+    "Comprovativo de pagamento": {
+      "en": "Payment proof",
+      "es": "Comprobante de pago",
+      "fr": "Justificatif de paiement",
+      "zh": "付款凭证",
+      "ar": "إثبات الدفع"
+    },
+    "Painel do Vendedor": {
+      "en": "Seller Dashboard",
+      "es": "Panel del Vendedor",
+      "fr": "Tableau du Vendeur",
+      "zh": "卖家面板",
+      "ar": "لوحة البائع"
+    },
+    "Pedidos Total": {
+      "en": "Total Orders",
+      "es": "Pedidos Totales",
+      "fr": "Commandes Total",
+      "zh": "订单总数",
+      "ar": "إجمالي الطلبات"
+    },
+    "Pendentes": {
+      "en": "Pending",
+      "es": "Pendientes",
+      "fr": "En attente",
+      "zh": "待处理",
+      "ar": "قيد الانتظار"
+    },
+    "Receita Total": {
+      "en": "Total Revenue",
+      "es": "Ingresos Totales",
+      "fr": "Revenu Total",
+      "zh": "总收入",
+      "ar": "إجمالي الإيرادات"
+    },
+    "Entregues": {
+      "en": "Delivered",
+      "es": "Entregados",
+      "fr": "Livrées",
+      "zh": "已送达",
+      "ar": "تم التوصيل"
+    },
+    "Gerir Produtos": {
+      "en": "Manage Products",
+      "es": "Gestionar Productos",
+      "fr": "Gérer les Produits",
+      "zh": "管理商品",
+      "ar": "إدارة المنتجات"
+    },
+    "Novo Produto": {
+      "en": "New Product",
+      "es": "Nuevo Producto",
+      "fr": "Nouveau Produit",
+      "zh": "新商品",
+      "ar": "منتج جديد"
+    },
+    "Formas de Pagamento": {
+      "en": "Payment Methods",
+      "es": "Formas de Pago",
+      "fr": "Modes de Paiement",
+      "zh": "支付方式",
+      "ar": "طرق الدفع"
+    },
+    "Gerir Pedidos": {
+      "en": "Manage Orders",
+      "es": "Gestionar Pedidos",
+      "fr": "Gérer les Commandes",
+      "zh": "管理订单",
+      "ar": "إدارة الطلبات"
+    },
+    "Pedidos Recentes": {
+      "en": "Recent Orders",
+      "es": "Pedidos Recientes",
+      "fr": "Commandes Récentes",
+      "zh": "近期订单",
+      "ar": "الطلبات الأخيرة"
+    },
+    "Pedido": {
+      "en": "Order",
+      "fr": "Commande",
+      "zh": "订单",
+      "ar": "الطلب"
+    },
+    "Cliente": {
+      "en": "Customer",
+      "fr": "Client",
+      "zh": "客户",
+      "ar": "العميل"
+    },
+    "Itens": {
+      "en": "Items",
+      "es": "Artículos",
+      "fr": "Articles",
+      "zh": "商品",
+      "ar": "العناصر"
+    },
+    "Valor": {
+      "en": "Amount",
+      "es": "Importe",
+      "fr": "Montant",
+      "zh": "金额",
+      "ar": "المبلغ"
+    },
+    "Acoes Rapidas": {
+      "en": "Quick Actions",
+      "es": "Acciones Rápidas",
+      "fr": "Actions Rapides",
+      "zh": "快捷操作",
+      "ar": "إجراءات سريعة"
+    },
+    "Adicionar Produto": {
+      "en": "Add Product",
+      "es": "Añadir Producto",
+      "fr": "Ajouter un Produit",
+      "zh": "添加商品",
+      "ar": "إضافة منتج"
+    },
+    "Criar novo anuncio": {
+      "en": "Create new listing",
+      "es": "Crear nuevo anuncio",
+      "fr": "Créer une nouvelle annonce",
+      "zh": "发布新广告",
+      "ar": "إنشاء إعلان جديد"
+    },
+    "Editar ou remover anuncios": {
+      "en": "Edit or remove listings",
+      "es": "Editar o eliminar anuncios",
+      "fr": "Modifier ou supprimer des annonces",
+      "zh": "编辑或删除广告",
+      "ar": "تعديل أو إزالة إعلانات"
+    },
+    "Ver Pedidos": {
+      "en": "View Orders",
+      "fr": "Voir les Commandes",
+      "zh": "查看订单",
+      "ar": "عرض الطلبات"
+    },
+    "Acompanhar vendas": {
+      "en": "Track sales",
+      "es": "Seguir ventas",
+      "fr": "Suivre les ventes",
+      "zh": "跟踪销售",
+      "ar": "متابعة المبيعات"
+    },
+    "Configure as formas de pagamento que disponibiliza aos seus clientes. Os clientes verão apenas as opções activadas.": {
+      "en": "Set up the payment methods you offer your customers. Customers will only see enabled options.",
+      "es": "Configure las formas de pago que ofrece a sus clientes. Los clientes verán solo las opciones activadas.",
+      "fr": "Configurez les modes de paiement que vous mettez à disposition de vos clients. Les clients ne verront que les options activées.",
+      "zh": "配置您向客户提供的支付方式。客户只会看到已启用的选项。",
+      "ar": "اضبط طرق الدفع التي توفرها لعملائك. سيرى العملاء الخيارات المفعلة فقط."
+    },
+    "Formas de pagamento actualizadas!": {
+      "en": "Payment methods updated!",
+      "es": "¡Formas de pago actualizadas!",
+      "fr": "Modes de paiement mis à jour !",
+      "zh": "支付方式已更新！",
+      "ar": "تم تحديث طرق الدفع!"
+    },
+    "Erro ao guardar formas de pagamento": {
+      "en": "Error saving payment methods",
+      "es": "Error al guardar formas de pago",
+      "fr": "Erreur lors de l'enregistrement des modes de paiement",
+      "zh": "保存支付方式时出错",
+      "ar": "خطأ في حفظ طرق الدفع"
+    },
+    "O cliente paga via Multicaixa Express para o seu telefone.": {
+      "en": "The customer pays via Multicaixa Express to your phone.",
+      "es": "El cliente paga vía Multicaixa Express a su teléfono.",
+      "fr": "Le client paie via Multicaixa Express sur votre téléphone.",
+      "zh": "客户通过 Multicaixa Express 向您的手机付款。",
+      "ar": "يدفع العميل عبر ملتيكاشا إكسبرس إلى هاتفك."
+    },
+    "O cliente transfere para a sua conta bancária.": {
+      "en": "The customer transfers to your bank account.",
+      "es": "El cliente transfiere a su cuenta bancaria.",
+      "fr": "Le client effectue un virement sur votre compte bancaire.",
+      "zh": "客户向您的银行账户转账。",
+      "ar": "يحوّل العميل إلى حسابك البنكي."
+    },
+    "O cliente paga usando entidade e referência (multicaixa, ATM ou app do banco).": {
+      "en": "The customer pays using entity and reference (Multicaixa, ATM, or banking app).",
+      "es": "El cliente paga usando entidad y referencia (Multicaixa, ATM o app del banco).",
+      "fr": "Le client paie en utilisant l'entité et la référence (multicaixa, ATM ou application bancaire).",
+      "zh": "客户使用实体号和参考号付款（multicaixa、ATM 或银行应用）。",
+      "ar": "يدفع العميل باستخدام الجهة والمرجع (ملتيكاشا أو الصراف الآلي أو تطبيق البنك)."
+    },
+    "O cliente paga em dinheiro ao receber o produto.": {
+      "en": "The customer pays cash on delivery.",
+      "es": "El cliente paga en efectivo al recibir el producto.",
+      "fr": "Le client paie en espèces à la réception du produit.",
+      "zh": "客户在收到商品时以现金付款。",
+      "ar": "يدفع العميل نقداً عند استلام المنتج."
+    },
+    "Telefone Multicaixa Express": {
+      "en": "Multicaixa Express phone",
+      "es": "Teléfono Multicaixa Express",
+      "fr": "Téléphone Multicaixa Express",
+      "zh": "Multicaixa Express 手机号",
+      "ar": "هاتف ملتيكاشا إكسبرس"
+    },
+    "Telefone do titular": {
+      "en": "Account holder phone",
+      "es": "Teléfono del titular",
+      "fr": "Téléphone du titulaire",
+      "zh": "户主手机号",
+      "ar": "هاتف صاحب الحساب"
+    },
+    "Nome do titular": {
+      "en": "Account holder name",
+      "es": "Nombre del titular",
+      "fr": "Nom du titulaire",
+      "zh": "户主姓名",
+      "ar": "اسم صاحب الحساب"
+    },
+    "Nome na conta": {
+      "en": "Name on account",
+      "es": "Nombre en la cuenta",
+      "fr": "Nom sur le compte",
+      "zh": "账户名",
+      "ar": "الاسم في الحساب"
+    },
+    "Nº da conta": {
+      "en": "Account number",
+      "es": "Nº de la cuenta",
+      "fr": "N° du compte",
+      "zh": "账号",
+      "ar": "رقم الحساب"
+    },
+    "Pedidos da Loja": {
+      "en": "Store Orders",
+      "es": "Pedidos de la Tienda",
+      "fr": "Commandes de la Boutique",
+      "zh": "店铺订单",
+      "ar": "طلبات المتجر"
+    },
+    "Ver": {
+      "en": "View",
+      "fr": "Voir",
+      "zh": "查看",
+      "ar": "عرض"
+    },
+    "Confirmado": {
+      "en": "Confirmed",
+      "fr": "Confirmé",
+      "zh": "已确认",
+      "ar": "مؤكد"
+    },
+    "Pedido nao encontrado": {
+      "en": "Order not found",
+      "es": "Pedido no encontrado",
+      "fr": "Commande introuvable",
+      "zh": "未找到订单",
+      "ar": "الطلب غير موجود"
+    },
+    "Sem itens.": {
+      "en": "No items.",
+      "es": "Sin artículos.",
+      "fr": "Aucun article.",
+      "zh": "暂无商品。",
+      "ar": "لا توجد عناصر."
+    },
+    "Gratis": {
+      "en": "Free",
+      "fr": "Gratuit",
+      "zh": "免运费",
+      "ar": "مجاناً"
+    },
+    "Comprovativo do cliente": {
+      "en": "Customer's proof",
+      "es": "Comprobante del cliente",
+      "fr": "Justificatif du client",
+      "zh": "客户凭证",
+      "ar": "إثبات العميل"
+    },
+    "Abrir comprovativo": {
+      "en": "Open proof",
+      "es": "Abrir comprobante",
+      "fr": "Ouvrir le justificatif",
+      "zh": "打开凭证",
+      "ar": "فتح الإثبات"
+    },
+    "Comprovativo": {
+      "en": "Proof",
+      "es": "Comprobante",
+      "fr": "Justificatif",
+      "zh": "凭证",
+      "ar": "الإثبات"
+    },
+    "Validação: comprovativo válido": {
+      "en": "Validation: valid proof",
+      "es": "Validación: comprobante válido",
+      "fr": "Validation : justificatif valide",
+      "zh": "验证：凭证有效",
+      "ar": "التحقق: إثبات صالح"
+    },
+    "Validação: necessita revisão": {
+      "en": "Validation: needs review",
+      "es": "Validación: requiere revisión",
+      "fr": "Validation : nécessite une vérification",
+      "zh": "验证：需要审核",
+      "ar": "التحقق: يتطلب مراجعة"
+    },
+    "Validação: comprovativo suspeito": {
+      "en": "Validation: suspicious proof",
+      "es": "Validación: comprobante sospechoso",
+      "fr": "Validation : justificatif suspect",
+      "zh": "验证：凭证可疑",
+      "ar": "التحقق: إثبات مشبوه"
+    },
+    "Validação: não foi possível validar": {
+      "en": "Validation: unable to validate",
+      "es": "Validación: no fue posible validar",
+      "fr": "Validation : impossible de valider",
+      "zh": "验证：无法验证",
+      "ar": "التحقق: تعذر التحقق"
+    },
+    "Declarar pagamento recebido": {
+      "en": "Declare payment received",
+      "es": "Declarar pago recibido",
+      "fr": "Déclarer le paiement reçu",
+      "zh": "确认已收到付款",
+      "ar": "الإعلان عن استلام الدفع"
+    },
+    "A confirmação final é feita pelo administrador da plataforma para prevenir burlas.": {
+      "en": "Final confirmation is made by the platform administrator to prevent fraud.",
+      "es": "La confirmación final la realiza el administrador de la plataforma para prevenir fraudes.",
+      "fr": "La confirmation finale est effectuée par l'administrateur de la plateforme pour prévenir les fraudes.",
+      "zh": "最终确认由平台管理员完成，以防止欺诈。",
+      "ar": "التأكيد النهائي يتم بواسطة مسؤول المنصة لمنع الاحتيال."
+    },
+    "Pagamento declarado como recebido — aguardando confirmação do administrador": {
+      "en": "Payment declared as received — awaiting administrator confirmation",
+      "es": "Pago declarado como recibido — esperando confirmación del administrador",
+      "fr": "Paiement déclaré comme reçu — en attente de confirmation de l'administrateur",
+      "zh": "付款已确认收到——等待管理员确认",
+      "ar": "تم الإعلان عن استلام الدفع — بانتظار تأكيد المسؤول"
+    },
+    "Aguardando o cliente enviar o comprovativo de pagamento.": {
+      "en": "Waiting for the customer to submit their payment proof.",
+      "es": "Esperando que el cliente envíe el comprobante de pago.",
+      "fr": "En attente que le client envoie le justificatif de paiement.",
+      "zh": "等待客户上传付款凭证。",
+      "ar": "بانتظار قيام العميل بإرسال إثبات الدفع."
+    },
+    "Pagamento declarado como recebido. Aguarde a confirmação final do administrador.": {
+      "en": "Payment declared as received. Please wait for final administrator confirmation.",
+      "es": "Pago declarado como recibido. Espere la confirmación final del administrador.",
+      "fr": "Paiement déclaré comme reçu. En attente de la confirmation finale de l'administrateur.",
+      "zh": "付款已确认收到。请等待管理员的最终确认。",
+      "ar": "تم الإعلان عن استلام الدفع. انتظر التأكيد النهائي من المسؤول."
+    },
+    "Erro ao declarar pagamento recebido": {
+      "en": "Error declaring payment received",
+      "es": "Error al declarar pago recibido",
+      "fr": "Erreur lors de la déclaration du paiement reçu",
+      "zh": "确认收到付款时出错",
+      "ar": "خطأ في الإعلان عن استلام الدفع"
+    },
+    "Os Meus Produtos": {
+      "en": "My Products",
+      "es": "Mis Productos",
+      "fr": "Mes Produits",
+      "zh": "我的商品",
+      "ar": "منتجاتي"
+    },
+    "Pesquisar produtos...": {
+      "en": "Search products...",
+      "es": "Buscar productos...",
+      "fr": "Rechercher des produits...",
+      "zh": "搜索商品...",
+      "ar": "ابحث عن منتجات..."
+    },
+    "unidades": {
+      "en": "units",
+      "fr": "unités",
+      "zh": "件",
+      "ar": "وحدات"
+    },
+    "Nenhum produto encontrado.": {
+      "en": "No products found.",
+      "es": "Ningún producto encontrado.",
+      "fr": "Aucun produit trouvé.",
+      "zh": "未找到商品。",
+      "ar": "لم يتم العثور على أي منتج."
+    },
+    "Preco": {
+      "en": "Price",
+      "es": "Precio",
+      "fr": "Prix",
+      "zh": "价格",
+      "ar": "السعر"
+    },
+    "Estoque": {
+      "en": "Stock",
+      "es": "Stock",
+      "fr": "Stock",
+      "zh": "库存",
+      "ar": "المخزون"
+    },
+    "Vendas": {
+      "en": "Sales",
+      "es": "Ventas",
+      "fr": "Ventes",
+      "zh": "销量",
+      "ar": "المبيعات"
+    },
+    "Acoes": {
+      "en": "Actions",
+      "es": "Acciones",
+      "fr": "Actions",
+      "zh": "操作",
+      "ar": "الإجراءات"
+    },
+    "Ativo": {
+      "en": "Active",
+      "es": "Activo",
+      "fr": "Actif",
+      "zh": "在售",
+      "ar": "نشط"
+    },
+    "Inativo": {
+      "en": "Inactive",
+      "es": "Inactivo",
+      "fr": "Inactif",
+      "zh": "下架",
+      "ar": "غير نشط"
+    },
+    "Imagens do Produto": {
+      "en": "Product Images",
+      "es": "Imágenes del Producto",
+      "fr": "Images du Produit",
+      "zh": "商品图片",
+      "ar": "صور المنتج"
+    },
+    "Informações Básicas": {
+      "en": "Basic Information",
+      "es": "Información Básica",
+      "fr": "Informations de Base",
+      "zh": "基本信息",
+      "ar": "المعلومات الأساسية"
+    },
+    "Preço e Estoque": {
+      "en": "Price & Stock",
+      "es": "Precio y Stock",
+      "fr": "Prix et Stock",
+      "zh": "价格与库存",
+      "ar": "السعر والمخزون"
+    },
+    "Adicionar": {
+      "en": "Add",
+      "es": "Añadir",
+      "fr": "Ajouter",
+      "zh": "添加",
+      "ar": "إضافة"
+    },
+    "Nome do Produto": {
+      "en": "Product Name",
+      "es": "Nombre del Producto",
+      "fr": "Nom du Produit",
+      "zh": "商品名称",
+      "ar": "اسم المنتج"
+    },
+    "Descreva o produto em detalhe...": {
+      "en": "Describe the product in detail...",
+      "es": "Describa el producto en detalle...",
+      "fr": "Décrivez le produit en détail...",
+      "zh": "详细描述商品...",
+      "ar": "صف المنتج بالتفصيل..."
+    },
+    "Categoria": {
+      "en": "Category",
+      "es": "Categoría",
+      "fr": "Catégorie",
+      "zh": "分类",
+      "ar": "الفئة"
+    },
+    "Condição": {
+      "en": "Condition",
+      "es": "Condición",
+      "fr": "Condition",
+      "zh": "成色",
+      "ar": "الحالة"
+    },
+    "Preço": {
+      "en": "Price",
+      "es": "Precio",
+      "fr": "Prix",
+      "zh": "价格",
+      "ar": "السعر"
+    },
+    "Preço de Comparação": {
+      "en": "Compare price",
+      "es": "Precio de Comparación",
+      "fr": "Prix de Comparaison",
+      "zh": "对比价格",
+      "ar": "سعر المقارنة"
+    },
+    "Selecione...": {
+      "en": "Select...",
+      "es": "Seleccione...",
+      "fr": "Sélectionner...",
+      "zh": "请选择...",
+      "ar": "اختر..."
+    },
+    "Novo": {
+      "en": "New",
+      "es": "Nuevo",
+      "fr": "Neuf",
+      "zh": "全新",
+      "ar": "جديد"
+    },
+    "Usado": {
+      "en": "Used",
+      "fr": "Occasion",
+      "zh": "二手",
+      "ar": "مستعمل"
+    },
+    "Recondicionado": {
+      "en": "Refurbished",
+      "es": "Reacondicionado",
+      "fr": "Reconditionné",
+      "zh": "翻新",
+      "ar": "مجدد"
+    },
+    "Opcional": {
+      "en": "Optional",
+      "fr": "Facultatif",
+      "zh": "选填",
+      "ar": "اختياري"
+    },
+    "Nome obrigatorio": {
+      "en": "Name is required",
+      "es": "Nombre obligatorio",
+      "fr": "Nom obligatoire",
+      "zh": "名称为必填项",
+      "ar": "الاسم مطلوب"
+    },
+    "Preço invalido": {
+      "en": "Invalid price",
+      "es": "Precio inválido",
+      "fr": "Prix invalide",
+      "zh": "价格无效",
+      "ar": "سعر غير صالح"
+    },
+    "Selecione uma categoria": {
+      "en": "Select a category",
+      "es": "Seleccione una categoría",
+      "fr": "Sélectionnez une catégorie",
+      "zh": "请选择一个分类",
+      "ar": "اختر فئة"
+    },
+    "Estoque invalido": {
+      "en": "Invalid stock",
+      "es": "Stock inválido",
+      "fr": "Stock invalide",
+      "zh": "库存无效",
+      "ar": "مخزون غير صالح"
+    },
+    "A criar...": {
+      "en": "Creating...",
+      "es": "Creando...",
+      "fr": "Création en cours...",
+      "zh": "创建中...",
+      "ar": "جارٍ الإنشاء..."
+    },
+    "Criar Produto": {
+      "en": "Create Product",
+      "es": "Crear Producto",
+      "fr": "Créer le Produit",
+      "zh": "创建商品",
+      "ar": "إنشاء منتج"
+    },
+    "Produto criado com sucesso!": {
+      "en": "Product created successfully!",
+      "es": "¡Producto creado con éxito!",
+      "fr": "Produit créé avec succès !",
+      "zh": "商品创建成功！",
+      "ar": "تم إنشاء المنتج بنجاح!"
+    },
+    "Erro ao criar produto": {
+      "en": "Error creating product",
+      "es": "Error al crear producto",
+      "fr": "Erreur lors de la création du produit",
+      "zh": "创建商品时出错",
+      "ar": "خطأ في إنشاء المنتج"
+    },
+    "Acesso Restrito": {
+      "en": "Restricted Access",
+      "es": "Acceso Restringido",
+      "fr": "Accès Restreint",
+      "zh": "受限访问",
+      "ar": "وصول مقيد"
+    },
+    "Apenas administradores podem aceder a esta pagina.": {
+      "en": "Only administrators can access this page.",
+      "es": "Solo los administradores pueden acceder a esta página.",
+      "fr": "Seuls les administrateurs peuvent accéder à cette page.",
+      "zh": "仅管理员可以访问此页面。",
+      "ar": "يمكن للمسؤولين فقط الوصول إلى هذه الصفحة."
+    },
+    "Voltar ao inicio": {
+      "en": "Back to home",
+      "es": "Volver al inicio",
+      "fr": "Retour à l'accueil",
+      "zh": "返回首页",
+      "ar": "العودة إلى الرئيسية"
+    },
+    "Utilizadores": {
+      "en": "Users",
+      "es": "Usuarios",
+      "fr": "Utilisateurs",
+      "zh": "用户",
+      "ar": "المستخدمون"
+    },
+    "Avaliacoes": {
+      "en": "Reviews",
+      "es": "Evaluaciones",
+      "fr": "Avis",
+      "zh": "评价",
+      "ar": "التقييمات"
+    },
+    "Ver Loja": {
+      "en": "View Store",
+      "es": "Ver Tienda",
+      "fr": "Voir la Boutique",
+      "zh": "查看店铺",
+      "ar": "عرض المتجر"
+    },
+    "Visao geral da plataforma": {
+      "en": "Platform overview",
+      "es": "Vista general de la plataforma",
+      "fr": "Vue d'ensemble de la plateforme",
+      "zh": "平台概览",
+      "ar": "نظرة عامة على المنصة"
+    },
+    "Ver pedidos": {
+      "en": "View orders",
+      "fr": "Voir les commandes",
+      "zh": "查看订单",
+      "ar": "عرض الطلبات"
+    },
+    "pedidos esta semana": {
+      "en": "orders this week",
+      "fr": "commandes cette semaine",
+      "zh": "本周订单",
+      "ar": "طلبات هذا الأسبوع"
+    },
+    "esta semana": {
+      "en": "this week",
+      "fr": "cette semaine",
+      "zh": "本周",
+      "ar": "هذا الأسبوع"
+    },
+    "novos esta semana": {
+      "en": "new this week",
+      "es": "nuevos esta semana",
+      "fr": "nouveaux cette semaine",
+      "zh": "本周新增",
+      "ar": "جدد هذا الأسبوع"
+    },
+    "Produtos Ativos": {
+      "en": "Active Products",
+      "es": "Productos Activos",
+      "fr": "Produits Actifs",
+      "zh": "在售商品",
+      "ar": "المنتجات النشطة"
+    },
+    "inativos": {
+      "en": "inactive",
+      "es": "inactivos",
+      "fr": "inactifs",
+      "zh": "下架",
+      "ar": "غير نشطة"
+    },
+    "Vendedores": {
+      "en": "Sellers",
+      "fr": "Vendeurs",
+      "zh": "卖家",
+      "ar": "البائعون"
+    },
+    "Lojas Verif.": {
+      "en": "Verified Stores",
+      "es": "Tiendas Verif.",
+      "fr": "Boutiques Vérifiées",
+      "zh": "已验证店铺",
+      "ar": "متاجر موثقة"
+    },
+    "Receita - Ultimos 30 dias": {
+      "en": "Revenue - Last 30 days",
+      "es": "Ingresos - Últimos 30 días",
+      "fr": "Revenu - 30 derniers jours",
+      "zh": "收入 - 最近 30 天",
+      "ar": "الإيرادات - آخر 30 يوماً"
+    },
+    "Diario": {
+      "en": "Daily",
+      "fr": "Quotidien",
+      "zh": "每日",
+      "ar": "يومي"
+    },
+    "Receita": {
+      "en": "Revenue",
+      "es": "Ingresos",
+      "fr": "Revenu",
+      "zh": "收入",
+      "ar": "الإيرادات"
+    },
+    "Pedidos por Estado": {
+      "en": "Orders by Status",
+      "fr": "Commandes par État",
+      "zh": "按状态统计订单",
+      "ar": "الطلبات حسب الحالة"
+    },
+    "Sem dados de pedidos": {
+      "en": "No order data",
+      "es": "Sin datos de pedidos",
+      "fr": "Aucune donnée de commandes",
+      "zh": "暂无订单数据",
+      "ar": "لا توجد بيانات طلبات"
+    },
+    "Nr Pedido": {
+      "en": "Order #",
+      "es": "Nº Pedido",
+      "fr": "N° Commande",
+      "zh": "订单号",
+      "ar": "رقم الطلب"
+    },
+    "Acesso Rapido": {
+      "en": "Quick Access",
+      "es": "Acceso Rápido",
+      "fr": "Accès Rapide",
+      "zh": "快速访问",
+      "ar": "وصول سريع"
+    },
+    "Pesquisar produto...": {
+      "en": "Search product...",
+      "es": "Buscar producto...",
+      "fr": "Rechercher un produit...",
+      "zh": "搜索商品...",
+      "ar": "ابحث عن منتج..."
+    },
+    "Ativos": {
+      "en": "Active",
+      "es": "Activos",
+      "fr": "Actifs",
+      "zh": "在售",
+      "ar": "نشطة"
+    },
+    "Inativos": {
+      "en": "Inactive",
+      "es": "Inactivos",
+      "fr": "Inactifs",
+      "zh": "下架",
+      "ar": "غير نشطة"
+    },
+    "Avaliacao": {
+      "en": "Rating",
+      "es": "Evaluación",
+      "fr": "Évaluation",
+      "zh": "评分",
+      "ar": "التقييم"
+    },
+    "Produto eliminado": {
+      "en": "Product deleted",
+      "es": "Producto eliminado",
+      "fr": "Produit supprimé",
+      "zh": "商品已删除",
+      "ar": "تم حذف المنتج"
+    },
+    "Erro ao eliminar produto": {
+      "en": "Error deleting product",
+      "es": "Error al eliminar producto",
+      "fr": "Erreur lors de la suppression du produit",
+      "zh": "删除商品时出错",
+      "ar": "خطأ في حذف المنتج"
+    },
+    "Produto atualizado": {
+      "en": "Product updated",
+      "es": "Producto actualizado",
+      "fr": "Produit mis à jour",
+      "zh": "商品已更新",
+      "ar": "تم تحديث المنتج"
+    },
+    "Erro ao atualizar produto": {
+      "en": "Error updating product",
+      "es": "Error al actualizar producto",
+      "fr": "Erreur lors de la mise à jour du produit",
+      "zh": "更新商品时出错",
+      "ar": "خطأ في تحديث المنتج"
+    },
+    "Erro ao carregar produtos": {
+      "en": "Error loading products",
+      "es": "Error al cargar productos",
+      "fr": "Erreur lors du chargement des produits",
+      "zh": "加载商品时出错",
+      "ar": "خطأ في تحميل المنتجات"
+    },
+    "Gerir Lojas": {
+      "en": "Manage Stores",
+      "es": "Gestionar Tiendas",
+      "fr": "Gérer les Boutiques",
+      "zh": "管理店铺",
+      "ar": "إدارة المتاجر"
+    },
+    "Pesquisar loja...": {
+      "en": "Search store...",
+      "es": "Buscar tienda...",
+      "fr": "Rechercher une boutique...",
+      "zh": "搜索店铺...",
+      "ar": "ابحث عن متجر..."
+    },
+    "Verificadas": {
+      "en": "Verified",
+      "fr": "Vérifiées",
+      "zh": "已验证",
+      "ar": "موثقة"
+    },
+    "Nao Verif.": {
+      "en": "Unverified",
+      "es": "No Verif.",
+      "fr": "Non Vérifiées",
+      "zh": "未验证",
+      "ar": "غير موثقة"
+    },
+    "Proprietario": {
+      "en": "Owner",
+      "es": "Propietario",
+      "fr": "Propriétaire",
+      "zh": "店主",
+      "ar": "المالك"
+    },
+    "Verificada": {
+      "en": "Verified",
+      "fr": "Vérifiée",
+      "zh": "已验证",
+      "ar": "موثقة"
+    },
+    "Sim": {
+      "en": "Yes",
+      "es": "Sí",
+      "fr": "Oui",
+      "zh": "是",
+      "ar": "نعم"
+    },
+    "Nao": {
+      "en": "No",
+      "es": "No",
+      "fr": "Non",
+      "zh": "否",
+      "ar": "لا"
+    },
+    "Loja eliminada": {
+      "en": "Store deleted",
+      "es": "Tienda eliminada",
+      "fr": "Boutique supprimée",
+      "zh": "店铺已删除",
+      "ar": "تم حذف المتجر"
+    },
+    "Erro ao eliminar loja": {
+      "en": "Error deleting store",
+      "es": "Error al eliminar tienda",
+      "fr": "Erreur lors de la suppression de la boutique",
+      "zh": "删除店铺时出错",
+      "ar": "خطأ في حذف المتجر"
+    },
+    "Loja atualizada": {
+      "en": "Store updated",
+      "es": "Tienda actualizada",
+      "fr": "Boutique mise à jour",
+      "zh": "店铺已更新",
+      "ar": "تم تحديث المتجر"
+    },
+    "Erro ao atualizar loja": {
+      "en": "Error updating store",
+      "es": "Error al actualizar tienda",
+      "fr": "Erreur lors de la mise à jour de la boutique",
+      "zh": "更新店铺时出错",
+      "ar": "خطأ في تحديث المتجر"
+    },
+    "Erro ao carregar lojas": {
+      "en": "Error loading stores",
+      "es": "Error al cargar tiendas",
+      "fr": "Erreur lors du chargement des boutiques",
+      "zh": "加载店铺时出错",
+      "ar": "خطأ في تحميل المتاجر"
+    },
+    "Gerir Categorias": {
+      "en": "Manage Categories",
+      "es": "Gestionar Categorías",
+      "fr": "Gérer les Catégories",
+      "zh": "管理分类",
+      "ar": "إدارة الفئات"
+    },
+    "Nova Categoria": {
+      "en": "New Category",
+      "es": "Nueva Categoría",
+      "fr": "Nouvelle Catégorie",
+      "zh": "新分类",
+      "ar": "فئة جديدة"
+    },
+    "Editar Categoria": {
+      "en": "Edit Category",
+      "es": "Editar Categoría",
+      "fr": "Modifier la Catégorie",
+      "zh": "编辑分类",
+      "ar": "تعديل الفئة"
+    },
+    "Icone (emoji)": {
+      "en": "Icon (emoji)",
+      "es": "Icono (emoji)",
+      "fr": "Icône (emoji)",
+      "zh": "图标（表情符号）",
+      "ar": "الأيقونة (إيموجي)"
+    },
+    "Ex: Electronica": {
+      "en": "e.g. Electronics",
+      "es": "Ej: Electrónica",
+      "fr": "Ex : Électronique",
+      "zh": "例如：电子产品",
+      "ar": "مثال: إلكترونيات"
+    },
+    "Ex: electronica": {
+      "en": "e.g. electronics",
+      "es": "Ej: electronica",
+      "fr": "Ex : electronique",
+      "zh": "例如：electronica",
+      "ar": "مثال: electronica"
+    },
+    "Ex: 📱": {
+      "en": "e.g. 📱",
+      "es": "Ej: 📱",
+      "fr": "Ex : 📱",
+      "zh": "例如：📱",
+      "ar": "مثال: 📱"
+    },
+    "Icone": {
+      "en": "Icon",
+      "es": "Icono",
+      "fr": "Icône",
+      "zh": "图标",
+      "ar": "الأيقونة"
+    },
+    "Subcategorias": {
+      "en": "Subcategories",
+      "es": "Subcategorías",
+      "fr": "Sous-catégories",
+      "zh": "子分类",
+      "ar": "الفئات الفرعية"
+    },
+    "Nenhuma categoria encontrada.": {
+      "en": "No categories found.",
+      "es": "Ninguna categoría encontrada.",
+      "fr": "Aucune catégorie trouvée.",
+      "zh": "未找到分类。",
+      "ar": "لم يتم العثور على أي فئة."
+    },
+    "Categoria eliminada": {
+      "en": "Category deleted",
+      "es": "Categoría eliminada",
+      "fr": "Catégorie supprimée",
+      "zh": "分类已删除",
+      "ar": "تم حذف الفئة"
+    },
+    "Erro ao eliminar categoria": {
+      "en": "Error deleting category",
+      "es": "Error al eliminar categoría",
+      "fr": "Erreur lors de la suppression de la catégorie",
+      "zh": "删除分类时出错",
+      "ar": "خطأ في حذف الفئة"
+    },
+    "Erro ao guardar categoria": {
+      "en": "Error saving category",
+      "es": "Error al guardar categoría",
+      "fr": "Erreur lors de l'enregistrement de la catégorie",
+      "zh": "保存分类时出错",
+      "ar": "خطأ في حفظ الفئة"
+    },
+    "Categoria atualizada": {
+      "en": "Category updated",
+      "es": "Categoría actualizada",
+      "fr": "Catégorie mise à jour",
+      "zh": "分类已更新",
+      "ar": "تم تحديث الفئة"
+    },
+    "Categoria criada": {
+      "en": "Category created",
+      "es": "Categoría creada",
+      "fr": "Catégorie créée",
+      "zh": "分类已创建",
+      "ar": "تم إنشاء الفئة"
+    },
+    "Erro ao carregar categorias": {
+      "en": "Error loading categories",
+      "es": "Error al cargar categorías",
+      "fr": "Erreur lors du chargement des catégories",
+      "zh": "加载分类时出错",
+      "ar": "خطأ في تحميل الفئات"
+    },
+    "Pesquisar por nr. pedido ou nome...": {
+      "en": "Search by order # or name...",
+      "es": "Buscar por nº. de pedido o nombre...",
+      "fr": "Rechercher par n° commande ou nom...",
+      "zh": "按订单号或名称搜索...",
+      "ar": "ابحث برقم الطلب أو الاسم..."
+    },
+    "Data": {
+      "en": "Date",
+      "es": "Fecha",
+      "fr": "Date",
+      "zh": "日期",
+      "ar": "التاريخ"
+    },
+    "Confirmar pagamento (final)": {
+      "en": "Confirm payment (final)",
+      "es": "Confirmar pago (final)",
+      "fr": "Confirmer le paiement (final)",
+      "zh": "确认付款（最终）",
+      "ar": "تأكيد الدفع (نهائي)"
+    },
+    "Rejeitar comprovativo": {
+      "en": "Reject proof",
+      "es": "Rechazar comprobante",
+      "fr": "Rejeter le justificatif",
+      "zh": "拒绝凭证",
+      "ar": "رفض الإثبات"
+    },
+    "Rejeitar": {
+      "en": "Reject",
+      "es": "Rechazar",
+      "fr": "Rejeter",
+      "zh": "拒绝",
+      "ar": "رفض"
+    },
+    "Confirmar o pagamento como PAID? Esta ação é definitiva e confirma o pagamento ao vendedor.": {
+      "en": "Confirm payment as PAID? This action is final and confirms payment to the seller.",
+      "es": "¿Confirmar el pago como PAGADO? Esta acción es definitiva y confirma el pago al vendedor.",
+      "fr": "Confirmer le paiement comme PAID ? Cette action est définitive et confirme le paiement au vendeur.",
+      "zh": "确认付款为已付款（PAID）？此操作是最终性的，将向卖家确认付款。",
+      "ar": "تأكيد الدفع كمدفوع؟ هذا الإجراء نهائي ويؤكد الدفع للبائع."
+    },
+    "Rejeitar este comprovativo de pagamento?": {
+      "en": "Reject this payment proof?",
+      "es": "¿Rechazar este comprobante de pago?",
+      "fr": "Rejeter ce justificatif de paiement ?",
+      "zh": "拒绝此付款凭证？",
+      "ar": "رفض إثبات الدفع هذا؟"
+    },
+    "Pagamento confirmado!": {
+      "en": "Payment confirmed!",
+      "es": "¡Pago confirmado!",
+      "fr": "Paiement confirmé !",
+      "zh": "付款已确认！",
+      "ar": "تم تأكيد الدفع!"
+    },
+    "Comprovativo rejeitado": {
+      "en": "Proof rejected",
+      "es": "Comprobante rechazado",
+      "fr": "Justificatif rejeté",
+      "zh": "凭证已被拒绝",
+      "ar": "تم رفض الإثبات"
+    },
+    "Erro ao processar pagamento": {
+      "en": "Error processing payment",
+      "es": "Error al procesar pago",
+      "fr": "Erreur lors du traitement du paiement",
+      "zh": "处理付款时出错",
+      "ar": "خطأ في معالجة الدفع"
+    },
+    "Estado atualizado": {
+      "en": "Status updated",
+      "es": "Estado actualizado",
+      "fr": "État mis à jour",
+      "zh": "状态已更新",
+      "ar": "تم تحديث الحالة"
+    },
+    "Erro ao atualizar estado": {
+      "en": "Error updating status",
+      "es": "Error al actualizar estado",
+      "fr": "Erreur lors de la mise à jour de l'état",
+      "zh": "更新状态时出错",
+      "ar": "خطأ في تحديث الحالة"
+    },
+    "Erro ao carregar pedidos": {
+      "en": "Error loading orders",
+      "es": "Error al cargar pedidos",
+      "fr": "Erreur lors du chargement des commandes",
+      "zh": "加载订单时出错",
+      "ar": "خطأ في تحميل الطلبات"
+    },
+    "Declarado recebido": {
+      "en": "Declared received",
+      "es": "Declarado recibido",
+      "fr": "Déclaré reçu",
+      "zh": "已确认收到",
+      "ar": "تم الإعلان عن استلامه"
+    },
+    "IA: válido": {
+      "en": "AI: valid",
+      "fr": "IA : valide",
+      "zh": "AI：有效",
+      "ar": "الذكاء الاصطناعي: صالح"
+    },
+    "IA: revisão": {
+      "en": "AI: review",
+      "es": "IA: revisión",
+      "fr": "IA : vérification",
+      "zh": "AI：审核",
+      "ar": "الذكاء الاصطناعي: مراجعة"
+    },
+    "IA: suspeito": {
+      "en": "AI: suspicious",
+      "es": "IA: sospechoso",
+      "fr": "IA : suspect",
+      "zh": "AI：可疑",
+      "ar": "الذكاء الاصطناعي: مشبوه"
+    },
+    "IA: erro": {
+      "en": "AI: error",
+      "es": "IA: error",
+      "fr": "IA : erreur",
+      "zh": "AI：错误",
+      "ar": "الذكاء الاصطناعي: خطأ"
+    },
+    "Gerir Avaliacoes": {
+      "en": "Manage Reviews",
+      "es": "Gestionar Evaluaciones",
+      "fr": "Gérer les Avis",
+      "zh": "管理评价",
+      "ar": "إدارة التقييمات"
+    },
+    "Classificacao": {
+      "en": "Rating",
+      "es": "Clasificación",
+      "fr": "Classement",
+      "zh": "评分",
+      "ar": "التصنيف"
+    },
+    "Comentario": {
+      "en": "Comment",
+      "fr": "Commentaire",
+      "zh": "评论",
+      "ar": "التعليق"
+    },
+    "Sem comentario": {
+      "en": "No comment",
+      "es": "Sin comentario",
+      "fr": "Sans commentaire",
+      "zh": "暂无评论",
+      "ar": "بدون تعليق"
+    },
+    "Nenhuma avaliacao encontrada.": {
+      "en": "No reviews found.",
+      "es": "Ninguna evaluación encontrada.",
+      "fr": "Aucun avis trouvé.",
+      "zh": "未找到评价。",
+      "ar": "لم يتم العثور على أي تقييم."
+    },
+    "Eliminar esta avaliacao?": {
+      "en": "Delete this review?",
+      "es": "¿Eliminar esta evaluación?",
+      "fr": "Supprimer cet avis ?",
+      "zh": "删除此评价？",
+      "ar": "حذف هذا التقييم؟"
+    },
+    "Avaliacao eliminada": {
+      "en": "Review deleted",
+      "es": "Evaluación eliminada",
+      "fr": "Avis supprimé",
+      "zh": "评价已删除",
+      "ar": "تم حذف التقييم"
+    },
+    "Erro ao eliminar avaliacao": {
+      "en": "Error deleting review",
+      "es": "Error al eliminar evaluación",
+      "fr": "Erreur lors de la suppression de l'avis",
+      "zh": "删除评价时出错",
+      "ar": "خطأ في حذف التقييم"
+    },
+    "Erro ao carregar avaliacoes": {
+      "en": "Error loading reviews",
+      "es": "Error al cargar evaluaciones",
+      "fr": "Erreur lors du chargement des avis",
+      "zh": "加载评价时出错",
+      "ar": "خطأ في تحميل التقييمات"
+    },
+    "Gerir Utilizadores": {
+      "en": "Manage Users",
+      "es": "Gestionar Usuarios",
+      "fr": "Gérer les Utilisateurs",
+      "zh": "管理用户",
+      "ar": "إدارة المستخدمين"
+    },
+    "Pesquisar por nome ou email...": {
+      "en": "Search by name or email...",
+      "es": "Buscar por nombre o email...",
+      "fr": "Rechercher par nom ou email...",
+      "zh": "按姓名或邮箱搜索...",
+      "ar": "ابحث بالاسم أو البريد الإلكتروني..."
+    },
+    "Administrador": {
+      "en": "Administrator",
+      "fr": "Administrateur",
+      "zh": "管理员",
+      "ar": "مسؤول"
+    },
+    "Registado": {
+      "en": "Registered",
+      "es": "Registrado",
+      "fr": "Inscrit",
+      "zh": "注册时间",
+      "ar": "مسجل"
+    },
+    "Nenhum utilizador encontrado.": {
+      "en": "No users found.",
+      "es": "Ningún usuario encontrado.",
+      "fr": "Aucun utilisateur trouvé.",
+      "zh": "未找到用户。",
+      "ar": "لم يتم العثور على أي مستخدم."
+    },
+    "Utilizador eliminado": {
+      "en": "User deleted",
+      "es": "Usuario eliminado",
+      "fr": "Utilisateur supprimé",
+      "zh": "用户已删除",
+      "ar": "تم حذف المستخدم"
+    },
+    "Erro ao eliminar utilizador": {
+      "en": "Error deleting user",
+      "es": "Error al eliminar usuario",
+      "fr": "Erreur lors de la suppression de l'utilisateur",
+      "zh": "删除用户时出错",
+      "ar": "خطأ في حذف المستخدم"
+    },
+    "Role atualizado": {
+      "en": "Role updated",
+      "es": "Rol actualizado",
+      "fr": "Rôle mis à jour",
+      "zh": "角色已更新",
+      "ar": "تم تحديث الدور"
+    },
+    "Erro ao atualizar role": {
+      "en": "Error updating role",
+      "es": "Error al actualizar rol",
+      "fr": "Erreur lors de la mise à jour du rôle",
+      "zh": "更新角色时出错",
+      "ar": "خطأ في تحديث الدور"
+    },
+    "Erro ao carregar utilizadores": {
+      "en": "Error loading users",
+      "es": "Error al cargar usuarios",
+      "fr": "Erreur lors du chargement des utilisateurs",
+      "zh": "加载用户时出错",
+      "ar": "خطأ في تحميل المستخدمين"
+    },
+    "Carrinho vazio": {
+      "en": "Cart empty",
+      "es": "Carrito vacío",
+      "fr": "Panier vide",
+      "zh": "购物车是空的",
+      "ar": "سلة فارغة"
+    },
+    "Adicione produtos ao seu carrinho.": {
+      "en": "Add products to your cart.",
+      "es": "Añada productos a su carrito.",
+      "fr": "Ajoutez des produits à votre panier.",
+      "zh": "将商品加入您的购物车。",
+      "ar": "أضف منتجات إلى سلتك."
+    },
+    "Continuar a comprar": {
+      "en": "Continue shopping",
+      "es": "Seguir comprando",
+      "fr": "Continuer vos achats",
+      "zh": "继续购物",
+      "ar": "مواصلة التسوق"
+    },
+    "Ver carrinho": {
+      "en": "View cart",
+      "es": "Ver carrito",
+      "fr": "Voir le panier",
+      "zh": "查看购物车",
+      "ar": "عرض السلة"
+    },
+    "Campo": {
+      "en": "Field",
+      "fr": "Champ",
+      "zh": "字段",
+      "ar": "الحقل"
+    },
+    "Alternar tema": {
+      "en": "Toggle theme",
+      "fr": "Basculer le thème",
+      "zh": "切换主题",
+      "ar": "تبديل المظهر"
+    },
+    "Min": {
+      "es": "Mín",
+      "zh": "最低",
+      "ar": "الحد الأدنى"
+    },
+    "Max": {
+      "es": "Máx",
+      "zh": "最高",
+      "ar": "الحد الأقصى"
+    },
+    "Role": {
+      "es": "Rol",
+      "fr": "Rôle",
+      "zh": "角色",
+      "ar": "الدور"
+    },
+    "Subtotal": {
+      "fr": "Sous-total",
+      "zh": "小计",
+      "ar": "المجموع الفرعي"
+    },
+    "Dashboard": {
+      "fr": "Tableau de bord",
+      "zh": "仪表盘",
+      "ar": "لوحة المعلومات"
+    },
+    "Newsletter": {
+      "zh": "订阅资讯",
+      "ar": "النشرة البريدية"
+    },
+    "Total": {
+      "zh": "合计",
+      "ar": "الإجمالي"
+    },
+    "Email": {
+      "zh": "邮箱",
+      "ar": "البريد الإلكتروني"
+    },
+    "Admin": {
+      "zh": "管理员",
+      "ar": "الإدارة"
+    },
+    "total": {
+      "zh": "总计",
+      "ar": "الإجمالي"
+    },
+    "Stock": {
+      "zh": "库存",
+      "ar": "المخزون"
+    },
+    "WhatsApp": {
+      "ar": "واتساب"
+    },
+    "Slug": {
+      "ar": "الرابط"
+    },
+    "Electronica e Tecnologia": {
+      "en": "Electronics and Technology",
+      "es": "Electrónica y Tecnología",
+      "fr": "Électronique et Technologie",
+      "zh": "电子产品与科技",
+      "ar": "إلكترونيات وتكنولوجيا"
+    },
+    "Roupa e Acessorios": {
+      "en": "Clothing and Accessories",
+      "es": "Ropa y Accesorios",
+      "fr": "Vêtements et Accessoires",
+      "zh": "服装与配饰",
+      "ar": "ملابس وإكسسوارات"
+    },
+    "Eletrodomesticos": {
+      "en": "Home Appliances",
+      "es": "Electrodomésticos",
+      "fr": "Électroménagers",
+      "zh": "家用电器",
+      "ar": "الأجهزة المنزلية"
+    },
+    "Moveis e Decoracao": {
+      "en": "Furniture and Decoration",
+      "es": "Muebles y Decoración",
+      "fr": "Meubles et Décoration",
+      "zh": "家具与装饰",
+      "ar": "الأثاث والديكور"
+    },
+    "Desporto e Lazer": {
+      "en": "Sports and Leisure",
+      "es": "Deportes y Ocio",
+      "fr": "Sport et Loisir",
+      "zh": "运动与休闲",
+      "ar": "رياضة وترفيه"
+    },
+    "Beleza e Saude": {
+      "en": "Beauty and Health",
+      "es": "Belleza y Salud",
+      "fr": "Beauté et Santé",
+      "zh": "美容与健康",
+      "ar": "الجمال والصحة"
+    },
+    "Automoveis": {
+      "en": "Automobiles",
+      "es": "Automóviles",
+      "fr": "Automobiles",
+      "zh": "汽车",
+      "ar": "سيارات"
+    },
+    "Educacao e Livros": {
+      "en": "Education and Books",
+      "es": "Educación y Libros",
+      "fr": "Éducation et Livres",
+      "zh": "教育与书籍",
+      "ar": "تعليم وكتب"
+    },
+    "Alimentos e Bebidas": {
+      "en": "Food and Drinks",
+      "es": "Alimentos y Bebidas",
+      "fr": "Aliments et Boissons",
+      "zh": "食品与饮料",
+      "ar": "أطعمة ومشروبات"
+    },
+    "Infantil": {
+      "en": "Children",
+      "es": "Infantil",
+      "fr": "Enfant",
+      "zh": "儿童",
+      "ar": "الأطفال"
+    },
+    "Animais de Estimacao": {
+      "en": "Pets",
+      "es": "Animales de Compañía",
+      "fr": "Animaux de Compagnie",
+      "zh": "宠物",
+      "ar": "حيوانات أليفة"
+    },
+    "Servicos": {
+      "en": "Services",
+      "es": "Servicios",
+      "fr": "Services",
+      "zh": "服务",
+      "ar": "خدمات"
+    },
+    "Traduções (outros idiomas)": {
+      "en": "Translations (other languages)",
+      "es": "Traducciones (otros idiomas)",
+      "fr": "Traductions (autres langues)",
+      "zh": "其他语言的翻译",
+      "ar": "الترجمات (لغات أخرى)"
+    },
+    "O conteúdo em falta é traduzido automaticamente pelo agente. Preenche à mão ou deixa em branco.": {
+      "en": "Missing content is automatically translated by the agent. Fill in manually or leave blank.",
+      "es": "El contenido faltante se traduce automáticamente por el agente. Rellena a mano o deja en blanco.",
+      "fr": "Le contenu manquant est traduit automatiquement par l'agent. Remplissez à la main ou laissez vide.",
+      "zh": "缺失的内容由代理自动翻译。请手动填写或留空。",
+      "ar": "المحتوى المفقود يُترجم تلقائيًا بواسطة الوكيل. املأ يدويًا أو اتركه فارغًا."
+    },
+    "Distrito": {
+      "en": "District",
+      "fr": "District",
+      "ar": "مقاطعة"
+    },
+    "Original (Português)": {
+      "en": "Original (Portuguese)",
+      "fr": "Original (Portugais)",
+      "zh": "原文（葡萄牙语）",
+      "ar": "النسخة الأصلية (البرتغالية)"
+    },
+    "Os campos em branco serão traduzidos automaticamente.": {
+      "en": "Blank fields will be automatically translated.",
+      "es": "Los campos en blanco serán traducidos automáticamente.",
+      "fr": "Les champs vides seront traduits automatiquement.",
+      "zh": "空白字段将自动翻译。",
+      "ar": "سيتم ترجمة الحقول الفارغة تلقائيًا."
+    },
+    "AOA": {
+      "ar": "Kz"
+    }
+  }
+}

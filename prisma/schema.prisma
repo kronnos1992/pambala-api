@@ -13,6 +13,11 @@ model User {
   password  String
   name      String
   avatar    String?
+  googleId  String?   @unique
+  facebookId String?  @unique
+  linkedinId String?  @unique
+  aiValidationConsent Boolean @default(false)
+  tokenVersion Int    @default(0)
   role      String    @default("BUYER")
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -34,10 +39,12 @@ model Store {
   phone       String?
   isVerified  Boolean   @default(false)
   rating      Float     @default(0)
+  views       Int       @default(0)
   userId      String    @unique
   user        User      @relation(fields: [userId], references: [id])
   products    Product[]
   reviews     Review[]
+  translations StoreTranslation[]
   province    String?
   district    String?
   latitude    Float?
@@ -45,6 +52,18 @@ model Store {
   paymentMethods String  @default("[]")
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+}
+
+model StoreTranslation {
+  id       String  @id @default(cuid())
+  storeId  String
+  store    Store   @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  locale   String
+  province String?
+  district String?
+  updatedAt DateTime @updatedAt
+
+  @@unique([storeId, locale])
 }
 
 model Category {
@@ -56,9 +75,21 @@ model Category {
   parentId  String?
   parent    Category?  @relation("CategoryTree", fields: [parentId], references: [id])
   children  Category[] @relation("CategoryTree")
+  translations CategoryTranslation[]
   products  Product[]
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
+}
+
+model CategoryTranslation {
+  id         String   @id @default(cuid())
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  locale     String
+  name       String?
+  updatedAt  DateTime @updatedAt
+
+  @@unique([categoryId, locale])
 }
 
 model Product {
@@ -77,6 +108,7 @@ model Product {
   store        Store       @relation(fields: [storeId], references: [id])
   categoryId   String
   category     Category    @relation(fields: [categoryId], references: [id])
+  translations ProductTranslation[]
   cartItems    CartItem[]
   orderItems   OrderItem[]
   reviews      Review[]
@@ -85,6 +117,18 @@ model Product {
 
   @@index([categoryId])
   @@index([storeId])
+}
+
+model ProductTranslation {
+  id          String  @id @default(cuid())
+  productId   String
+  product     Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  locale      String
+  name        String?
+  description String?
+  updatedAt   DateTime @updatedAt
+
+  @@unique([productId, locale])
 }
 
 model Cart {
@@ -118,6 +162,10 @@ model Order {
   paymentRef       String?
   receiptImage     String?
   paymentDetails   String?
+  paymentHistory   String?
+  validationStatus String?
+  validationResult String?
+  receiptJob       ReceiptQueue?
   shippingName     String
   shippingPhone    String
   shippingAddress  String
@@ -131,6 +179,23 @@ model Order {
   updatedAt        DateTime    @updatedAt
 
   @@index([userId])
+}
+
+model ReceiptQueue {
+  id          String   @id @default(cuid())
+  orderId     String   @unique
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status      String   @default("PENDING")
+  attempts    Int      @default(0)
+  maxAttempts Int      @default(3)
+  lastError   String?
+  result      String?
+  enqueuedAt  DateTime @default(now())
+  startedAt   DateTime?
+  completedAt DateTime?
+  updatedAt   DateTime @updatedAt
+
+  @@index([status])
 }
 
 model OrderItem {
@@ -157,6 +222,7 @@ model Review {
   createdAt DateTime @default(now())
 
   @@unique([userId, productId])
+  @@unique([userId, storeId])
 }
 
 model Address {
