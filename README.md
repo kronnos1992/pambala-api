@@ -9,6 +9,7 @@ Backend REST API para o marketplace Pambala — a maior plataforma de compra e v
 - **ORM:** Prisma 7 (via `@prisma/adapter-libsql`)
 - **Base de dados:** SQLite (desenvolvimento) / PostgreSQL (produção)
 - **Auth:** JWT (bcryptjs + jsonwebtoken)
+- **Autorização (RBAC):** roles + responsabilidades dinâmicas (M:N por utilizador)
 - **Validação:** Zod
 - **Imagens:** Cloudinary (com fallback para armazenamento local)
 - **OCR/IA:** tesseract.js (recibos) + OpenRouter/OpenAI (traduções e leitura de recibos)
@@ -19,19 +20,22 @@ Backend REST API para o marketplace Pambala — a maior plataforma de compra e v
 src/
 ├── index.ts              # Entrypoint do servidor (monta módulos + middleware)
 ├── seed.ts               # Seed com 150 produtos, 12 categorias, 3 lojas
+├── seed-rbac.ts          # Seed de roles/responsabilidades + migração M:N de utilizadores
 ├── modules/              # Cada módulo expõe as suas rotas (Hono)
-│   ├── auth.ts           # Registo, login, perfil (inclui social auth)
-│   ├── products.ts       # CRUD + busca + filtros + categorySlug
-│   ├── categories.ts     # Árvore de categorias
-│   ├── stores.ts         # Lojas + mapa + produtos
-│   ├── cart.ts           # Carrinho de compras
-│   ├── orders.ts         # Pedidos + estados + seller orders
-│   ├── reviews.ts        # Avaliações
+│   ├── auth/             # Registo, login, perfil (inclui social auth)
+│   ├── products/         # CRUD + busca + filtros + categorySlug
+│   ├── categories/       # Árvore de categorias
+│   ├── stores/           # Lojas + mapa + produtos
+│   ├── cart/             # Carrinho de compras
+│   ├── orders/           # Pedidos + estados + seller orders
+│   ├── reviews/          # Avaliações
 │   ├── uploads/          # Upload de imagens (Cloudinary → local)
-│   ├── admin.ts          # Dashboard admin (stats, CRUD completo)
+│   ├── roles/            # Consulta e gestão de roles/responsabilidades
+│   ├── admin/            # Dashboard admin (stats, CRUD completo)
 │   ├── security/         # Handshake E2E (tweetnacl)
 │   └── translations/     # Tradução de conteúdo (OpenRouter)
 ├── handlers/             # Lógica de negócio desacoplada das rotas
+│   ├── roles.handlers.ts     # CRUD de roles + responsabilidades
 │   ├── uploads.handlers.ts   # Upload Cloudinary com fallback local
 │   ├── translations.handlers.ts
 │   └── ...               # Demais handlers por domínio
@@ -40,12 +44,13 @@ src/
 ├── lib/
 │   ├── prisma.ts         # Cliente Prisma (singleton)
 │   ├── auth.ts           # JWT + middleware de auth
+│   ├── permissions.ts    # Catálogo PERMISSIONS + primitivas de RBAC (cache, hasPermission, assertPermission)
 │   ├── cloudinary.ts     # Cliente Cloudinary (Basic Auth)
 │   ├── receiptValidation.ts
 │   ├── social-auth.ts    # Login social (Google/Facebook)
 │   ├── types.ts
 │   └── validators.ts     # Schemas Zod
-└── shared/               # mediator, filters (auth), erros e middleware
+└── shared/               # mediator, filters (auth, admin, permission), erros e middleware
 ```
 
 ## Setup
@@ -62,6 +67,9 @@ npx prisma db push
 
 # Popular com dados de exemplo
 npx tsx src/seed.ts
+
+# Popular roles/responsabilidades de sistema + migrar utilizadores legados (BUYER → CLIENT)
+npx tsx src/seed-rbac.ts   # (ou npm run db:seed:rbac)
 
 # Iniciar servidor
 npx tsx src/index.ts
@@ -103,7 +111,55 @@ O fluxo de upload `POST /api/uploads` tenta primeiro o Cloudinary (Basic Auth co
 |-----------|-------|----------|------|
 | Admin | admin@pambala.ao | admin123 | ADMIN |
 | Vendedor | vendedor@pambala.ao | seller123 | SELLER |
-| Comprador | comprador1@pambala.ao | buyer123 | BUYER |
+| Comprador | comprador1@pambala.ao | buyer123 | CLIENT |
+
+> **Nota:** a role legada `BUYER` foi migrada para `CLIENT` (ver [Roles e Permissões](#roles-e-permissões-rbac)).
+
+## Roles e Permissões (RBAC)
+
+O sistema usa **roles dinâmicas** com responsabilidades M:N por utilizador (`UserRole`); a role `User.role` é apenas a denominação primária (default `CLIENT`). As permissões são carregadas da BD a cada pedido no `auth.filter.ts`, pelo que mudanças de roles têm efeito imediato (sem necessidade de novo login).
+
+### Modelo
+
+- `Responsibility` — acção (ex.: `products.manage`). `id` = `key`. `isSystem` impede eliminação.
+- `Role` — conjunto de responsabilidades (`RoleResponsibility`). `isSystem` impede eliminação; roles com utilizadores atribuídos não podem ser eliminadas.
+- `UserRole` — M:N entre `User` e `Role`.
+
+### Catálogo de permissões (`src/lib/permissions.ts`)
+
+| Permissão | Descrição |
+|-----------|-----------|
+| `admin.access` | Aceder à área administrativa |
+| `admin.roles.manage` | Gerir roles e responsabilidades |
+| `admin.users.manage` | Gerir utilizadores |
+| `admin.orders.manage` | Gerir todos os pedidos |
+| `admin.stores.manage` | Gerir lojas (verificação/eliminação) |
+| `admin.products.manage` | Gestão global de produtos |
+| `admin.categories.manage` | Gerir categorias |
+| `admin.reviews.manage` | Gerir avaliações |
+| `stores.create` | Criar uma loja |
+| `stores.manage` | Gerir a própria loja (produtos, pedidos) |
+| `products.manage` | Criar/editar produtos da própria loja |
+| `orders.view` | Ver pedidos da própria loja |
+| `orders.respond-payment` | Responder/validar pagamentos de pedidos |
+| `orders.confirm-payment` | Confirmar pagamento final |
+| `translations.translate` | Utilizar o agente de tradução |
+
+### Roles de sistema (seed)
+
+| Role | Responsabilidades |
+|------|-------------------|
+| `ADMIN` | Todas |
+| `MANAGER` | `stores.create`, `stores.manage`, `products.manage`, `orders.view`, `orders.respond-payment`, `translations.translate` |
+| `SELLER` | `stores.manage`, `products.manage`, `orders.view`, `orders.respond-payment`, `translations.translate` |
+| `CLIENT` | Nenhuma (compra) |
+
+### Regras
+
+- Registo, login e social auth criam sempre utilizadores `CLIENT`.
+- Um `MANAGER` (ou quem tiver `stores.create`) que cria uma loja passa automaticamente a `SELLER` dessa loja (`assignRole`).
+- `POST /api/stores` exige `stores.create`; gerir produtos/pedidos exige as permissões correspondentes (`requirePermission`).
+- A criação pode ser validada com testes: `POST /api/auth/register` → role `CLIENT`; sem `stores.create`, `POST /api/stores` devolve `403`.
 
 ## Endpoints
 
@@ -122,7 +178,7 @@ O fluxo de upload `POST /api/uploads` tenta primeiro o Cloudinary (Basic Auth co
 | GET | `/api/products/featured` | Não | Produtos em destaque (por views) |
 | GET | `/api/products/category/:categoryId` | Não | Produtos por categoria |
 | GET | `/api/products/:id` | Não | Detalhe do produto |
-| POST | `/api/products` | Seller/Admin | Criar produto |
+| POST | `/api/products` | Vendedor | Criar produto (requer `products.manage` e loja própria) |
 | PUT | `/api/products/:id` | Owner | Actualizar produto |
 | DELETE | `/api/products/:id` | Owner | Eliminar produto |
 
@@ -139,7 +195,7 @@ O fluxo de upload `POST /api/uploads` tenta primeiro o Cloudinary (Basic Auth co
 | GET | `/api/stores/map` | Não | Lojas com coordenadas GPS |
 | GET | `/api/stores/:slug` | Não | Detalhe da loja |
 | GET | `/api/stores/:slug/products` | Não | Produtos da loja |
-| POST | `/api/stores` | Seller/Admin | Criar loja |
+| POST | `/api/stores` | Manager/Vendedor | Criar loja (requer `stores.create`; atribui role `SELLER` automaticamente) |
 | PUT | `/api/stores` | Owner | Actualizar loja |
 
 ### Cart
@@ -185,12 +241,24 @@ O fluxo de upload `POST /api/uploads` tenta primeiro o Cloudinary (Basic Auth co
 | POST | `/api/translations/translate` | Não | Traduz texto no idioma desejado via OpenRouter |
 | POST | `/api/translations/translate-batch` | Não | Traduz um lote de textos |
 
+### Roles (RBAC)
+| Método | Rota | Auth | Descrição |
+|--------|------|------|-----------|
+| GET | `/api/roles` | Não | Listar roles (com contagem de utilizadores e responsabilidades) |
+| GET | `/api/roles/responsibilities` | Não | Listar responsabilidades (catálogo de permissões) |
+| POST | `/api/roles` | Admin | Criar role (`{ key, name, description }` + `responsibilityKeys[]`) |
+| PUT | `/api/roles/:key` | Admin | Actualizar role (nome, descrição, responsabilidades) |
+| DELETE | `/api/roles/:key` | Admin | Eliminar role (sistema/in-use são protegidas) |
+| POST | `/api/roles/responsibilities` | Admin | Criar responsabilidade |
+| PUT | `/api/roles/responsibilities/:key` | Admin | Actualizar responsabilidade |
+| DELETE | `/api/roles/responsibilities/:key` | Admin | Eliminar responsabilidade (sistema é protegida) |
+
 ### Admin
 | Método | Rota | Auth | Descrição |
 |--------|------|------|-----------|
 | GET | `/api/admin/stats` | Admin | Estatísticas do dashboard |
 | GET | `/api/admin/users` | Admin | Listar utilizadores (filtro role, busca) |
-| PUT | `/api/admin/users/:id/role` | Admin | Mudar role do utilizador |
+| PUT | `/api/admin/users/:id/role` | Admin | Atribuir roles (`{ "role": "SELLER" }` ou `{ "roles": ["MANAGER","SELLER"] }`) |
 | DELETE | `/api/admin/users/:id` | Admin | Eliminar utilizador |
 | GET | `/api/admin/orders` | Admin | Listar todos os pedidos |
 | PUT | `/api/admin/orders/:id/status` | Admin | Actualizar estado do pedido |
