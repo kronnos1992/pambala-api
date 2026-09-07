@@ -11,6 +11,7 @@ import {
   ReceiptQueueRepository,
 } from "../shared/repositories/order.repository";
 import { ReviewRepository } from "../shared/repositories/review.repository";
+import { RoleRepository } from "../shared/repositories/role.repository";
 import {
   RegisterUserCommand,
   RegisterUserCommandHandler,
@@ -159,6 +160,26 @@ import {
   UploadFileCommand,
   UploadFileCommandHandler,
 } from "./uploads.handlers";
+import {
+  ListRolesQuery,
+  ListRolesQueryHandler,
+  ListResponsibilitiesQuery,
+  ListResponsibilitiesQueryHandler,
+  CreateRoleCommand,
+  CreateRoleCommandHandler,
+  UpdateRoleCommand,
+  UpdateRoleCommandHandler,
+  DeleteRoleCommand,
+  DeleteRoleCommandHandler,
+  SetRoleResponsibilitiesCommand,
+  SetRoleResponsibilitiesCommandHandler,
+  CreateResponsibilityCommand,
+  CreateResponsibilityCommandHandler,
+  UpdateResponsibilityCommand,
+  UpdateResponsibilityCommandHandler,
+  DeleteResponsibilityCommand,
+  DeleteResponsibilityCommandHandler,
+} from "./roles.handlers";
 
 export function registerHandlers(): void {
   const uow = new UnitOfWork();
@@ -172,6 +193,7 @@ export function registerHandlers(): void {
   const orderItems = new OrderItemRepository();
   const receiptQueue = new ReceiptQueueRepository();
   const reviews = new ReviewRepository();
+  const roles = new RoleRepository();
 
   // auth
   mediator.register(
@@ -429,4 +451,30 @@ export function registerHandlers(): void {
 
   // uploads
   mediator.register(UploadFileCommand, new UploadFileCommandHandler());
+
+  // roles & responsabilidades (RBAC dinâmico)
+  mediator.registerQuery(ListRolesQuery, new ListRolesQueryHandler(roles));
+  mediator.registerQuery(
+    ListResponsibilitiesQuery,
+    new ListResponsibilitiesQueryHandler(roles)
+  );
+  mediator.register(CreateRoleCommand, new CreateRoleCommandHandler(roles));
+  mediator.register(UpdateRoleCommand, new UpdateRoleCommandHandler(roles));
+  mediator.register(DeleteRoleCommand, new DeleteRoleCommandHandler(roles));
+  mediator.register(
+    SetRoleResponsibilitiesCommand,
+    new SetRoleResponsibilitiesCommandHandler(roles)
+  );
+  mediator.register(
+    CreateResponsibilityCommand,
+    new CreateResponsibilityCommandHandler(roles)
+  );
+  mediator.register(
+    UpdateResponsibilityCommand,
+    new UpdateResponsibilityCommandHandler(roles)
+  );
+  mediator.register(
+    DeleteResponsibilityCommand,
+    new DeleteResponsibilityCommandHandler(roles)
+  );
 }

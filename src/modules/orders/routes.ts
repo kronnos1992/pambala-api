@@ -16,11 +16,12 @@ const orders = new Hono();
 
 orders.get("/seller/orders", authFilter, async (c) => {
   const userId = (c as any).get("userId") as string;
+  const roles = (c as any).get("roles") as string[];
   const page = parseInt(c.req.query("page") || "1");
   const limit = parseInt(c.req.query("limit") || "20");
 
   const result = await mediator.query(
-    new SellerOrdersQuery(userId, page, limit)
+    new SellerOrdersQuery(userId, roles, page, limit)
   );
 
   return c.json(result);
@@ -50,22 +51,22 @@ orders.get("/", authFilter, async (c) => {
 
 orders.get("/:id", authFilter, async (c) => {
   const userId = (c as any).get("userId") as string;
-  const role = (c as any).get("role") as string;
+  const roles = (c as any).get("roles") as string[];
   const id = c.req.param("id")!;
 
-  const result = await mediator.query(new GetOrderQuery(userId, role, id));
+  const result = await mediator.query(new GetOrderQuery(userId, roles, id));
 
   return c.json(result);
 });
 
 orders.put("/:id/status", authFilter, async (c) => {
-  const role = (c as any).get("role") as string;
+  const roles = (c as any).get("roles") as string[];
   const id = c.req.param("id")!;
   const body = await c.req.json();
   const { status } = body;
 
   const result = await mediator.send(
-    new UpdateOrderStatusCommand(role, id, status)
+    new UpdateOrderStatusCommand(roles, id, status)
   );
 
   return c.json(result);
@@ -86,13 +87,13 @@ orders.post("/:id/receipt", authFilter, async (c) => {
 
 orders.put("/:id/payment-status", authFilter, async (c) => {
   const userId = (c as any).get("userId") as string;
-  const role = (c as any).get("role") as string;
+  const roles = (c as any).get("roles") as string[];
   const id = c.req.param("id")!;
   const body = await c.req.json();
   const { paymentStatus } = body;
 
   const result = await mediator.send(
-    new UpdateOrderPaymentStatusCommand(userId, role, id, paymentStatus)
+    new UpdateOrderPaymentStatusCommand(userId, roles, id, paymentStatus)
   );
 
   return c.json(result);

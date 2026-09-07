@@ -65,12 +65,12 @@ products.get("/:id", async (c) => {
 
 products.post("/", authFilter, async (c) => {
   const userId = (c as any).get("userId") as string;
-  const role = (c as any).get("role") as string;
+  const roles = (c as any).get("roles") as string[];
   const body = await c.req.json();
   const data = productSchema.parse(body);
 
   const result = await mediator.send(
-    new CreateProductCommand(userId, role, data)
+    new CreateProductCommand(userId, roles, data)
   );
 
   return c.json(result, 201);

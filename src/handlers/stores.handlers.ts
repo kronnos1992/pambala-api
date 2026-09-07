@@ -23,6 +23,7 @@ import {
   stripTranslations,
 } from "../shared/mappers";
 import { StoreInput } from "../lib/validators";
+import { assertPermission, PERMISSIONS } from "../lib/permissions";
 
 export class MapStoresQuery implements IQuery {
   constructor(public readonly locale?: string) {}
@@ -31,8 +32,8 @@ export class MapStoresQuery implements IQuery {
 export class CreateStoreCommand implements ICommand {
   constructor(
     public readonly userId: string,
-    public readonly role: string,
-    public readonly data: StoreInput
+    public readonly roles: string[],
+    public readonly data: any
   ) {}
 }
 
@@ -55,6 +56,7 @@ export class GetStoreQuery implements IQuery {
 export class UpdateStoreCommand implements ICommand {
   constructor(
     public readonly userId: string,
+    public readonly roles: string[],
     public readonly body: any
   ) {}
 }
@@ -66,6 +68,7 @@ export class GetPaymentMethodsQuery implements IQuery {
 export class UpdatePaymentMethodsCommand implements ICommand {
   constructor(
     public readonly userId: string,
+    public readonly roles: string[],
     public readonly paymentMethods: any
   ) {}
 }
@@ -104,11 +107,9 @@ export class CreateStoreCommandHandler
   ) {}
 
   async handle(command: CreateStoreCommand) {
-    const { userId, role, data } = command;
+    const { userId, roles, data } = command;
 
-    if (role !== "SELLER" && role !== "ADMIN") {
-      throw new ForbiddenError("Apenas vendedores podem criar lojas");
-    }
+    await assertPermission(roles, PERMISSIONS.storesCreate);
 
     const existingStore = await this.stores.findByUserId(userId);
 
@@ -138,7 +139,7 @@ export class CreateStoreCommandHandler
       ]),
     });
 
-    await this.users.updateRole(userId, "SELLER");
+    await this.users.assignRole(userId, "SELLER");
 
     return { store };
   }
@@ -201,7 +202,9 @@ export class UpdateStoreCommandHandler
   constructor(private readonly stores: StoreRepository) {}
 
   async handle(command: UpdateStoreCommand) {
-    const { userId, body } = command;
+    const { userId, roles, body } = command;
+
+    await assertPermission(roles, PERMISSIONS.storesManage);
 
     const existingStore = await this.stores.findByUserId(userId);
 
@@ -270,7 +273,9 @@ export class UpdatePaymentMethodsCommandHandler
   constructor(private readonly stores: StoreRepository) {}
 
   async handle(command: UpdatePaymentMethodsCommand) {
-    const { userId, paymentMethods } = command;
+    const { userId, roles, paymentMethods } = command;
+
+    await assertPermission(roles, PERMISSIONS.storesManage);
 
     const store = await this.stores.findByUserId(userId);
 

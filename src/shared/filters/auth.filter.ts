@@ -21,8 +21,11 @@ export async function authFilter(c: Context, next: Next) {
       return c.json({ error: "Token revogado. Inicie sessão novamente." }, 401);
     }
 
+    const roleKeys = await repo.getRoleKeys(decoded.userId);
+
     (c as any).set("userId", decoded.userId);
-    (c as any).set("role", decoded.role);
+    (c as any).set("role", user.role);
+    (c as any).set("roles", roleKeys.length > 0 ? roleKeys : [user.role]);
     (c as any).set("tokenVersion", decoded.tokenVersion ?? 0);
     await next();
   } catch {

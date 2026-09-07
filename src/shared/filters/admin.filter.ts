@@ -1,8 +1,10 @@
 import { Context, Next } from "hono";
+import { resolvePermissions, PERMISSIONS } from "../../lib/permissions";
 
 export async function adminFilter(c: Context, next: Next) {
-  const role = (c as any).get("role");
-  if (role !== "ADMIN") {
+  const roles = ((c as any).get("roles") as string[]) || [];
+  const effective = await resolvePermissions(roles);
+  if (!effective.has(PERMISSIONS.adminAccess)) {
     return c.json({ error: "Acesso negado" }, 403);
   }
   return next();

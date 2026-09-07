@@ -13,6 +13,7 @@ import { ReviewRepository } from "../shared/repositories/review.repository";
 import { BadRequestError, NotFoundError } from "../shared/errors";
 import { parseImages, parseProductImages, normalizeLocale } from "../shared/mappers";
 import { paymentHistoryPush } from "../shared/mappers";
+import { invalidatePermissionsCache } from "../lib/permissions";
 
 export class RevenueChartQuery implements IQuery {
   constructor(public readonly days: number) {}
@@ -48,7 +49,7 @@ export class AdminUsersQuery implements IQuery {
 export class UpdateUserRoleCommand implements ICommand {
   constructor(
     public readonly userId: string,
-    public readonly role: string
+    public readonly roleKeys: string[]
   ) {}
 }
 
@@ -290,16 +291,16 @@ export class UsersStatsQueryHandler
       byRole,
     ] = await Promise.all([
       this.users.countAll(),
-      this.users.countByRole("BUYER"),
-      this.users.countByRole("SELLER"),
-      this.users.countByRole("ADMIN"),
+      this.users.countByRoleKey("CLIENT"),
+      this.users.countByRoleKey("SELLER"),
+      this.users.countByRoleKey("ADMIN"),
       this.users.countCreatedSince(
         new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
       ),
       this.users.countCreatedSince(
         new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
       ),
-      this.users.groupByRole(),
+      this.users.groupByRoleKey(),
     ]);
 
     return {
@@ -309,7 +310,7 @@ export class UsersStatsQueryHandler
       admins,
       newThisWeek,
       newThisMonth,
-      byRole: byRole.map((r) => ({ role: r.role, count: r._count })),
+      byRole: byRole.map((r) => ({ role: r.role, count: r.count })),
     };
   }
 }
@@ -475,8 +476,8 @@ export class DashboardStatsQueryHandler
       ordersThisWeek,
     ] = await Promise.all([
       this.users.countAll(),
-      this.users.countByRole("BUYER"),
-      this.users.countByRole("SELLER"),
+      this.users.countByRoleKey("CLIENT"),
+      this.users.countByRoleKey("SELLER"),
       this.products.countAll(),
       this.products.countActive(),
       this.orders.countAll(),
@@ -548,13 +549,10 @@ export class UpdateUserRoleCommandHandler
   constructor(private readonly users: UserRepository) {}
 
   async handle(command: UpdateUserRoleCommand) {
-    const { userId, role } = command;
+    const { userId, roleKeys } = command;
 
-    if (!["BUYER", "SELLER", "ADMIN"].includes(role)) {
-      throw new BadRequestError("Role invalido");
-    }
-
-    const user = await this.users.adminUpdateRole(userId, role);
+    const user = await this.users.replaceRoles(userId, roleKeys);
+    invalidatePermissionsCache();
 
     return { user };
   }

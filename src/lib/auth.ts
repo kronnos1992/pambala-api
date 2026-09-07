@@ -17,6 +17,7 @@ export async function comparePassword(
 export function generateToken(payload: {
   userId: string;
   role: string;
+  roles?: string[];
   tokenVersion?: number;
 }): string {
   return jwt.sign(payload, JWT_SECRET, { expiresIn: "7d" });
@@ -24,10 +25,11 @@ export function generateToken(payload: {
 
 export function verifyToken(
   token: string
-): { userId: string; role: string; tokenVersion?: number } {
+): { userId: string; role: string; roles?: string[]; tokenVersion?: number } {
   return jwt.verify(token, JWT_SECRET) as {
     userId: string;
     role: string;
+    roles?: string[];
     tokenVersion?: number;
   };
 }

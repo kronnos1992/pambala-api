@@ -21,6 +21,7 @@ import {
   stripTranslations,
 } from "../shared/mappers";
 import { ProductInput } from "../lib/validators";
+import { assertPermission, PERMISSIONS } from "../lib/permissions";
 
 export class FeaturedProductsQuery implements IQuery {
   constructor(public readonly locale?: string) {}
@@ -63,7 +64,7 @@ export class GetProductQuery implements IQuery {
 export class CreateProductCommand implements ICommand {
   constructor(
     public readonly userId: string,
-    public readonly role: string,
+    public readonly roles: string[],
     public readonly data: ProductInput
   ) {}
 }
@@ -293,11 +294,9 @@ export class CreateProductCommandHandler
   ) {}
 
   async handle(command: CreateProductCommand) {
-    const { userId, role, data } = command;
+    const { userId, roles, data } = command;
 
-    if (role !== "SELLER" && role !== "ADMIN") {
-      throw new ForbiddenError("Apenas vendedores podem criar produtos");
-    }
+    await assertPermission(roles, PERMISSIONS.productsManage);
 
     const store = await this.stores.findByUserId(userId);
 

@@ -25,10 +25,17 @@ import {
   paymentHistoryPush,
 } from "../shared/mappers";
 import { OrderInput } from "../lib/validators";
+import {
+  assertPermission,
+  resolvePermissions,
+  PERMISSIONS,
+  primaryRoleOf,
+} from "../lib/permissions";
 
 export class SellerOrdersQuery implements IQuery {
   constructor(
     public readonly userId: string,
+    public readonly roles: string[],
     public readonly page: number,
     public readonly limit: number
   ) {}
@@ -52,14 +59,14 @@ export class ListUserOrdersQuery implements IQuery {
 export class GetOrderQuery implements IQuery {
   constructor(
     public readonly userId: string,
-    public readonly role: string,
+    public readonly roles: string[],
     public readonly id: string
   ) {}
 }
 
 export class UpdateOrderStatusCommand implements ICommand {
   constructor(
-    public readonly role: string,
+    public readonly roles: string[],
     public readonly id: string,
     public readonly status: string
   ) {}
@@ -76,7 +83,7 @@ export class UploadReceiptCommand implements ICommand {
 export class UpdateOrderPaymentStatusCommand implements ICommand {
   constructor(
     public readonly userId: string,
-    public readonly role: string,
+    public readonly roles: string[],
     public readonly id: string,
     public readonly paymentStatus: string
   ) {}
@@ -108,6 +115,8 @@ export class SellerOrdersQueryHandler
   ) {}
 
   async handle(query: SellerOrdersQuery) {
+    await assertPermission(query.roles, PERMISSIONS.ordersView);
+
     const store = await this.stores.findByUserId(query.userId);
 
     if (!store) {
@@ -287,7 +296,8 @@ export class GetOrderQueryHandler implements IQueryHandler<GetOrderQuery, any> {
       throw new NotFoundError("Pedido não encontrado");
     }
 
-    if (query.role !== "ADMIN" && order.userId !== query.userId) {
+    const adminPermissions = await resolvePermissions(query.roles);
+    if (!adminPermissions.has(PERMISSIONS.adminOrdersManage) && order.userId !== query.userId) {
       throw new ForbiddenError("Não autorizado");
     }
 
@@ -303,13 +313,9 @@ export class UpdateOrderStatusCommandHandler
   constructor(private readonly orders: OrderRepository) {}
 
   async handle(command: UpdateOrderStatusCommand) {
-    const { role, id, status } = command;
+    const { roles, id, status } = command;
 
-    if (role !== "ADMIN") {
-      throw new ForbiddenError(
-        "Apenas administradores podem alterar status"
-      );
-    }
+    await assertPermission(roles, PERMISSIONS.adminOrdersManage);
 
     if (!ORDER_STATUSES.includes(status)) {
       throw new BadRequestError("Status inválido");
@@ -388,7 +394,7 @@ export class UpdateOrderPaymentStatusCommandHandler
   ) {}
 
   async handle(command: UpdateOrderPaymentStatusCommand) {
-    const { userId, role, id, paymentStatus } = command;
+    const { userId, roles, id, paymentStatus } = command;
 
     const order = await this.orders.findByIdentifier(id);
 
@@ -396,8 +402,9 @@ export class UpdateOrderPaymentStatusCommandHandler
       throw new NotFoundError("Pedido não encontrado");
     }
 
-    const isAdmin = role === "ADMIN";
-    const isSeller = role === "SELLER";
+    const effective = await resolvePermissions(roles);
+    const isSeller = effective.has(PERMISSIONS.ordersRespondPayment);
+    const isAdmin = effective.has(PERMISSIONS.ordersConfirmPayment);
 
     if (!isAdmin && !isSeller) {
       throw new ForbiddenError("Não autorizado");
@@ -433,7 +440,7 @@ export class UpdateOrderPaymentStatusCommandHandler
     const history = paymentHistoryPush(order.paymentHistory, {
       at: new Date().toISOString(),
       by: userId,
-      role,
+      role: primaryRoleOf(roles),
       action: "PAYMENT_STATUS",
       from: order.paymentStatus,
       to: paymentStatus,

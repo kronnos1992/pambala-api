@@ -23,12 +23,12 @@ stores.get("/map", async (c) => {
 });
 
 stores.post("/", authFilter, async (c) => {
-  const role = (c as any).get("role") as string;
+  const roles = (c as any).get("roles") as string[];
   const userId = (c as any).get("userId") as string;
   const body = await c.req.json();
   const data = storeSchema.parse(body);
 
-  const result = await mediator.send(new CreateStoreCommand(userId, role, data));
+  const result = await mediator.send(new CreateStoreCommand(userId, roles, data));
 
   return c.json(result, 201);
 });
@@ -53,11 +53,12 @@ stores.get("/payment-methods", authFilter, async (c) => {
 
 stores.put("/payment-methods", authFilter, async (c) => {
   const userId = (c as any).get("userId") as string;
+  const roles = (c as any).get("roles") as string[];
   const body = await c.req.json();
   const { paymentMethods } = body;
 
   const result = await mediator.send(
-    new UpdatePaymentMethodsCommand(userId, paymentMethods)
+    new UpdatePaymentMethodsCommand(userId, roles, paymentMethods)
   );
 
   return c.json(result);
@@ -74,9 +75,10 @@ stores.get("/:idOrSlug", async (c) => {
 
 stores.put("/", authFilter, async (c) => {
   const userId = (c as any).get("userId") as string;
+  const roles = (c as any).get("roles") as string[];
   const body = await c.req.json();
 
-  const result = await mediator.send(new UpdateStoreCommand(userId, body));
+  const result = await mediator.send(new UpdateStoreCommand(userId, roles, body));
 
   return c.json(result);
 });

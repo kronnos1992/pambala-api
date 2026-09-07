@@ -112,9 +112,14 @@ admin.get("/users", async (c) => {
 
 admin.put("/users/:id/role", async (c) => {
   const userId = c.req.param("id")!;
-  const { role } = await c.req.json();
+  const body = await c.req.json();
+  const roleKeys = Array.isArray(body.roles)
+    ? body.roles
+    : body.role
+      ? [body.role]
+      : [];
 
-  const result = await mediator.send(new UpdateUserRoleCommand(userId, role));
+  const result = await mediator.send(new UpdateUserRoleCommand(userId, roleKeys));
 
   return c.json(result);
 });

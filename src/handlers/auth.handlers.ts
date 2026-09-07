@@ -73,11 +73,14 @@ export class RegisterUserCommandHandler
       email: data.email,
       phone: data.phone,
       password: hashedPassword,
-      role: data.role || "BUYER",
+      role: "CLIENT",
       aiValidationConsent: data.aiValidationConsent === true,
     });
 
-    const token = generateToken({ userId: user.id, role: user.role, tokenVersion: user.tokenVersion ?? 0 });
+    await this.users.assignRole(user.id, "CLIENT");
+    const roleKeys = await this.users.getRoleKeys(user.id);
+
+    const token = generateToken({ userId: user.id, role: user.role, roles: roleKeys, tokenVersion: user.tokenVersion ?? 0 });
 
     return {
       token,
@@ -120,7 +123,8 @@ export class LoginUserCommandHandler
       throw new UnauthorizedError("Credenciais inválidas");
     }
 
-    const token = generateToken({ userId: user.id, role: user.role, tokenVersion: user.tokenVersion ?? 0 });
+    const roleKeys = await this.users.getRoleKeys(user.id);
+    const token = generateToken({ userId: user.id, role: user.role, roles: roleKeys, tokenVersion: user.tokenVersion ?? 0 });
 
     return {
       token,
@@ -130,6 +134,7 @@ export class LoginUserCommandHandler
         email: user.email,
         phone: user.phone,
         role: user.role,
+        roles: roleKeys,
         avatar: user.avatar,
         aiValidationConsent: user.aiValidationConsent === true,
       },
@@ -168,9 +173,11 @@ export class SocialLoginCommandHandler
         email,
         password: hashedPassword,
         avatar: avatar || null,
-        role: "BUYER",
+        role: "CLIENT",
         ...{ [providerField]: providerId },
       } as any);
+
+      await this.users.assignRole(user.id, "CLIENT");
     } else {
       const providerField = PROVIDER_FIELD[provider];
       const needsLink = (user as any)[providerField] !== providerId;
@@ -184,7 +191,8 @@ export class SocialLoginCommandHandler
       }
     }
 
-    const token = generateToken({ userId: user.id, role: user.role, tokenVersion: user.tokenVersion ?? 0 });
+    const roleKeys = await this.users.getRoleKeys(user.id);
+    const token = generateToken({ userId: user.id, role: user.role, roles: roleKeys, tokenVersion: user.tokenVersion ?? 0 });
 
     return {
       token,
@@ -194,6 +202,7 @@ export class SocialLoginCommandHandler
         email: user.email,
         phone: user.phone,
         role: user.role,
+        roles: roleKeys,
         avatar: user.avatar,
         aiValidationConsent: user.aiValidationConsent === true,
       },

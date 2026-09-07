@@ -18,7 +18,7 @@ model User {
   linkedinId String?  @unique
   aiValidationConsent Boolean @default(false)
   tokenVersion Int    @default(0)
-  role      String    @default("BUYER")
+  role      String    @default("CLIENT")
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   store     Store?
@@ -27,6 +27,50 @@ model User {
   reviews   Review[]
   addresses Address[]
   wallet    Wallet?
+  roles     UserRole[]
+}
+
+model Role {
+  id              String               @id @default(cuid())
+  key             String               @unique
+  name            String
+  description     String?
+  isSystem        Boolean              @default(false)
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  responsibilities RoleResponsibility[]
+  users           UserRole[]
+}
+
+model Responsibility {
+  id          String               @id @default(cuid())
+  key         String               @unique
+  name        String
+  description String?
+  isSystem    Boolean              @default(false)
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+  roles       RoleResponsibility[]
+}
+
+model RoleResponsibility {
+  roleId           String
+  role             Role           @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  responsibilityId String
+  responsibility   Responsibility @relation(fields: [responsibilityId], references: [id], onDelete: Cascade)
+  createdAt        DateTime       @default(now())
+
+  @@id([roleId, responsibilityId])
+}
+
+model UserRole {
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roleId     String
+  role       Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  assignedAt DateTime @default(now())
+
+  @@id([userId, roleId])
 }
 
 model Store {
