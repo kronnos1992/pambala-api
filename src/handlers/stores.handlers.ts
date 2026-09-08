@@ -128,6 +128,8 @@ export class CreateStoreCommandHandler
       slug,
       description: data.description,
       phone: data.phone,
+      logo: data.logo,
+      banner: data.banner,
       province: data.province,
       district: data.district,
       userId,

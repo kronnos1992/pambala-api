@@ -48,6 +48,8 @@ export const storeSchema = z.object({
   name: z.string().min(1),
   description: z.string().optional(),
   phone: z.string().optional(),
+  logo: z.string().optional(),
+  banner: z.string().optional(),
   province: z.string().min(1),
   district: z.string().optional(),
 });
