@@ -85,6 +85,14 @@ def _via_cli(path: Path) -> Optional[Tuple[str, str]]:
 
 def run_ocr(path: Path) -> Tuple[str, str]:
     """Devolve (texto, motor). Levanta OcrError se nenhum motor estiver disponível."""
+    if path.suffix.lower() == ".pdf":
+        result = _via_pdftotext(path)
+        if result is not None:
+            return result
+        raise OcrError(
+            "OCR indisponível para PDF: instale poppler-utils (pdftotext) ou "
+            "reenvie o comprovativo como imagem (JPG/PNG)."
+        )
     for loader in (_via_pytesseract, _via_cli):
         result = loader(path)
         if result is not None:
@@ -93,6 +101,25 @@ def run_ocr(path: Path) -> Tuple[str, str]:
         "OCR indisponível: instale o Tesseract (apt install tesseract-ocr por) "
         "e/ou `pip install pytesseract pillow`."
     )
+
+
+def _via_pdftotext(path: Path) -> Optional[Tuple[str, str]]:
+    """Extrai a camada de texto de um PDF via poppler-utils (se instalado)."""
+    binary = shutil.which("pdftotext")
+    if not binary:
+        return None
+    try:
+        proc = subprocess.run(
+            [binary, "-layout", str(path), "-"],
+            capture_output=True,
+            text=True,
+            timeout=120,
+        )
+        if proc.returncode != 0:
+            return None
+        return proc.stdout or "", "pdftotext"
+    except Exception:
+        return None
 
 
 def ocr_status() -> Dict[str, Any]:

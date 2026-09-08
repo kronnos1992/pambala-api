@@ -59,6 +59,7 @@ const ROLES: (SeedItem & { responsibilities: string[] })[] = [
     name: "Vendedor",
     description: "Responde a pedidos da loja e gere funções básicas da própria loja",
     responsibilities: [
+      "stores.create",
       "stores.manage",
       "products.manage",
       "orders.view",

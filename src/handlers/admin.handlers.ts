@@ -35,6 +35,8 @@ export class CategoriesStatsQuery implements IQuery {}
 
 export class ReviewsStatsQuery implements IQuery {}
 
+export class StoreRevenueQuery implements IQuery {}
+
 export class DashboardStatsQuery implements IQuery {}
 
 export class AdminUsersQuery implements IQuery {
@@ -572,7 +574,10 @@ export class DeleteUserCommandHandler
 export class AdminOrdersQueryHandler
   implements IQueryHandler<AdminOrdersQuery, any>
 {
-  constructor(private readonly orders: OrderRepository) {}
+  constructor(
+    private readonly orders: OrderRepository,
+    private readonly stores: StoreRepository
+  ) {}
 
   async handle(query: AdminOrdersQuery) {
     const skip = (query.page - 1) * query.limit;
@@ -591,9 +596,16 @@ export class AdminOrdersQueryHandler
       this.orders.adminCount(where),
     ]);
 
+    const storeIds = [...new Set(items.flatMap((o) => o.items.map((i) => i.storeId)))];
+    const stores = storeIds.length ? await this.stores.findByIds(storeIds) : [];
+    const storeMap = new Map(stores.map((s) => [s.id, s]));
+
     return {
       orders: items.map((o) => ({
         ...o,
+        stores: [...new Set(o.items.map((i) => i.storeId))]
+          .map((sid) => storeMap.get(sid))
+          .filter((s) => !!s),
         items: o.items.map((i) => ({
           ...i,
           product: i.product
@@ -607,6 +619,132 @@ export class AdminOrdersQueryHandler
         total,
         totalPages: Math.ceil(total / query.limit),
       },
+    };
+  }
+}
+
+export class StoreRevenueQueryHandler
+  implements IQueryHandler<StoreRevenueQuery, any>
+{
+  constructor(
+    private readonly orders: OrderRepository,
+    private readonly stores: StoreRepository,
+    private readonly products: ProductRepository
+  ) {}
+
+  async handle() {
+    const { rows, statusByOrder } = await this.orders.adminRevenueAggregate();
+
+    const storeIds = [...new Set(rows.map((r) => r.storeId))];
+    const productIds = [...new Set(rows.map((r) => r.productId))];
+
+    const [stores, products] = await Promise.all([
+      this.stores.findByIds(storeIds),
+      this.products.findByIds(productIds),
+    ]);
+    const storeMap = new Map(stores.map((s) => [s.id, s]));
+    const productMap = new Map(products.map((p) => [p.id, p]));
+
+    type ProductAcc = {
+      productId: string;
+      productName: string;
+      units: number;
+      revenue: number;
+      declared: number;
+    };
+    type StoreAcc = {
+      storeId: string;
+      storeName: string;
+      slug: string;
+      logo: string | null;
+      units: number;
+      revenue: number;
+      declared: number;
+      orders: Set<string>;
+      products: Map<string, ProductAcc>;
+    };
+
+    const acc = new Map<string, StoreAcc>();
+
+    for (const r of rows) {
+      const store = storeMap.get(r.storeId);
+      const product = productMap.get(r.productId);
+      if (!store || !product) continue;
+
+      let s = acc.get(r.storeId);
+      if (!s) {
+        s = {
+          storeId: r.storeId,
+          storeName: store.name,
+          slug: store.slug,
+          logo: store.logo,
+          units: 0,
+          revenue: 0,
+          declared: 0,
+          orders: new Set(),
+          products: new Map(),
+        };
+        acc.set(r.storeId, s);
+      }
+
+      const paid = statusByOrder[r.orderId] === "PAID";
+      const amount = (r._sum?.price ?? 0) * (r._sum?.quantity ?? 0);
+
+      s.orders.add(r.orderId);
+      s.units += r._sum?.quantity ?? 0;
+      if (paid) s.revenue += amount;
+      else s.declared += amount;
+
+      let p = s.products.get(r.productId);
+      if (!p) {
+        p = {
+          productId: r.productId,
+          productName: product.name,
+          units: 0,
+          revenue: 0,
+          declared: 0,
+        };
+        s.products.set(r.productId, p);
+      }
+      p.units += r._sum?.quantity ?? 0;
+      if (paid) p.revenue += amount;
+      else p.declared += amount;
+    }
+
+    const storesList = [...acc.values()]
+      .map((s) => ({
+        storeId: s.storeId,
+        storeName: s.storeName,
+        slug: s.slug,
+        logo: s.logo,
+        units: s.units,
+        revenue: Math.round(s.revenue),
+        declared: Math.round(s.declared),
+        ordersCount: s.orders.size,
+        topProducts: [...s.products.values()]
+          .map((p) => ({
+            productId: p.productId,
+            productName: p.productName,
+            units: p.units,
+            revenue: Math.round(p.revenue + p.declared),
+          }))
+          .sort((a, b) => b.revenue - a.revenue)
+          .slice(0, 5),
+      }))
+      .sort((a, b) => b.revenue + b.declared - (a.revenue + a.declared));
+
+    const confirmedOrders = new Set(rows.filter((r) => statusByOrder[r.orderId] === "PAID").map((r) => r.orderId));
+
+    return {
+      totals: {
+        revenue: Math.round(storesList.reduce((sum, s) => sum + s.revenue, 0)),
+        declared: Math.round(storesList.reduce((sum, s) => sum + s.declared, 0)),
+        units: storesList.reduce((sum, s) => sum + s.units, 0),
+        confirmedOrders: confirmedOrders.size,
+        declaredOrders: new Set(rows.map((r) => r.orderId)).size - confirmedOrders.size,
+        storesCount: storesList.length,
+      },
+      stores: storesList,
     };
   }
 }
@@ -652,10 +790,6 @@ export class AdminUpdateOrderPaymentCommandHandler
       throw new NotFoundError("Pedido nao encontrado");
     }
 
-    const history = Array.isArray(order.paymentHistory)
-      ? order.paymentHistory
-      : [];
-
     const entry = {
       at: new Date().toISOString(),
       actor: "admin",
@@ -666,7 +800,7 @@ export class AdminUpdateOrderPaymentCommandHandler
 
     const data: any = {
       paymentStatus,
-      paymentHistory: [...history, entry],
+      paymentHistory: JSON.stringify(paymentHistoryPush(order.paymentHistory, entry)),
     };
     if (paymentStatus === "PAID") {
       data.status = "CONFIRMED";

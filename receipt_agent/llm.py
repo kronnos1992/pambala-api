@@ -91,6 +91,11 @@ class VisionClient:
             raise VisionError(f"Não foi possível sanitizar a imagem (remover EXIF): {e}") from e
 
     def _image_data_url(self, path: Path) -> str:
+        if path.suffix.lower() == ".pdf":
+            raise VisionError(
+                "Visão LLM não suporta PDF diretamente — converta para imagem "
+                "(ex.: pdftoppm -png) para análise visual ou confie no texto extraído."
+            )
         suffix = path.suffix.lower().lstrip(".") or "jpeg"
         mime = {
             "jpg": "image/jpeg", "jpeg": "image/jpeg", "png": "image/png",

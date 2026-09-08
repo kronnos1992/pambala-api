@@ -24,6 +24,13 @@ export class CategoryRepository extends BaseRepository {
     });
   }
 
+  findByIds(ids: string[]) {
+    return this.client.category.findMany({
+      where: { id: { in: ids } },
+      select: { id: true },
+    });
+  }
+
   findBySlugOrId(idOrSlug: string) {
     return this.client.category.findFirst({
       where: { OR: [{ id: idOrSlug }, { slug: idOrSlug }] },

@@ -4,8 +4,9 @@ import {
   IQuery,
   IQueryHandler,
 } from "../shared/cqrs";
-import { StoreRepository } from "../shared/repositories/store.repository";
+import { StoreRepository, mapStoreCategories } from "../shared/repositories/store.repository";
 import { ProductRepository } from "../shared/repositories/product.repository";
+import { CategoryRepository } from "../shared/repositories/category.repository";
 import { UserRepository } from "../shared/repositories/auth.repository";
 import {
   BadRequestError,
@@ -87,6 +88,15 @@ function localizeStore(store: any, locale?: string): any {
   return stripTranslations(s);
 }
 
+async function validateCategoryIds(categories: CategoryRepository, categoryIds: string[]) {
+  const unique = [...new Set(categoryIds)];
+  const found = await categories.findByIds(unique);
+  if (found.length !== unique.length) {
+    throw new BadRequestError("Categoria(s) inválida(s)");
+  }
+  return unique;
+}
+
 export class MapStoresQueryHandler implements IQueryHandler<MapStoresQuery, any> {
   constructor(private readonly stores: StoreRepository) {}
 
@@ -103,7 +113,8 @@ export class CreateStoreCommandHandler
 {
   constructor(
     private readonly stores: StoreRepository,
-    private readonly users: UserRepository
+    private readonly users: UserRepository,
+    private readonly categories: CategoryRepository
   ) {}
 
   async handle(command: CreateStoreCommand) {
@@ -123,6 +134,10 @@ export class CreateStoreCommandHandler
       slug = `${slug}-${Date.now()}`;
     }
 
+    const categoryIds = await (Array.isArray(data.categoryIds)
+      ? validateCategoryIds(this.categories, data.categoryIds)
+      : []);
+
     const store = await this.stores.create({
       name: data.name,
       slug,
@@ -133,6 +148,9 @@ export class CreateStoreCommandHandler
       province: data.province,
       district: data.district,
       userId,
+      categories: {
+        create: categoryIds.map((categoryId) => ({ categoryId })),
+      },
       paymentMethods: JSON.stringify([
         { type: "EXPRESS", enabled: false, phone: "" },
         { type: "TRANSFER", enabled: false, phone: "", ownerName: "", bankName: "", iban: "", bankAccount: "" },
@@ -143,7 +161,7 @@ export class CreateStoreCommandHandler
 
     await this.users.assignRole(userId, "SELLER");
 
-    return { store };
+    return { store: { ...store, categories: mapStoreCategories(store.categories) } };
   }
 }
 
@@ -193,6 +211,7 @@ export class GetStoreQueryHandler implements IQueryHandler<GetStoreQuery, any> {
         ...localized,
         views: store.views + 1,
         paymentMethods: parsePaymentMethods(store.paymentMethods),
+        categories: mapStoreCategories(store.categories),
       },
     };
   }
@@ -201,7 +220,10 @@ export class GetStoreQueryHandler implements IQueryHandler<GetStoreQuery, any> {
 export class UpdateStoreCommandHandler
   implements ICommandHandler<UpdateStoreCommand, any>
 {
-  constructor(private readonly stores: StoreRepository) {}
+  constructor(
+    private readonly stores: StoreRepository,
+    private readonly categories: CategoryRepository
+  ) {}
 
   async handle(command: UpdateStoreCommand) {
     const { userId, roles, body } = command;
@@ -234,6 +256,17 @@ export class UpdateStoreCommandHandler
     if (body.latitude !== undefined) updateData.latitude = body.latitude;
     if (body.longitude !== undefined) updateData.longitude = body.longitude;
 
+    const categoryIds =
+      body.categoryIds !== undefined && body.categoryIds !== null
+        ? await validateCategoryIds(this.categories, body.categoryIds)
+        : undefined;
+    if (categoryIds) {
+      updateData.categories = {
+        deleteMany: {},
+        create: categoryIds.map((categoryId) => ({ categoryId })),
+      };
+    }
+
     const store = await this.stores.update(existingStore.id, updateData);
 
     if (Array.isArray(body.translations)) {
@@ -249,7 +282,9 @@ export class UpdateStoreCommandHandler
 
     const translations = await this.stores.findTranslations(existingStore.id);
 
-    return { store: { ...store, translations } };
+    return {
+      store: { ...store, categories: mapStoreCategories(store.categories), translations },
+    };
   }
 }
 

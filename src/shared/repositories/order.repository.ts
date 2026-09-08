@@ -71,6 +71,32 @@ export class OrderRepository extends BaseRepository {
     return this.client.order.count({ where: { userId } });
   }
 
+  findByPaymentCode(code: string) {
+    return this.client.order.findFirst({ where: { paymentCode: code } });
+  }
+
+  findByIdentifierForStore(identifier: string, storeId: string) {
+    return this.client.order.findFirst({
+      where: {
+        OR: [{ id: identifier }, { orderNumber: identifier }],
+        items: { some: { storeId } },
+      },
+      include: {
+        user: {
+          select: { id: true, name: true, email: true, phone: true },
+        },
+        items: {
+          where: { storeId },
+          include: {
+            product: {
+              select: { id: true, name: true, images: true, slug: true },
+            },
+          },
+        },
+      },
+    });
+  }
+
   findByIdentifier(identifier: string) {
     return this.client.order.findFirst({
       where: {
@@ -211,6 +237,24 @@ export class OrderRepository extends BaseRepository {
 
   adminCount(where: any) {
     return this.client.order.count({ where });
+  }
+
+  adminRevenueAggregate() {
+    const statuses = ["PAID", "PAYMENT_RECEIVED"] as const;
+    return Promise.all([
+      this.client.orderItem.groupBy({
+        by: ["orderId", "storeId", "productId"],
+        where: { order: { paymentStatus: { in: [...statuses] } } },
+        _sum: { price: true, quantity: true },
+      }),
+      this.client.order.findMany({
+        where: { paymentStatus: { in: [...statuses] } },
+        select: { id: true, paymentStatus: true },
+      }),
+    ]).then(([rows, orders]) => ({
+      rows,
+      statusByOrder: Object.fromEntries(orders.map((o) => [o.id, o.paymentStatus])),
+    }));
   }
 }
 

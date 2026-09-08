@@ -20,6 +20,7 @@ import {
 } from "../shared/errors";
 import {
   generateOrderNumber,
+  generatePaymentCode,
   parseOrderItemImages,
   parsePaymentMethods,
   paymentHistoryPush,
@@ -38,6 +39,14 @@ export class SellerOrdersQuery implements IQuery {
     public readonly roles: string[],
     public readonly page: number,
     public readonly limit: number
+  ) {}
+}
+
+export class GetSellerOrderQuery implements IQuery {
+  constructor(
+    public readonly userId: string,
+    public readonly roles: string[],
+    public readonly id: string
   ) {}
 }
 
@@ -145,6 +154,35 @@ export class SellerOrdersQueryHandler
   }
 }
 
+export class GetSellerOrderQueryHandler
+  implements IQueryHandler<GetSellerOrderQuery, any>
+{
+  constructor(
+    private readonly orders: OrderRepository,
+    private readonly stores: StoreRepository
+  ) {}
+
+  async handle(query: GetSellerOrderQuery) {
+    await assertPermission(query.roles, PERMISSIONS.ordersView);
+
+    const store = await this.stores.findByUserId(query.userId);
+
+    if (!store) {
+      throw new NotFoundError("Loja não encontrada");
+    }
+
+    const order = await this.orders.findByIdentifierForStore(query.id, store.id);
+
+    if (!order) {
+      throw new NotFoundError("Pedido não encontrado");
+    }
+
+    return {
+      order: { ...order, items: parseOrderItemImages(order.items) },
+    };
+  }
+}
+
 export class CreateOrderCommandHandler
   implements ICommandHandler<CreateOrderCommand, any>
 {
@@ -217,8 +255,15 @@ export class CreateOrderCommandHandler
 
       const orderNumber = generateOrderNumber();
 
+      let paymentCode = generatePaymentCode();
+      for (let attempt = 0; attempt < 5; attempt++) {
+        if (!(await orderRepo.findByPaymentCode(paymentCode))) break;
+        paymentCode = generatePaymentCode();
+      }
+
       const order = await orderRepo.create({
         orderNumber,
+        paymentCode,
         total,
         shippingFee: 0,
         paymentMethod: data.paymentMethod,
@@ -360,6 +405,13 @@ export class UploadReceiptCommandHandler
       throw new BadRequestError("Comprovativo obrigatório");
     }
 
+    const currentAttempts = ((order as any).receiptAttempts || 0) + 1;
+    if (((order as any).receiptAttempts || 0) >= 3) {
+      throw new BadRequestError(
+        "Limite de 3 tentativas de envio de comprovativo excedido. O pedido foi bloqueado para análise manual do suporte."
+      );
+    }
+
     const history = paymentHistoryPush(order.paymentHistory, {
       at: new Date().toISOString(),
       by: userId,
@@ -367,11 +419,13 @@ export class UploadReceiptCommandHandler
       action: "RECEIPT_UPLOAD",
       status: "AWAITING_PAYMENT",
       validationStatus: "AQUEUE",
+      attempt: currentAttempts,
       score: 0,
     });
 
     const updated = await this.orders.update(order.id, {
       receiptImage,
+      receiptAttempts: currentAttempts,
       paymentStatus: "AWAITING_PAYMENT",
       validationStatus: "AQUEUE",
       validationResult: null,

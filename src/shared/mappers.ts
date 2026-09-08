@@ -47,6 +47,10 @@ export function generateOrderNumber(): string {
   return `PAM-${year}${month}${day}-${random}`;
 }
 
+export function generatePaymentCode(): string {
+  return String(Math.floor(10000000 + Math.random() * 90000000));
+}
+
 export function paymentHistoryPush(
   history: any,
   event: Record<string, any>

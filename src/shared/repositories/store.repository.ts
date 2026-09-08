@@ -6,6 +6,20 @@ export const storeTranslationInclude = {
   },
 };
 
+export const storeCategoriesInclude = {
+  categories: {
+    include: {
+      category: {
+        select: { id: true, name: true, slug: true, icon: true },
+      },
+    },
+  },
+};
+
+export function mapStoreCategories(categories: any[]): { id: string; name: string; slug: string; icon?: string }[] {
+  return (categories || []).map((c: any) => c.category);
+}
+
 export class StoreRepository extends BaseRepository {
   findMapStores() {
     return this.client.store.findMany({
@@ -57,6 +71,7 @@ export class StoreRepository extends BaseRepository {
       },
       include: {
         ...storeTranslationInclude,
+        ...storeCategoriesInclude,
         _count: {
           select: { products: true, reviews: true },
         },
@@ -68,11 +83,24 @@ export class StoreRepository extends BaseRepository {
   }
 
   findByUserId(userId: string) {
-    return this.client.store.findUnique({ where: { userId } });
+    return this.client.store.findUnique({
+      where: { userId },
+      include: storeCategoriesInclude,
+    });
   }
 
   findById(id: string) {
-    return this.client.store.findUnique({ where: { id } });
+    return this.client.store.findUnique({
+      where: { id },
+      include: storeCategoriesInclude,
+    });
+  }
+
+  findByIds(ids: string[]) {
+    return this.client.store.findMany({
+      where: { id: { in: ids } },
+      select: { id: true, name: true, slug: true, logo: true },
+    });
   }
 
   findBySlug(slug: string) {
@@ -86,11 +114,18 @@ export class StoreRepository extends BaseRepository {
   }
 
   create(data: any) {
-    return this.client.store.create({ data });
+    return this.client.store.create({
+      data,
+      include: storeCategoriesInclude,
+    });
   }
 
   update(id: string, data: any) {
-    return this.client.store.update({ where: { id }, data });
+    return this.client.store.update({
+      where: { id },
+      data,
+      include: storeCategoriesInclude,
+    });
   }
 
   delete(id: string) {

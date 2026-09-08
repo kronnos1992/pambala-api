@@ -52,6 +52,7 @@ export const storeSchema = z.object({
   banner: z.string().optional(),
   province: z.string().min(1),
   district: z.string().optional(),
+  categoryIds: z.array(z.string().min(1)).optional(),
 });
 
 export const orderSchema = z.object({

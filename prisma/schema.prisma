@@ -96,6 +96,18 @@ model Store {
   paymentMethods String  @default("[]")
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+  categories  StoreCategory[]
+}
+
+model StoreCategory {
+  storeId    String
+  categoryId String
+  store      Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@id([storeId, categoryId])
+  @@index([categoryId])
 }
 
 model StoreTranslation {
@@ -121,6 +133,7 @@ model Category {
   children  Category[] @relation("CategoryTree")
   translations CategoryTranslation[]
   products  Product[]
+  storeCategories StoreCategory[]
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 }
@@ -204,25 +217,29 @@ model Order {
   paymentMethod    String
   paymentStatus    String      @default("PENDING")
   paymentRef       String?
-  receiptImage     String?
-  paymentDetails   String?
-  paymentHistory   String?
-  validationStatus String?
-  validationResult String?
-  receiptJob       ReceiptQueue?
-  shippingName     String
-  shippingPhone    String
-  shippingAddress  String
-  shippingProvince String
-  shippingDistrict String?
-  notes            String?
-  userId           String
-  user             User        @relation(fields: [userId], references: [id])
-  items            OrderItem[]
-  createdAt        DateTime    @default(now())
-  updatedAt        DateTime    @updatedAt
+  paymentCode            String?
+  receiptImage           String?
+  receiptAttempts        Int         @default(0)
+  transactionFingerprint String?
+  paymentDetails         String?
+  paymentHistory         String?
+  validationStatus       String?
+  validationResult       String?
+  receiptJob             ReceiptQueue?
+  shippingName           String
+  shippingPhone          String
+  shippingAddress        String
+  shippingProvince       String
+  shippingDistrict       String?
+  notes                  String?
+  userId                 String
+  user                   User        @relation(fields: [userId], references: [id])
+  items                  OrderItem[]
+  createdAt              DateTime    @default(now())
+  updatedAt              DateTime    @updatedAt
 
   @@index([userId])
+  @@index([transactionFingerprint])
 }
 
 model ReceiptQueue {

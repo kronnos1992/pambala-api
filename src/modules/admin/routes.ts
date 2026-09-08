@@ -11,6 +11,7 @@ import {
   ProductsStatsQuery,
   CategoriesStatsQuery,
   ReviewsStatsQuery,
+  StoreRevenueQuery,
   DashboardStatsQuery,
   AdminUsersQuery,
   UpdateUserRoleCommand,
@@ -87,6 +88,12 @@ admin.get("/stats/categories", async (c) => {
 
 admin.get("/stats/reviews", async (c) => {
   const result = await mediator.query(new ReviewsStatsQuery());
+
+  return c.json(result);
+});
+
+admin.get("/stats/store-revenue", async (c) => {
+  const result = await mediator.query(new StoreRevenueQuery());
 
   return c.json(result);
 });

@@ -281,7 +281,7 @@ export class GetProductQueryHandler
       [localizeProduct({ ...parseProductImages({ ...product, avgRating }) }, query.locale)]
     );
 
-    return { product: p };
+    return { product: { ...p, translations: product.translations ?? [] } };
   }
 }
 

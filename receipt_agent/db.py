@@ -55,17 +55,18 @@ class ReceiptDatabase:
         feitos antes da introdução da `ReceiptQueue`).
         """
         params: List[Any] = []
-        where = "q.status = 'PENDING' AND q.attempts < q.maxAttempts"
         if only:
-            where += " AND (o.id = ? OR o.orderNumber = ?)"
+            where = "(o.id = ? OR o.orderNumber = ?)"
             params = [only, only]
+        else:
+            where = "q.status = 'PENDING' AND q.attempts < q.maxAttempts"
 
         query = f"""
             SELECT o.id, o.orderNumber, o.total, o.paymentMethod,
                    o.paymentStatus, o.paymentDetails, o.paymentHistory,
                    o.validationStatus, o.validationResult, o.receiptImage,
                    q.id AS jobId, q.attempts, q.maxAttempts,
-                   u.aiValidationConsent
+                   u.aiValidationConsent, o.paymentCode, o.createdAt
             FROM "Order" o
             JOIN "ReceiptQueue" q ON q.orderId = o.id
             JOIN "User" u ON u.id = o.userId
@@ -90,7 +91,7 @@ class ReceiptDatabase:
                    o.paymentStatus, o.paymentDetails, o.paymentHistory,
                    o.validationStatus, o.validationResult, o.receiptImage,
                    NULL AS jobId, 0 AS attempts, 3 AS maxAttempts,
-                   0 AS aiValidationConsent
+                   0 AS aiValidationConsent, o.paymentCode, o.createdAt
             FROM "Order" o
             WHERE o.receiptImage IS NOT NULL AND o.receiptImage != ''
               AND o.paymentMethod != 'CASH_ON_DELIVERY'
@@ -125,7 +126,59 @@ class ReceiptDatabase:
             "attempts": r[11],
             "maxAttempts": r[12],
             "aiValidationConsent": bool(r[13]),
+            "paymentCode": r[14] if len(r) > 14 else None,
+            "createdAt": r[15] if len(r) > 15 else None,
         }
+
+    def find_duplicate_receipt(self, order_id: str, file_hash: str) -> Optional[dict]:
+        """Procura se outro pedido já utilizou o mesmo hash SHA-256 de comprovativo."""
+        if not file_hash:
+            return None
+        query = """
+            SELECT id, orderNumber, paymentStatus, validationStatus
+            FROM "Order"
+            WHERE id != ?
+              AND (
+                  json_extract(validationResult, '$.forensics.signals.hash') = ?
+                  OR json_extract(validationResult, '$.forensics.hash') = ?
+              )
+            LIMIT 1
+        """
+        with sqlite3.connect(self.db_path) as conn:
+            row = conn.execute(query, (order_id, file_hash, file_hash)).fetchone()
+            if row:
+                return {
+                    "id": row[0],
+                    "orderNumber": row[1],
+                    "paymentStatus": row[2],
+                    "validationStatus": row[3],
+                }
+        return None
+
+    def find_duplicate_fingerprint(self, order_id: str, fingerprint: str) -> Optional[dict]:
+        """Procura se outro pedido já utilizou a mesma fingerprint lógica de transação."""
+        if not fingerprint:
+            return None
+        query = """
+            SELECT id, orderNumber, paymentStatus, validationStatus
+            FROM "Order"
+            WHERE id != ?
+              AND (
+                  transactionFingerprint = ?
+                  OR json_extract(validationResult, '$.transaction.fingerprint') = ?
+              )
+            LIMIT 1
+        """
+        with sqlite3.connect(self.db_path) as conn:
+            row = conn.execute(query, (order_id, fingerprint, fingerprint)).fetchone()
+            if row:
+                return {
+                    "id": row[0],
+                    "orderNumber": row[1],
+                    "paymentStatus": row[2],
+                    "validationStatus": row[3],
+                }
+        return None
 
     # -- claim / complete / fail -------------------------------------------
 
@@ -144,12 +197,13 @@ class ReceiptDatabase:
         history = self._read_payment_history(order_id)
         history.append(self._history_entry(result))
         payload = json.dumps(result, ensure_ascii=False, default=str)
+        fingerprint = result.get("transaction", {}).get("fingerprint")
         now = _iso_now()
         with sqlite3.connect(self.db_path) as conn:
             conn.execute(
                 'UPDATE "Order" SET validationStatus = ?, validationResult = ?,'
-                " paymentHistory = ? WHERE id = ?",
-                (result.get("status", "REVIEW"), payload, json.dumps(history), order_id),
+                " paymentHistory = ?, transactionFingerprint = COALESCE(?, transactionFingerprint) WHERE id = ?",
+                (result.get("status", "MANUAL_REVIEW"), payload, json.dumps(history), fingerprint, order_id),
             )
             # upsert da linha de fila (pode não existir em uploads legados)
             conn.execute(
@@ -237,7 +291,7 @@ class ReceiptDatabase:
                 'SELECT COUNT(*) FROM "Order"'
                 " WHERE receiptImage IS NOT NULL AND receiptImage != ''"
             ).fetchone()[0]
-            statuses = ["AQUEUE", "PASS", "REVIEW", "FAIL"]
+            statuses = ["AQUEUE", "PROOF_ACCEPTED", "MANUAL_REVIEW", "PROOF_REJECTED", "PASS", "REVIEW", "FAIL"]
             for s in statuses:
                 out[s.lower()] = conn.execute(
                     'SELECT COUNT(*) FROM "Order" WHERE validationStatus = ?',

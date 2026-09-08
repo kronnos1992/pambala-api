@@ -4,6 +4,7 @@ import { authFilter } from "../../shared/filters/auth.filter";
 import { orderSchema } from "../../lib/validators";
 import {
   SellerOrdersQuery,
+  GetSellerOrderQuery,
   CreateOrderCommand,
   ListUserOrdersQuery,
   GetOrderQuery,
@@ -22,6 +23,18 @@ orders.get("/seller/orders", authFilter, async (c) => {
 
   const result = await mediator.query(
     new SellerOrdersQuery(userId, roles, page, limit)
+  );
+
+  return c.json(result);
+});
+
+orders.get("/seller/orders/:id", authFilter, async (c) => {
+  const userId = (c as any).get("userId") as string;
+  const roles = (c as any).get("roles") as string[];
+  const id = c.req.param("id")!;
+
+  const result = await mediator.query(
+    new GetSellerOrderQuery(userId, roles, id)
   );
 
   return c.json(result);

@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import hashlib
 import io
+import re
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -248,6 +249,30 @@ def detect_screenshot(path: Path) -> Dict[str, Any]:
 
 # -- análise agregada -------------------------------------------------------
 
+def _pdf_header(path: Path, n: int = 8192) -> Dict[str, Any]:
+    """Scan best-effort do cabeçalho PDF (versão/produtor/criador) sem deps."""
+    out: Dict[str, Any] = {"version": None, "producer": None, "creator": None}
+    try:
+        with open(path, "rb") as f:
+            head = f.read(n)
+    except Exception as e:  # pragma: no cover
+        out["error"] = str(e)
+        return out
+    m = re.match(br"%PDF-(\d+\.\d+)", head)
+    if m:
+        out["version"] = m.group(1).decode("ascii", "ignore")
+    for key in (b"/Producer", b"/Creator"):
+        idx = head.find(key)
+        if idx == -1:
+            continue
+        mv = re.match(br"\s*\(([^)]*)\)", head[idx + len(key):])
+        if mv:
+            out["producer" if key == b"/Producer" else "creator"] = (
+                mv.group(1).decode("latin-1", "ignore").strip()
+            )
+    return out
+
+
 def analyze(path: Path, filename: str = "") -> Dict[str, Any]:
     """Roda toda a forense e devolve um relatório com flags e sinal."""
     flags: List[str] = []
@@ -264,6 +289,22 @@ def analyze(path: Path, filename: str = "") -> Dict[str, Any]:
         )
 
     signals["hash"] = sha256_file(path)
+
+    is_pdf = magic["detected"] == "pdf" or ext == "pdf"
+    signals["format"] = "pdf" if is_pdf else "image"
+    if is_pdf:
+        # PDFs são documentos vetoriais/texto: as heurísticas de imagem
+        # (metadata/EXIF, ELA, screenshot, resolução) não se aplicam.
+        pdf = _pdf_header(path)
+        signals["pdf"] = pdf
+        if pdf.get("producer"):
+            signals["producer"] = pdf["producer"]
+        signals["forensics_available"] = True
+        return {
+            "flags": flags,
+            "reasons": reasons,
+            "signals": signals,
+        }
 
     meta = metadata(path)
     signals["metadata"] = meta

@@ -87,6 +87,8 @@ import {
 import {
   SellerOrdersQuery,
   SellerOrdersQueryHandler,
+  GetSellerOrderQuery,
+  GetSellerOrderQueryHandler,
   CreateOrderCommand,
   CreateOrderCommandHandler,
   ListUserOrdersQuery,
@@ -117,6 +119,8 @@ import {
   CategoriesStatsQueryHandler,
   ReviewsStatsQuery,
   ReviewsStatsQueryHandler,
+  StoreRevenueQuery,
+  StoreRevenueQueryHandler,
   DashboardStatsQuery,
   DashboardStatsQueryHandler,
   AdminUsersQuery,
@@ -269,7 +273,7 @@ export function registerHandlers(): void {
   mediator.registerQuery(MapStoresQuery, new MapStoresQueryHandler(stores));
   mediator.register(
     CreateStoreCommand,
-    new CreateStoreCommandHandler(stores, users)
+    new CreateStoreCommandHandler(stores, users, categories)
   );
   mediator.registerQuery(
     ListStoresQuery,
@@ -278,7 +282,7 @@ export function registerHandlers(): void {
   mediator.registerQuery(GetStoreQuery, new GetStoreQueryHandler(stores));
   mediator.register(
     UpdateStoreCommand,
-    new UpdateStoreCommandHandler(stores)
+    new UpdateStoreCommandHandler(stores, categories)
   );
   mediator.registerQuery(
     GetPaymentMethodsQuery,
@@ -316,6 +320,10 @@ export function registerHandlers(): void {
   mediator.registerQuery(
     SellerOrdersQuery,
     new SellerOrdersQueryHandler(orders, stores)
+  );
+  mediator.registerQuery(
+    GetSellerOrderQuery,
+    new GetSellerOrderQueryHandler(orders, stores)
   );
   mediator.register(
     CreateOrderCommand,
@@ -390,7 +398,11 @@ export function registerHandlers(): void {
   );
   mediator.registerQuery(
     AdminOrdersQuery,
-    new AdminOrdersQueryHandler(orders)
+    new AdminOrdersQueryHandler(orders, stores)
+  );
+  mediator.registerQuery(
+    StoreRevenueQuery,
+    new StoreRevenueQueryHandler(orders, stores, products)
   );
   mediator.register(
     AdminUpdateOrderStatusCommand,

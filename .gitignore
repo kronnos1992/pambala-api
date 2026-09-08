@@ -11,3 +11,6 @@ coverage/
 .DS_Store
 npm-debug.log*
 langdata/
+__pycache__/
+*.pyc
+*.log
