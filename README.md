@@ -195,8 +195,8 @@ O sistema usa **roles dinâmicas** com responsabilidades M:N por utilizador (`Us
 | GET | `/api/stores/map` | Não | Lojas com coordenadas GPS |
 | GET | `/api/stores/:slug` | Não | Detalhe da loja |
 | GET | `/api/stores/:slug/products` | Não | Produtos da loja |
-| POST | `/api/stores` | Manager/Vendedor | Criar loja (requer `stores.create`; atribui role `SELLER` automaticamente) |
-| PUT | `/api/stores` | Owner | Actualizar loja |
+| POST | `/api/stores` | Manager/Vendedor | Criar loja (requer `stores.create`; atribui role `SELLER` automaticamente; aceita `logo` e `banner` opcionais) |
+| PUT | `/api/stores` | Owner | Actualizar loja (inclui `logo`/`banner`; enviar `""` para remover) |
 
 ### Cart
 | Método | Rota | Auth | Descrição |
