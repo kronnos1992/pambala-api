@@ -278,22 +278,23 @@ O sistema usa **roles dinâmicas** com responsabilidades M:N por utilizador (`Us
 | GET | `/api/admin/reviews` | Admin | Listar todas as avaliações |
 | DELETE | `/api/admin/reviews/:id` | Admin | Eliminar avaliação |
 
-## Agente de recibo (`receipt_agent/`)
+## Agente de Comprovativos Anti-Fraude (`receipt_agent/`)
 
-Assistente Python que lê recibos (OCR) e valida pagamentos de pedidos:
+Assistente Python que implementa o modelo **Payment Proof + Transaction Fingerprint + Triagem de Risco**:
 
 | Componente | Função |
 |------------|--------|
-| `ocr.py` | Leitura do texto do recibo via tesseract.js |
-| `llm.py` | Extracção estruturada dos dados (OpenRouter) |
-| `verifier.py` | Validação dos dados extraídos contra o pedido |
-| `forensics.py` | Análise/validação extra de metadados |
-| `db.py` | Persistência dos resultados (SQLite) |
-| `agent.py` | Orquestração do pipeline |
-| `config.py` | Configuração (keys, modelos, paths) |
-| `cron_process.sh` | Execução agendada (cron) do agente |
+| `ocr.py` | Leitura do texto do comprovativo via Tesseract (pytesseract/CLI) ou pdftotext |
+| `forensics.py` | Análise forense de imagem (ELA, EXIF/XMP, software de edição, screenshots) |
+| `verifier.py` | Extração de entidades bancárias, `transactionFingerprint` e cálculo do `PaymentRiskScore` (0-100) |
+| `llm.py` | Análise semântica por visão multimodal (OpenRouter/GPT-4o-mini com consentimento) |
+| `db.py` | Persistência dos resultados, histórico de auditoria e pesquisa de duplicados (físicos e lógicos) |
+| `agent.py` | Orquestração do pipeline, fila (`ReceiptQueue`) e CLI (`check`, `process`, `report`) |
+| `tests/test_verifier.py` | Testes unitários automatizados do motor de scoring e fingerprint |
+| `config.py` | Configuração central (limiares de risco, chaves, diretórios) |
+| `cron_process.sh` | Execução agendada contínua em segundo plano |
 
-Veja `receipt_agent/README.md` para detalhes de configuração e execução.
+Consulte `receipt_agent/README.md` para a especificação completa da matriz de pontuação e flags de segurança.
 
 ## Licença
 
