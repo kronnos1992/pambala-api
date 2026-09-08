@@ -37,24 +37,55 @@ Este agente adiciona três linhas de defesa:
 4. Grava em `Order`: `validationStatus`, `validationResult` (relatório
    completo) e anexa evento `AGENT_REVIEW` em `paymentHistory`.
 
-### Regras de decisão
+### Regras de decisão e proteção anti-burla (PaymentRiskScore & Fingerprint)
 
-- Nota base 50 + acertos de cruzamento (valor, entidade, referência...) +
-  código de confirmação (+15);
-- penalidades de suspeita forense (ex.: `EDITED_REGIONS` −30,
-  `EDITOR_METADATA` −35, `MAGIC_MISMATCH` −45);
-- ajuste pela visão LLM (PASS +8, FAIL −25);
-- `PASS` ≥ 80, `FAIL` ≤ 40, o resto `REVIEW`;
-- **PASS nunca é atribuído com flags forenses de suspeita** — escala para
-  revisão humana (é daí que vem a garantia).
+O pipeline implementa o modelo **Payment Proof + Transaction Fingerprint + Reconciliation**:
+
+1. **Transaction Fingerprint (Desduplicação Lógica)**:
+   - Extrai as entidades canónicas da transação: ID/referência (FT, Doc N.º, etc.), montante, data, beneficiário, IBAN e banco.
+   - Gera um fingerprint SHA-256 canónico (`TX:<id>|AMT:<amt>|CUR:AOA|DT:<date>|BEN:<ben>|BANK:<bank>`).
+   - Bloqueia fraudes por reutilização de transações mesmo que a imagem seja recortada, redimensionada ou capturada por screenshot.
+2. **Deteção de Replay Físico (`DUPLICATE_RECEIPT`)**:
+   - Hash SHA-256 exato do ficheiro submetido.
+3. **Limite de Tentativas**:
+   - Limite estrito de 3 tentativas de envio de comprovativo por pedido (`receiptAttempts`), bloqueando a 4ª tentativa para revisão manual.
+4. **Matriz de Pontuação (`PaymentRiskScore` 0–100)**:
+   - **Pontuação base**: 10
+   - `+20` Referência / Código de confirmação (`paymentCode`) corresponde
+   - `+20` Montante corresponde
+   - `+15` Beneficiário corresponde (titular ou IBAN)
+   - `+10` Data da transação dentro da janela do pedido
+   - `+10` Novo ID de transação bancária (não duplicado)
+   - `+10` Layout e estrutura de comprovativo bancário reconhecida
+   - `+05` Banco esperado corresponde
+   - `-40` Comprovativo ou transação já utilizado noutro pedido (`DUPLICATE_RECEIPT` / `DUPLICATE_FINGERPRINT`)
+   - `-30` Referência/código pertence a outro pedido ou não confere (`CODE_MISMATCH` / `MISMATCH_REFERENCE`)
+   - `-30` Valor diferente (`AMOUNT_MISMATCH`)
+   - `-20` Beneficiário diferente (`BENEFICIARY_MISMATCH`)
+   - `-20` Documento suspeito / sinais de edição gráfica (`SUSPICIOUS_DOCUMENT`)
+   - Ajuste visão LLM (opcional com consentimento): PASS +0, REVIEW −10, FAIL −30
+5. **Classificação de Risco**:
+   - `90 - 100`: **Baixo Risco** $\rightarrow$ `PROOF_ACCEPTED` (Comprovativo Aceite)
+   - `70 - 89`: **Revisão Manual** $\rightarrow$ `MANUAL_REVIEW` (Revisão pelo operador)
+   - `< 70`: **Rejeitado** $\rightarrow$ `PROOF_REJECTED` (Comprovativo Rejeitado)
+6. **Regras Absolutas de Segurança**:
+   - Duplicado comprovado (físico ou lógico) $\rightarrow$ reprovação imediata (`PROOF_REJECTED`, score $\le 15$).
+   - Múltiplas incongruências críticas (valor + código/data) $\rightarrow$ `PROOF_REJECTED`.
+   - `PROOF_ACCEPTED` é bloqueado na presença de qualquer flag forense suspeita (`EDITOR_METADATA`, `EDITED_REGIONS`, `MAGIC_MISMATCH`), rebaixando sempre para `MANUAL_REVIEW`.
+   - Comprovativos remotos (Cloudinary) contam com fallback transparente de PDF para JPG rasterizado.
 
 ## Requisitos
 
 - Python 3.10+.
 - **OCR**: `tesseract` instalado (`apt install tesseract-ocr tesseract-ocr-por`)
-  ou `pip install pytesseract`.
+  ou `pip install pytesseract`. Para comprovativos em **PDF** (a partir da UI
+  também podem ser PDF), o texto é extraído com `pdftotext` (poppler-utils:
+  `apt install poppler-utils`) — sem ele, o PDF não é reprovado por
+  "conteúdo em falta"; escala para `REVIEW`.
 - **Forense**: `pip install pillow` (opcional — sem ele o agente só marca
-  `FORENSICS_UNAVAILABLE` e escala para revisão).
+  `FORENSICS_UNAVAILABLE` e escala para revisão). As heurísticas de imagem
+  (EXIF/ELA/screenshot) não se aplicam a PDFs: para PDFs a forense verifica
+  versão/produtor do cabeçalho e não marca `EXIF_STRIPPED`.
 - **Visão LLM**: `OPENAI_API_KEY` (opcional — sem ela o agente roda sem o
   passo de visão). Endpoint OpenAI-compatível (default OpenRouter).
 

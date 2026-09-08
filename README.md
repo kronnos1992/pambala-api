@@ -195,8 +195,9 @@ O sistema usa **roles dinâmicas** com responsabilidades M:N por utilizador (`Us
 | GET | `/api/stores/map` | Não | Lojas com coordenadas GPS |
 | GET | `/api/stores/:slug` | Não | Detalhe da loja |
 | GET | `/api/stores/:slug/products` | Não | Produtos da loja |
-| POST | `/api/stores` | Manager/Vendedor | Criar loja (requer `stores.create`; atribui role `SELLER` automaticamente; aceita `logo` e `banner` opcionais) |
-| PUT | `/api/stores` | Owner | Actualizar loja (inclui `logo`/`banner`; enviar `""` para remover) |
+| POST | `/api/stores` | Manager/Vendedor | Criar loja (requer `stores.create`; atribui role `SELLER` automaticamente; aceita `logo`/`banner` opcionais e `categoryIds: string[]` — categorias que a loja vende) |
+| PUT | `/api/stores` | Owner | Actualizar loja (inclui `logo`/`banner`; enviar `""` para remover; `categoryIds` substitui as categorias da loja) |
+| GET | `/api/stores/:slug` | Não | Detalhe da loja (inclui `categories`) |
 
 ### Cart
 | Método | Rota | Auth | Descrição |
@@ -214,6 +215,8 @@ O sistema usa **roles dinâmicas** com responsabilidades M:N por utilizador (`Us
 | GET | `/api/orders` | Sim | Listar pedidos do utilizador |
 | GET | `/api/orders/:id` | Sim | Detalhe do pedido (admin vê todos) |
 | GET | `/api/orders/seller/orders` | Seller | Pedidos da loja do vendedor |
+| GET | `/api/orders/seller/orders/:id` | Seller | Detalhe de pedido da loja do vendedor |
+| POST | `/api/orders/:id/receipt` | Sim | Enviar comprovativo de pagamento (máx 3 tentativas; enfileira para `receipt_agent`) |
 | PUT | `/api/orders/:id/status` | Admin | Actualizar estado do pedido |
 
 ### Reviews
@@ -260,8 +263,9 @@ O sistema usa **roles dinâmicas** com responsabilidades M:N por utilizador (`Us
 | GET | `/api/admin/users` | Admin | Listar utilizadores (filtro role, busca) |
 | PUT | `/api/admin/users/:id/role` | Admin | Atribuir roles (`{ "role": "SELLER" }` ou `{ "roles": ["MANAGER","SELLER"] }`) |
 | DELETE | `/api/admin/users/:id` | Admin | Eliminar utilizador |
-| GET | `/api/admin/orders` | Admin | Listar todos os pedidos |
+| GET | `/api/admin/orders` | Admin | Listar todos os pedidos (inclui `stores` que recebem o pagamento) |
 | PUT | `/api/admin/orders/:id/status` | Admin | Actualizar estado do pedido |
+| GET | `/api/admin/stats/store-revenue` | Admin | Receita por loja + KPI por produto (orders PAID/PAYMENT_RECEIVED) |
 | GET | `/api/admin/stores` | Admin | Listar todas as lojas |
 | PUT | `/api/admin/stores/:id/verify` | Admin | Toggle verificação da loja |
 | DELETE | `/api/admin/stores/:id` | Admin | Eliminar loja |
