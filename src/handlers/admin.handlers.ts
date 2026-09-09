@@ -758,18 +758,42 @@ export class AdminUpdateOrderStatusCommandHandler
     const { orderId, status } = command;
 
     if (
-      !["PENDING", "CONFIRMED", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED"].includes(status)
+      !["PENDING", "CONFIRMED", "PROCESSING", "SHIPPED", "DELIVERED", "RECEIVED", "CANCELLED"].includes(status)
     ) {
       throw new BadRequestError("Status invalido");
     }
 
-    const order = await this.orders.updateAndSelect(
+    const order = await this.orders.findById(orderId);
+    if (!order) {
+      throw new NotFoundError("Pedido nao encontrado");
+    }
+
+    const now = new Date();
+    const timestamps: Record<string, Date> = {};
+    if (status === "SHIPPED") timestamps.shippedAt = now;
+    if (status === "DELIVERED") timestamps.deliveredAt = now;
+    if (status === "RECEIVED") timestamps.receivedAt = now;
+
+    const updated = await this.orders.updateAndSelect(
       orderId,
-      { status },
+      {
+        status,
+        ...timestamps,
+        paymentHistory: JSON.stringify(
+          paymentHistoryPush(order.paymentHistory, {
+            at: now.toISOString(),
+            actor: "admin",
+            role: "ADMIN",
+            action: "ORDER_STATUS",
+            from: order.status,
+            to: status,
+          })
+        ),
+      },
       { id: true, status: true, orderNumber: true }
     );
 
-    return { order };
+    return { order: updated };
   }
 }
 
@@ -793,18 +817,30 @@ export class AdminUpdateOrderPaymentCommandHandler
     const entry = {
       at: new Date().toISOString(),
       actor: "admin",
+      role: "ADMIN",
+      action: "PAYMENT_STATUS",
       from: order.paymentStatus,
       to: paymentStatus,
       note: note || undefined,
     };
 
+    let history = paymentHistoryPush(order.paymentHistory, entry);
     const data: any = {
       paymentStatus,
-      paymentHistory: JSON.stringify(paymentHistoryPush(order.paymentHistory, entry)),
+      paymentHistory: JSON.stringify(history),
     };
     if (paymentStatus === "PAID") {
-      data.status = "CONFIRMED";
+      data.status = "PROCESSING";
       data.validationStatus = "PASS";
+      history = paymentHistoryPush(JSON.stringify(history), {
+        at: new Date().toISOString(),
+        actor: "admin",
+        role: "ADMIN",
+        action: "ORDER_STATUS",
+        from: order.status,
+        to: "PROCESSING",
+      });
+      data.paymentHistory = JSON.stringify(history);
     }
 
     const updated = await this.orders.updateAndSelect(

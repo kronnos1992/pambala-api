@@ -104,8 +104,18 @@ const ORDER_STATUSES = [
   "PROCESSING",
   "SHIPPED",
   "DELIVERED",
+  "RECEIVED",
   "CANCELLED",
 ];
+
+function statusTimestamps(status: string) {
+  const now = new Date();
+  const fields: Record<string, Date> = {};
+  if (status === "SHIPPED") fields.shippedAt = now;
+  if (status === "DELIVERED") fields.deliveredAt = now;
+  if (status === "RECEIVED") fields.receivedAt = now;
+  return fields;
+}
 
 const PAYMENT_STATUSES = [
   "PENDING",
@@ -114,6 +124,44 @@ const PAYMENT_STATUSES = [
   "PAID",
   "REJECTED",
 ];
+
+export class ShipOrderCommand implements ICommand {
+  constructor(
+    public readonly userId: string,
+    public readonly roles: string[],
+    public readonly id: string,
+    public readonly data: {
+      carrierName?: string;
+      trackingCode?: string;
+      estimatedDelivery?: string;
+    }
+  ) {}
+}
+
+export class MarkOrderDeliveredCommand implements ICommand {
+  constructor(
+    public readonly userId: string,
+    public readonly roles: string[],
+    public readonly id: string,
+    public readonly note?: string
+  ) {}
+}
+
+export class ConfirmOrderReceiptCommand implements ICommand {
+  constructor(
+    public readonly userId: string,
+    public readonly roles: string[],
+    public readonly id: string
+  ) {}
+}
+
+export class GetOrderTimelineQuery implements IQuery {
+  constructor(
+    public readonly userId: string,
+    public readonly roles: string[],
+    public readonly id: string
+  ) {}
+}
 
 export class SellerOrdersQueryHandler
   implements IQueryHandler<SellerOrdersQuery, any>
@@ -275,6 +323,15 @@ export class CreateOrderCommandHandler
         shippingDistrict: data.shippingDistrict,
         notes: data.notes,
         userId,
+        paymentHistory: JSON.stringify([
+          {
+            at: new Date().toISOString(),
+            by: userId,
+            role: "BUYER",
+            action: "ORDER_CREATED",
+            to: "PENDING",
+          },
+        ]),
         items: {
           create: storeItems.map((item: any) => ({
             productId: item.productId,
@@ -366,10 +423,28 @@ export class UpdateOrderStatusCommandHandler
       throw new BadRequestError("Status inválido");
     }
 
-    const order = await this.orders.update(id, { status });
+    let order = await this.orders.findByIdentifier(id);
+    if (!order) {
+      throw new NotFoundError("Pedido não encontrado");
+    }
+
+    const history = paymentHistoryPush(order.paymentHistory, {
+      at: new Date().toISOString(),
+      by: primaryRoleOf(roles),
+      role: "ADMIN",
+      action: "ORDER_STATUS",
+      from: order.status,
+      to: status,
+    });
+
+    const updated = await this.orders.update(order.id, {
+      status,
+      ...statusTimestamps(status),
+      paymentHistory: JSON.stringify(history),
+    });
 
     return {
-      order: { ...order, items: parseOrderItemImages(order.items) },
+      order: { ...updated, items: parseOrderItemImages(updated.items) },
     };
   }
 }
@@ -503,7 +578,9 @@ export class UpdateOrderPaymentStatusCommandHandler
       throw new BadRequestError("Status de pagamento inválido");
     }
 
-    const history = paymentHistoryPush(order.paymentHistory, {
+    const nextStatus = paymentStatus === "PAID" ? "PROCESSING" : order.status;
+
+    let history = paymentHistoryPush(order.paymentHistory, {
       at: new Date().toISOString(),
       by: userId,
       role: primaryRoleOf(roles),
@@ -512,9 +589,424 @@ export class UpdateOrderPaymentStatusCommandHandler
       to: paymentStatus,
     });
 
+    if (nextStatus !== order.status) {
+      history = paymentHistoryPush(history, {
+        at: new Date().toISOString(),
+        by: userId,
+        role: primaryRoleOf(roles),
+        action: "ORDER_STATUS",
+        from: order.status,
+        to: nextStatus,
+      });
+    }
+
     const updated = await this.orders.update(order.id, {
       paymentStatus,
-      status: paymentStatus === "PAID" ? "CONFIRMED" : order.status,
+      status: nextStatus,
+      ...statusTimestamps(nextStatus),
+      paymentHistory: JSON.stringify(history),
+    });
+
+    return { order: updated };
+  }
+}
+
+// --- Ciclo de vida / rastreamento ---
+
+type OrderActor = "ADMIN" | "SELLER" | "BUYER";
+
+async function resolveOrderActor(
+  orders: OrderRepository,
+  stores: StoreRepository,
+  orderItems: OrderItemRepository,
+  id: string,
+  userId: string,
+  roles: string[]
+): Promise<{ order: any; actor: OrderActor }> {
+  const order = await orders.findByIdentifier(id);
+
+  if (!order) {
+    throw new NotFoundError("Pedido não encontrado");
+  }
+
+  const effective = await resolvePermissions(roles);
+  if (
+    effective.has(PERMISSIONS.adminOrdersManage) ||
+    effective.has(PERMISSIONS.ordersConfirmPayment)
+  ) {
+    return { order, actor: "ADMIN" };
+  }
+
+  if (order.userId === userId) {
+    return { order, actor: "BUYER" };
+  }
+
+  if (effective.has(PERMISSIONS.ordersRespondPayment)) {
+    const store = await stores.findByUserId(userId);
+    const related = store
+      ? await orderItems.findByOrderAndStore(order.id, store.id)
+      : null;
+    if (store && related) {
+      return { order, actor: "SELLER" };
+    }
+  }
+
+  throw new ForbiddenError("Não autorizado");
+}
+
+interface OrderTimelineEventEntry {
+  id: string;
+  kind: string;
+  from: string | null;
+  to: string | null;
+  note: string | null;
+  at: string;
+  actorRole: string | null;
+  score?: number | null;
+  tracking?: {
+    carrierName?: string | null;
+    trackingCode?: string | null;
+    estimatedDelivery?: string | null;
+  } | null;
+}
+
+function parseHistory(raw: string | null): any[] {
+  if (!raw) return [];
+  try {
+    const value = JSON.parse(raw);
+    return Array.isArray(value) ? value : [];
+  } catch {
+    return [];
+  }
+}
+
+function normalizeHistoryEntry(
+  entry: any,
+  index: number
+): OrderTimelineEventEntry | null {
+  if (!entry || typeof entry !== "object") return null;
+
+  const at = entry.at || new Date(0).toISOString();
+  const base: OrderTimelineEventEntry = {
+    id: `e-${index}`,
+    kind: "ORDER",
+    from: entry.from ?? null,
+    to: entry.to ?? null,
+    note: entry.note ?? null,
+    at,
+    actorRole: entry.role ?? entry.actor ?? null,
+    score: typeof entry.score === "number" ? entry.score : null,
+    tracking: entry.tracking ?? null,
+  };
+
+  switch (entry.action) {
+    case "ORDER_CREATED":
+      return { ...base, kind: "ORDER", to: "PENDING" };
+    case "ORDER_STATUS":
+      return { ...base, kind: "ORDER" };
+    case "PAYMENT_STATUS":
+      return { ...base, kind: "PAYMENT" };
+    case "RECEIPT_UPLOAD":
+      return {
+        ...base,
+        kind: "RECEIPT",
+        to: entry.to ?? "AWAITING_PAYMENT",
+        note:
+          typeof entry.attempt === "number"
+            ? `tentativa ${entry.attempt}`
+            : base.note,
+      };
+    case "AGENT_REVIEW":
+      return {
+        ...base,
+        kind: "VALIDATION",
+        to: entry.to ?? entry.validationStatus ?? null,
+      };
+    case "MANUAL_OVERRIDE_ACCEPT":
+      return { ...base, kind: "MODERATION", to: "PROOF_ACCEPTED" };
+    case "DEFINITIVE_REJECT":
+      return { ...base, kind: "MODERATION", to: "PROOF_REJECTED" };
+    default:
+      break;
+  }
+
+  if (entry.actor === "admin" || entry.role === "admin") {
+    return { ...base, kind: "MODERATION" };
+  }
+
+  if (entry.to) {
+    return { ...base, kind: "ORDER" };
+  }
+
+  return null;
+}
+
+function buildOrderTimeline(order: any): OrderTimelineEventEntry[] {
+  const history = parseHistory(order.paymentHistory);
+
+  let events = history
+    .map((entry, index) => normalizeHistoryEntry(entry, index))
+    .filter((e): e is OrderTimelineEventEntry => e !== null);
+
+  if (!events.some((e) => e.kind === "ORDER" && e.to === "PENDING")) {
+    events = [
+      {
+        id: "e-created",
+        kind: "ORDER",
+        from: null,
+        to: "PENDING",
+        note: null,
+        at:
+          order.createdAt?.toISOString?.() ??
+          new Date().toISOString(),
+        actorRole: "BUYER",
+      },
+      ...events,
+    ];
+  }
+
+  return events.sort(
+    (a, b) => new Date(a.at).getTime() - new Date(b.at).getTime()
+  );
+}
+
+export class GetOrderTimelineQueryHandler
+  implements IQueryHandler<GetOrderTimelineQuery, any>
+{
+  constructor(
+    private readonly orders: OrderRepository,
+    private readonly stores: StoreRepository,
+    private readonly orderItems: OrderItemRepository
+  ) {}
+
+  async handle(query: GetOrderTimelineQuery) {
+    const { order, actor } = await resolveOrderActor(
+      this.orders,
+      this.stores,
+      this.orderItems,
+      query.id,
+      query.userId,
+      query.roles
+    );
+
+    const status = order.status;
+    const canAdvance = actor !== "BUYER" && status !== "CANCELLED";
+    const paymentReady =
+      order.paymentMethod === "CASH_ON_DELIVERY" ||
+      ["PAYMENT_RECEIVED", "PAID"].includes(order.paymentStatus);
+
+    return {
+      orderId: order.id,
+      orderNumber: order.orderNumber,
+      currentStatus: status,
+      paymentStatus: order.paymentStatus,
+      paymentMethod: order.paymentMethod,
+      tracking: {
+        carrierName: order.carrierName ?? null,
+        trackingCode: order.trackingCode ?? null,
+        estimatedDelivery: order.estimatedDelivery ?? null,
+        shippedAt: order.shippedAt ?? null,
+        deliveredAt: order.deliveredAt ?? null,
+        receivedAt: order.receivedAt ?? null,
+      },
+      capabilities: {
+        role: actor,
+        canConfirmReceipt: actor === "BUYER" && status === "DELIVERED",
+        canShip: canAdvance && paymentReady && ["PENDING", "CONFIRMED", "PROCESSING"].includes(status),
+        canDeliver: canAdvance && status === "SHIPPED",
+      },
+      events: buildOrderTimeline(order),
+    };
+  }
+}
+
+export class ShipOrderCommandHandler
+  implements ICommandHandler<ShipOrderCommand, any>
+{
+  constructor(
+    private readonly orders: OrderRepository,
+    private readonly stores: StoreRepository,
+    private readonly orderItems: OrderItemRepository
+  ) {}
+
+  async handle(command: ShipOrderCommand) {
+    const { userId, roles, id, data } = command;
+
+    const { order, actor } = await resolveOrderActor(
+      this.orders,
+      this.stores,
+      this.orderItems,
+      id,
+      userId,
+      roles
+    );
+
+    if (actor === "BUYER") {
+      throw new ForbiddenError("Não autorizado");
+    }
+
+    if (!["PENDING", "CONFIRMED", "PROCESSING"].includes(order.status)) {
+      throw new BadRequestError(
+        "O pedido não pode ser enviado no estado atual"
+      );
+    }
+
+    if (
+      order.paymentMethod !== "CASH_ON_DELIVERY" &&
+      !["PAYMENT_RECEIVED", "PAID"].includes(order.paymentStatus)
+    ) {
+      throw new BadRequestError("Confirme o pagamento antes de enviar o pedido");
+    }
+
+    const carrierName = (data.carrierName || "").trim().slice(0, 120);
+    const trackingCode = (data.trackingCode || "").trim().slice(0, 120);
+    const estimatedDelivery = (data.estimatedDelivery || "").trim().slice(0, 40);
+
+    if (!carrierName || !trackingCode) {
+      throw new BadRequestError(
+        "Transportadora e código de rastreio são obrigatórios"
+      );
+    }
+
+    const history = paymentHistoryPush(order.paymentHistory, {
+      at: new Date().toISOString(),
+      by: userId,
+      role: actor === "ADMIN" ? "ADMIN" : "SELLER",
+      action: "ORDER_STATUS",
+      from: order.status,
+      to: "SHIPPED",
+      tracking: { carrierName, trackingCode, estimatedDelivery },
+    });
+
+    const updated = await this.orders.update(order.id, {
+      status: "SHIPPED",
+      carrierName,
+      trackingCode,
+      estimatedDelivery,
+      shippedAt: new Date(),
+      paymentHistory: JSON.stringify(history),
+    });
+
+    return { order: updated };
+  }
+}
+
+export class MarkOrderDeliveredCommandHandler
+  implements ICommandHandler<MarkOrderDeliveredCommand, any>
+{
+  constructor(
+    private readonly orders: OrderRepository,
+    private readonly stores: StoreRepository,
+    private readonly orderItems: OrderItemRepository
+  ) {}
+
+  async handle(command: MarkOrderDeliveredCommand) {
+    const { userId, roles, id, note } = command;
+
+    const { order, actor } = await resolveOrderActor(
+      this.orders,
+      this.stores,
+      this.orderItems,
+      id,
+      userId,
+      roles
+    );
+
+    if (actor === "BUYER") {
+      throw new ForbiddenError("Não autorizado");
+    }
+
+    if (order.status !== "SHIPPED") {
+      throw new BadRequestError(
+        "O pedido só pode ser entregue depois de enviado"
+      );
+    }
+
+    const at = new Date().toISOString();
+    const cleanNote = (note || "").trim().slice(0, 300) || undefined;
+
+    let history = paymentHistoryPush(order.paymentHistory, {
+      at,
+      by: userId,
+      role: actor === "ADMIN" ? "ADMIN" : "SELLER",
+      action: "ORDER_STATUS",
+      from: order.status,
+      to: "DELIVERED",
+      note: cleanNote,
+    });
+
+    const data: any = {
+      status: "DELIVERED",
+      deliveredAt: new Date(),
+      paymentHistory: JSON.stringify(history),
+    };
+
+    if (
+      order.paymentMethod === "CASH_ON_DELIVERY" &&
+      order.paymentStatus !== "PAID"
+    ) {
+      history = paymentHistoryPush(JSON.stringify(history), {
+        at,
+        by: userId,
+        role: actor === "ADMIN" ? "ADMIN" : "SELLER",
+        action: "PAYMENT_STATUS",
+        from: order.paymentStatus,
+        to: "PAID",
+        note: "Pagamento na entrega",
+      });
+      data.paymentStatus = "PAID";
+      data.paymentHistory = JSON.stringify(history);
+    }
+
+    const updated = await this.orders.update(order.id, data);
+
+    return { order: updated };
+  }
+}
+
+export class ConfirmOrderReceiptCommandHandler
+  implements ICommandHandler<ConfirmOrderReceiptCommand, any>
+{
+  constructor(
+    private readonly orders: OrderRepository,
+    private readonly stores: StoreRepository,
+    private readonly orderItems: OrderItemRepository
+  ) {}
+
+  async handle(command: ConfirmOrderReceiptCommand) {
+    const { userId, roles, id } = command;
+
+    const { order, actor } = await resolveOrderActor(
+      this.orders,
+      this.stores,
+      this.orderItems,
+      id,
+      userId,
+      roles
+    );
+
+    if (order.userId !== userId && actor !== "ADMIN") {
+      throw new ForbiddenError("Não autorizado");
+    }
+
+    if (order.status !== "DELIVERED") {
+      throw new BadRequestError(
+        "A recepção só pode ser confirmada depois da entrega"
+      );
+    }
+
+    const history = paymentHistoryPush(order.paymentHistory, {
+      at: new Date().toISOString(),
+      by: userId,
+      role: order.userId === userId ? "BUYER" : "ADMIN",
+      action: "ORDER_STATUS",
+      from: order.status,
+      to: "RECEIVED",
+    });
+
+    const updated = await this.orders.update(order.id, {
+      status: "RECEIVED",
+      receivedAt: new Date(),
       paymentHistory: JSON.stringify(history),
     });
 

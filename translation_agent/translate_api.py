@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 
 # Add parent to path para importar translation_agent
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from translation_agent import config
 from translation_agent.glossary import Glossary

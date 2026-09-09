@@ -29,6 +29,7 @@ model User {
   wallet    Wallet?
   roles     UserRole[]
   disputeMessages OrderDisputeMessage[]
+  disputeReads OrderDisputeRead[]
 }
 
 model Role {
@@ -233,15 +234,38 @@ model Order {
   shippingProvince       String
   shippingDistrict       String?
   notes                  String?
+  carrierName            String?
+  trackingCode           String?
+  estimatedDelivery      String?
+  shippedAt              DateTime?
+  deliveredAt            DateTime?
+  receivedAt             DateTime?
   userId                 String
   user                   User        @relation(fields: [userId], references: [id])
   items                  OrderItem[]
   dispute                OrderDispute?
+  orderEvents            OrderEvent[]
   createdAt              DateTime    @default(now())
   updatedAt              DateTime    @updatedAt
 
   @@index([userId])
   @@index([transactionFingerprint])
+}
+
+model OrderEvent {
+  id                  String   @id @default(cuid())
+  orderId             String
+  order               Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  kind                String
+  from                String?
+  to                  String?
+  note                String?
+  actorRole           String?
+  actorUserId         String?
+  metadata            String?
+  createdAt           DateTime @default(now())
+
+  @@index([orderId, createdAt])
 }
 
 model ReceiptQueue {
@@ -327,6 +351,7 @@ model OrderDispute {
   status    String                @default("OPEN") // OPEN, RESOLVED, CLOSED
   reason    String                @default("PAYMENT_ISSUE")
   messages  OrderDisputeMessage[]
+  reads     OrderDisputeRead[]
   createdAt DateTime              @default(now())
   updatedAt DateTime              @updatedAt
 }
@@ -343,5 +368,17 @@ model OrderDisputeMessage {
   createdAt  DateTime     @default(now())
 
   @@index([disputeId])
+}
+
+model OrderDisputeRead {
+  id         String        @id @default(cuid())
+  disputeId  String
+  dispute    OrderDispute  @relation(fields: [disputeId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lastReadAt DateTime      @default(now())
+  createdAt  DateTime      @default(now())
+
+  @@unique([disputeId, userId])
 }
 

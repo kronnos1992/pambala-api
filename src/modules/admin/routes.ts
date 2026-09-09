@@ -32,6 +32,10 @@ import {
   AdminReviewsQuery,
   DeleteReviewCommand,
 } from "../../handlers/admin.handlers";
+import {
+  AdminListDisputesQuery,
+  AdminDisputesStatsQuery,
+} from "../../handlers/disputes.handlers";
 
 const admin = new Hono();
 
@@ -285,6 +289,28 @@ admin.delete("/reviews/:id", async (c) => {
   const reviewId = c.req.param("id")!;
 
   const result = await mediator.send(new DeleteReviewCommand(reviewId));
+
+  return c.json(result);
+});
+
+// Disputes (fila central de mediação / suporte)
+admin.get("/disputes", async (c) => {
+  const page = parseInt(c.req.query("page") || "1");
+  const limit = parseInt(c.req.query("limit") || "20");
+  const status = c.req.query("status");
+  const q = c.req.query("q");
+
+  const roles = ((c as any).get("roles") as string[]) || [];
+  const result = await mediator.query(
+    new AdminListDisputesQuery(roles, page, limit, status, q)
+  );
+
+  return c.json(result);
+});
+
+admin.get("/disputes/stats", async (c) => {
+  const roles = ((c as any).get("roles") as string[]) || [];
+  const result = await mediator.query(new AdminDisputesStatsQuery(roles));
 
   return c.json(result);
 });

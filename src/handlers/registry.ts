@@ -101,6 +101,14 @@ import {
   UploadReceiptCommandHandler,
   UpdateOrderPaymentStatusCommand,
   UpdateOrderPaymentStatusCommandHandler,
+  ShipOrderCommand,
+  ShipOrderCommandHandler,
+  MarkOrderDeliveredCommand,
+  MarkOrderDeliveredCommandHandler,
+  ConfirmOrderReceiptCommand,
+  ConfirmOrderReceiptCommandHandler,
+  GetOrderTimelineQuery,
+  GetOrderTimelineQueryHandler,
 } from "./orders.handlers";
 import {
   RevenueChartQuery,
@@ -194,6 +202,16 @@ import {
   UpdateDisputeStatusCommandHandler,
   ListDisputesQuery,
   ListDisputesQueryHandler,
+  AdminListDisputesQuery,
+  AdminListDisputesQueryHandler,
+  AdminDisputesStatsQuery,
+  AdminDisputesStatsQueryHandler,
+  UserDisputeUnreadQuery,
+  UserDisputeUnreadQueryHandler,
+  MarkDisputeReadCommand,
+  MarkDisputeReadCommandHandler,
+  ModerateDisputeCommand,
+  ModerateDisputeCommandHandler,
 } from "./disputes.handlers";
 
 export function registerHandlers(): void {
@@ -358,6 +376,22 @@ export function registerHandlers(): void {
     UpdateOrderPaymentStatusCommand,
     new UpdateOrderPaymentStatusCommandHandler(orders, stores, orderItems)
   );
+  mediator.register(
+    ShipOrderCommand,
+    new ShipOrderCommandHandler(orders, stores, orderItems)
+  );
+  mediator.register(
+    MarkOrderDeliveredCommand,
+    new MarkOrderDeliveredCommandHandler(orders, stores, orderItems)
+  );
+  mediator.register(
+    ConfirmOrderReceiptCommand,
+    new ConfirmOrderReceiptCommandHandler(orders, stores, orderItems)
+  );
+  mediator.registerQuery(
+    GetOrderTimelineQuery,
+    new GetOrderTimelineQueryHandler(orders, stores, orderItems)
+  );
 
   // disputes (chat tripartido)
   mediator.registerQuery(
@@ -375,6 +409,26 @@ export function registerHandlers(): void {
   mediator.registerQuery(
     ListDisputesQuery,
     new ListDisputesQueryHandler(disputes)
+  );
+  mediator.registerQuery(
+    AdminListDisputesQuery,
+    new AdminListDisputesQueryHandler(disputes, stores)
+  );
+  mediator.registerQuery(
+    AdminDisputesStatsQuery,
+    new AdminDisputesStatsQueryHandler(disputes)
+  );
+  mediator.registerQuery(
+    UserDisputeUnreadQuery,
+    new UserDisputeUnreadQueryHandler(disputes, stores)
+  );
+  mediator.register(
+    MarkDisputeReadCommand,
+    new MarkDisputeReadCommandHandler(orders, stores, disputes)
+  );
+  mediator.register(
+    ModerateDisputeCommand,
+    new ModerateDisputeCommandHandler(orders, disputes, users)
   );
 
   // admin

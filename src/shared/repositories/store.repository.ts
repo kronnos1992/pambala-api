@@ -89,6 +89,13 @@ export class StoreRepository extends BaseRepository {
     });
   }
 
+  findStoreIdsByOwner(userId: string) {
+    return this.client.store.findMany({
+      where: { userId },
+      select: { id: true },
+    });
+  }
+
   findById(id: string) {
     return this.client.store.findUnique({
       where: { id },
@@ -100,6 +107,17 @@ export class StoreRepository extends BaseRepository {
     return this.client.store.findMany({
       where: { id: { in: ids } },
       select: { id: true, name: true, slug: true, logo: true },
+    });
+  }
+
+  findByIdsWithOwner(ids: string[]) {
+    return this.client.store.findMany({
+      where: { id: { in: ids } },
+      select: {
+        id: true,
+        name: true,
+        user: { select: { id: true, name: true } },
+      },
     });
   }
 
