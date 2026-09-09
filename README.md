@@ -217,7 +217,10 @@ O sistema usa **roles dinâmicas** com responsabilidades M:N por utilizador (`Us
 | GET | `/api/orders/seller/orders` | Seller | Pedidos da loja do vendedor |
 | GET | `/api/orders/seller/orders/:id` | Seller | Detalhe de pedido da loja do vendedor |
 | POST | `/api/orders/:id/receipt` | Sim | Enviar comprovativo de pagamento (máx 3 tentativas; enfileira para `receipt_agent`) |
-| PUT | `/api/orders/:id/status` | Admin | Actualizar estado do pedido |
+| PUT | `/api/orders/:id/status` | Sim/Seller/Admin | Actualizar estado do pedido (bloqueia `PAYMENT_RECEIVED` se comprovativo rejeitado por antifraude) |
+| GET | `/api/orders/:id/dispute` | Sim/Seller/Admin | Obter/iniciar disputa e histórico de mensagens tripartidas (Cliente, Vendedor, Admin) |
+| POST | `/api/orders/:id/dispute/messages` | Sim/Seller/Admin | Enviar mensagem no chat tripartido com suporte a anexos |
+| PUT | `/api/orders/:id/dispute/status` | Sim/Seller/Admin | Actualizar estado da disputa (`OPEN`, `UNDER_REVIEW`, `RESOLVED`, `CLOSED`) |
 
 ### Reviews
 | Método | Rota | Auth | Descrição |
