@@ -28,6 +28,7 @@ model User {
   addresses Address[]
   wallet    Wallet?
   roles     UserRole[]
+  disputeMessages OrderDisputeMessage[]
 }
 
 model Role {
@@ -235,6 +236,7 @@ model Order {
   userId                 String
   user                   User        @relation(fields: [userId], references: [id])
   items                  OrderItem[]
+  dispute                OrderDispute?
   createdAt              DateTime    @default(now())
   updatedAt              DateTime    @updatedAt
 
@@ -317,3 +319,29 @@ model Transaction {
   description String?
   createdAt   DateTime @default(now())
 }
+
+model OrderDispute {
+  id        String                @id @default(cuid())
+  orderId   String                @unique
+  order     Order                 @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status    String                @default("OPEN") // OPEN, RESOLVED, CLOSED
+  reason    String                @default("PAYMENT_ISSUE")
+  messages  OrderDisputeMessage[]
+  createdAt DateTime              @default(now())
+  updatedAt DateTime              @updatedAt
+}
+
+model OrderDisputeMessage {
+  id         String       @id @default(cuid())
+  disputeId  String
+  dispute    OrderDispute @relation(fields: [disputeId], references: [id], onDelete: Cascade)
+  senderId   String
+  sender     User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  senderRole String       // CLIENT, SELLER, ADMIN, SYSTEM
+  content    String
+  attachment String?
+  createdAt  DateTime     @default(now())
+
+  @@index([disputeId])
+}
+

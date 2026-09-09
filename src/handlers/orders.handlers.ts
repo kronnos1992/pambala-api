@@ -481,6 +481,18 @@ export class UpdateOrderPaymentStatusCommandHandler
       );
     }
 
+    if (
+      isSeller &&
+      !isAdmin &&
+      (order.validationStatus === "PROOF_REJECTED" ||
+        order.validationStatus === "FAIL" ||
+        order.paymentStatus === "REJECTED")
+    ) {
+      throw new BadRequestError(
+        "Não é possível declarar o pagamento como recebido: o comprovativo foi rejeitado. Solicite ao comprador um comprovativo válido ou aguarde análise do suporte."
+      );
+    }
+
     if (isAdmin && paymentStatus === "PAYMENT_RECEIVED") {
       throw new BadRequestError(
         "O administrador deve confirmar (PAID) ou rejeitar (PENDING/REJECTED) o pagamento."

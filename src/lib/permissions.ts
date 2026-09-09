@@ -25,6 +25,9 @@ export const PERMISSIONS = {
   ordersConfirmPayment: "orders.confirm-payment",
   // Traduções
   translationsTranslate: "translations.translate",
+  // Disputas e Chat Tripartido
+  disputesView: "disputes.view",
+  disputesModerate: "disputes.moderate",
 } as const;
 
 export type PermissionKey = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];

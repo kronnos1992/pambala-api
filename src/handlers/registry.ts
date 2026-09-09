@@ -184,6 +184,17 @@ import {
   DeleteResponsibilityCommand,
   DeleteResponsibilityCommandHandler,
 } from "./roles.handlers";
+import { OrderDisputeRepository } from "../shared/repositories/dispute.repository";
+import {
+  GetOrderDisputeQuery,
+  GetOrderDisputeQueryHandler,
+  SendDisputeMessageCommand,
+  SendDisputeMessageCommandHandler,
+  UpdateDisputeStatusCommand,
+  UpdateDisputeStatusCommandHandler,
+  ListDisputesQuery,
+  ListDisputesQueryHandler,
+} from "./disputes.handlers";
 
 export function registerHandlers(): void {
   const uow = new UnitOfWork();
@@ -198,6 +209,7 @@ export function registerHandlers(): void {
   const receiptQueue = new ReceiptQueueRepository();
   const reviews = new ReviewRepository();
   const roles = new RoleRepository();
+  const disputes = new OrderDisputeRepository();
 
   // auth
   mediator.register(
@@ -345,6 +357,24 @@ export function registerHandlers(): void {
   mediator.register(
     UpdateOrderPaymentStatusCommand,
     new UpdateOrderPaymentStatusCommandHandler(orders, stores, orderItems)
+  );
+
+  // disputes (chat tripartido)
+  mediator.registerQuery(
+    GetOrderDisputeQuery,
+    new GetOrderDisputeQueryHandler(orders, stores, disputes)
+  );
+  mediator.register(
+    SendDisputeMessageCommand,
+    new SendDisputeMessageCommandHandler(orders, stores, disputes)
+  );
+  mediator.register(
+    UpdateDisputeStatusCommand,
+    new UpdateDisputeStatusCommandHandler(orders, stores, disputes, users)
+  );
+  mediator.registerQuery(
+    ListDisputesQuery,
+    new ListDisputesQueryHandler(disputes)
   );
 
   // admin

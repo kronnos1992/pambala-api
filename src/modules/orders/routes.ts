@@ -12,6 +12,11 @@ import {
   UploadReceiptCommand,
   UpdateOrderPaymentStatusCommand,
 } from "../../handlers/orders.handlers";
+import {
+  GetOrderDisputeQuery,
+  SendDisputeMessageCommand,
+  UpdateDisputeStatusCommand,
+} from "../../handlers/disputes.handlers";
 
 const orders = new Hono();
 
@@ -107,6 +112,47 @@ orders.put("/:id/payment-status", authFilter, async (c) => {
 
   const result = await mediator.send(
     new UpdateOrderPaymentStatusCommand(userId, roles, id, paymentStatus)
+  );
+
+  return c.json(result);
+});
+
+// Chat Tripartido (Mediação de Pedido: Cliente, Vendedor, Admin)
+orders.get("/:id/dispute", authFilter, async (c) => {
+  const userId = (c as any).get("userId") as string;
+  const roles = (c as any).get("roles") as string[];
+  const id = c.req.param("id")!;
+
+  const result = await mediator.query(
+    new GetOrderDisputeQuery(id, userId, roles)
+  );
+
+  return c.json(result);
+});
+
+orders.post("/:id/dispute/messages", authFilter, async (c) => {
+  const userId = (c as any).get("userId") as string;
+  const roles = (c as any).get("roles") as string[];
+  const id = c.req.param("id")!;
+  const body = await c.req.json();
+  const { content, attachment } = body;
+
+  const result = await mediator.send(
+    new SendDisputeMessageCommand(id, userId, roles, content, attachment)
+  );
+
+  return c.json(result, 201);
+});
+
+orders.put("/:id/dispute/status", authFilter, async (c) => {
+  const userId = (c as any).get("userId") as string;
+  const roles = (c as any).get("roles") as string[];
+  const id = c.req.param("id")!;
+  const body = await c.req.json();
+  const { status } = body;
+
+  const result = await mediator.send(
+    new UpdateDisputeStatusCommand(id, userId, roles, status)
   );
 
   return c.json(result);
