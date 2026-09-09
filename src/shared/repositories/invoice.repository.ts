@@ -130,6 +130,13 @@ export class StoreFiscalProfileRepository extends BaseRepository {
     });
   }
 
+  update(storeId: string, data: any) {
+    return this.client.storeFiscalProfile.update({
+      where: { storeId },
+      data,
+    });
+  }
+
   setActive(storeId: string, isActive: boolean) {
     return this.client.storeFiscalProfile.update({
       where: { storeId },

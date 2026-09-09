@@ -97,24 +97,26 @@ export const fiscalProfileSchema = z.object({
   district: z.string().optional(),
   industryCode: z.string().optional(),
   vatRegime: z.enum(["GERAL", "SIMPLIFICADO", "EXCLUIDO", "ISENTO"]).default("GERAL"),
+  vatExemptionCode: z.string().regex(/^[A-Z0-9]{3}$/).optional().nullable(),
+  establishmentNumber: z.string().min(1).max(200).default("SEDE"),
   establishmentRegistered: z.boolean().optional(),
 });
 
 export const fiscalSeriesSchema = z.object({
-  documentType: z.enum(["FT", "NC", "ND"]),
-  prefix: z.string().min(1).max(10).regex(/^[A-Z0-9]+$/),
+  documentType: z.enum(["FA", "FT", "FR", "FG", "GF", "AC", "AR", "TV", "RC", "RG", "RE", "ND", "NC", "AF", "RP", "RA", "CS", "LD"]),
+  establishmentNumber: z.string().min(1).max(200).default("SEDE"),
   year: z.number().int().min(2000).max(2100).optional(),
 });
 
 export const fiscalSettingsSchema = z.object({
-  softwareName: z.string().min(1).optional(),
-  softwareVersion: z.string().min(1).optional(),
-  softwareProvider: z.string().min(1).optional(),
-  certificationNumber: z.string().optional().nullable(),
+  productId: z.string().min(1).optional(),
+  productVersion: z.string().min(1).optional(),
+  softwareValidationNumber: z.string().optional().nullable(),
   certificationDate: z.string().optional().nullable(),
-  hashSecret: z.string().min(8).optional(),
+  signatureVersion: z.number().int().min(1).optional(),
   agtBaseUrl: z.string().url().optional().nullable(),
-  agtApiToken: z.string().optional().nullable(),
+  agtUsername: z.string().optional().nullable(),
+  agtPassword: z.string().optional().nullable(),
   timezone: z.string().min(1).optional(),
 });
 

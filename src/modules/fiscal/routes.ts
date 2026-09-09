@@ -11,6 +11,7 @@ import {
   GetOrderInvoiceQuery,
   GetInvoiceQuery,
   EmitOrderInvoiceCommand,
+  RefreshInvoiceAgtStatusCommand,
 } from "../../handlers/fiscal.handlers";
 
 const fiscal = new Hono();
@@ -100,6 +101,17 @@ fiscal.get("/invoices/:id", authFilter, async (c) => {
   const id = c.req.param("id")!;
 
   const result = await mediator.query(new GetInvoiceQuery(userId, roles, id));
+  return c.json(result);
+});
+
+fiscal.post("/invoices/:id/refresh-status", authFilter, async (c) => {
+  const userId = (c as any).get("userId") as string;
+  const roles = (c as any).get("roles") as string[];
+  const id = c.req.param("id")!;
+
+  const result = await mediator.send(
+    new RefreshInvoiceAgtStatusCommand(userId, roles, id)
+  );
   return c.json(result);
 });
 

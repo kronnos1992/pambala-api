@@ -94,6 +94,14 @@ export class EmitOrderInvoiceCommand implements ICommand {
   ) {}
 }
 
+export class RefreshInvoiceAgtStatusCommand implements ICommand {
+  constructor(
+    public readonly userId: string,
+    public readonly roles: string[],
+    public readonly invoiceId: string
+  ) {}
+}
+
 async function isAdmin(roles: string[]): Promise<boolean> {
   const effective = await resolvePermissions(roles);
   return (
@@ -212,7 +220,11 @@ export class OpenInvoiceSeriesCommandHandler
 {
   constructor(
     private readonly series: InvoiceSeriesRepository,
-    private readonly stores: StoreRepository
+    private readonly profiles: StoreFiscalProfileRepository,
+    private readonly settings: FiscalSettingsRepository,
+    private readonly stores: StoreRepository,
+    private readonly agtClient: AgtClient,
+    private readonly generateKey: () => { privateKeyPem: string }
   ) {}
 
   async handle(command: OpenInvoiceSeriesCommand) {
@@ -227,13 +239,6 @@ export class OpenInvoiceSeriesCommandHandler
     const data = fiscalSeriesSchema.parse(command.data);
     const year = data.year ?? new Date().getFullYear();
 
-    const openCount = await this.series.countForYear(command.storeId, year);
-    if (openCount >= MAX_SERIES_PER_ESTABLISHMENT) {
-      throw new BadRequestError(
-        `Limite de ${MAX_SERIES_PER_ESTABLISHMENT} séries por estabelecimento/ano atingido`
-      );
-    }
-
     const existing = await this.series.findOpen(
       command.storeId,
       data.documentType,
@@ -241,17 +246,68 @@ export class OpenInvoiceSeriesCommandHandler
     );
     if (existing) {
       throw new BadRequestError(
-        `Já existe uma série aberta (${existing.prefix}) para ${data.documentType}/${year}`
+        `Já existe uma série aberta (${existing.agtSeriesCode ?? "sem código"}) para ${data.documentType}/${year}`
+      );
+    }
+
+    const profile = await this.profiles.findByStoreId(command.storeId);
+    if (!profile || !profile.isActive) {
+      throw new BadRequestError(
+        "Perfil fiscal da loja não configurado ou inactivo"
+      );
+    }
+
+    const settings = await this.settings.getOrCreate();
+    if (!settings.signatureKeyPem) {
+      const pair = this.generateKey();
+      await this.settings.upsert({ signatureKeyPem: pair.privateKeyPem });
+      settings.signatureKeyPem = pair.privateKeyPem;
+    }
+    if (!profile.signatureKeyPem) {
+      const pair = this.generateKey();
+      await this.profiles.update(command.storeId, {
+        signatureKeyPem: pair.privateKeyPem,
+      });
+      profile.signatureKeyPem = pair.privateKeyPem;
+    }
+
+    const openCount = await this.series.countForYear(command.storeId, year);
+    if (openCount >= MAX_SERIES_PER_ESTABLISHMENT) {
+      throw new BadRequestError(
+        `Limite de ${MAX_SERIES_PER_ESTABLISHMENT} séries por estabelecimento/ano atingido`
+      );
+    }
+
+    const result = await this.agtClient.requestSeries(settings, {
+      taxRegistrationNumber: profile.nif,
+      seriesYear: year,
+      documentType: data.documentType,
+      establishmentNumber: data.establishmentNumber,
+      seriesContingencyIndicator: "N",
+      issuerPrivateKeyPem: profile.signatureKeyPem,
+    });
+
+    if (!result.seriesCode) {
+      throw new BadRequestError(
+        `Série rejeitada pela AGT: ${
+          result.errorList
+            ?.map((e) => `${e.idError} ${e.descriptionError}`)
+            .join("; ") || result.response
+        }`
       );
     }
 
     const created = await this.series.create({
       storeId: command.storeId,
       documentType: data.documentType,
-      prefix: data.prefix,
+      agtSeriesCode: result.seriesCode,
+      establishmentNumber: data.establishmentNumber,
       year,
       status: "OPEN",
       nextNumber: 1,
+      authorizedQuantity: result.authorizedQuantity ?? null,
+      firstDocumentNo: result.firstDocumentNo ?? null,
+      lastDocumentNo: result.lastDocumentNo ?? null,
     });
 
     return { series: created };
@@ -341,5 +397,93 @@ export class EmitOrderInvoiceCommandHandler
     );
 
     return { invoice, created };
+  }
+}
+
+export class RefreshInvoiceAgtStatusCommandHandler
+  implements ICommandHandler<RefreshInvoiceAgtStatusCommand, any>
+{
+  constructor(
+    private readonly invoices: InvoiceRepository,
+    private readonly profiles: StoreFiscalProfileRepository,
+    private readonly settings: FiscalSettingsRepository,
+    private readonly stores: StoreRepository,
+    private readonly agtClient: AgtClient
+  ) {}
+
+  async handle(command: RefreshInvoiceAgtStatusCommand) {
+    await assertPermission(command.roles, PERMISSIONS.fiscalInvoicesManage);
+    const invoice = await this.invoices.findByIdWithLines(command.invoiceId);
+    if (!invoice) {
+      throw new NotFoundError("Factura não encontrada");
+    }
+    await assertStoreAccess(
+      command.roles,
+      command.userId,
+      this.stores,
+      invoice.storeId
+    );
+
+    if (!invoice.agtRequestId || invoice.agtRequestId === "dev-offline") {
+      return {
+        invoice,
+        refreshed: false,
+        message: "Documento em modo de desenvolvimento — sem estado remoto para consultar.",
+      };
+    }
+
+    const profile = await this.profiles.findByStoreId(invoice.storeId);
+    const settings = await this.settings.getOrCreate();
+    if (!profile || !profile.nif || !profile.signatureKeyPem) {
+      throw new BadRequestError(
+        "Perfil fiscal da loja incompleto para consulta de estado"
+      );
+    }
+
+    const status = await this.agtClient.getInvoiceStatus({
+      settings,
+      taxRegistrationNumber: profile.nif,
+      requestID: invoice.agtRequestId,
+      issuerPrivateKeyPem: profile.signatureKeyPem,
+    });
+
+    // Mapeia o estado assíncrono da AGT para agtStatus do documento.
+    let agtStatus = invoice.agtStatus;
+    const list = status.documentStatusList ?? [];
+    if (status.error) {
+      agtStatus = "FAILED";
+    } else if (status.resultCode === "0") {
+      agtStatus = "VALID";
+    } else if (status.resultCode === "1") {
+      agtStatus = list.some((d) => d.documentStatus === "I") ? "INVALID" : "VALID";
+    } else if (status.resultCode === "2") {
+      agtStatus = "INVALID";
+    } else if (status.resultCode === "9") {
+      agtStatus = "FAILED";
+    } else if (status.resultCode === "7" || status.resultCode === "8") {
+      agtStatus = "SUBMITTED"; // ainda em processamento
+    }
+
+    const responseData = JSON.stringify({
+      resultCode: status.resultCode,
+      documentStatusList: list,
+      raw: status.response,
+    });
+
+    await this.invoices.update(invoice.id, {
+      agtStatus,
+      agtResponse: responseData,
+      agtValidatedAt:
+        agtStatus === "VALID" || agtStatus === "INVALID" ? new Date() : (invoice.agtValidatedAt ?? null),
+    });
+    await this.invoices.addCommunicationLog(invoice.id, {
+      attempt: 2,
+      status: agtStatus,
+      httpStatus: status.httpStatus ?? null,
+      responsePayload: status.response,
+      error: agtStatus === "FAILED" ? status.error : null,
+    });
+
+    return { invoice: { ...invoice, agtStatus, agtResponse: responseData }, refreshed: true };
   }
 }

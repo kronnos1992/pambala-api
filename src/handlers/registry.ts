@@ -221,6 +221,7 @@ import {
 } from "../shared/repositories/invoice.repository";
 import { InvoiceEmitter } from "../lib/fiscal/emitter";
 import { AgtClient } from "../lib/fiscal/agt.client";
+import { generateRsaKeyPair } from "../lib/fiscal/signing";
 import {
   GetFiscalSettingsQuery,
   GetFiscalSettingsQueryHandler,
@@ -240,6 +241,8 @@ import {
   GetInvoiceQueryHandler,
   EmitOrderInvoiceCommand,
   EmitOrderInvoiceCommandHandler,
+  RefreshInvoiceAgtStatusCommand,
+  RefreshInvoiceAgtStatusCommandHandler,
 } from "./fiscal.handlers";
 
 export function registerHandlers(): void {
@@ -648,7 +651,14 @@ export function registerHandlers(): void {
   );
   mediator.register(
     OpenInvoiceSeriesCommand,
-    new OpenInvoiceSeriesCommandHandler(fiscalSeries, stores)
+    new OpenInvoiceSeriesCommandHandler(
+      fiscalSeries,
+      fiscalProfiles,
+      fiscalSettings,
+      stores,
+      new AgtClient(),
+      generateRsaKeyPair
+    )
   );
   mediator.registerQuery(
     GetOrderInvoiceQuery,
@@ -665,6 +675,16 @@ export function registerHandlers(): void {
       orders,
       orderItems,
       stores
+    )
+  );
+  mediator.register(
+    RefreshInvoiceAgtStatusCommand,
+    new RefreshInvoiceAgtStatusCommandHandler(
+      invoices,
+      fiscalProfiles,
+      fiscalSettings,
+      stores,
+      new AgtClient()
     )
   );
 }

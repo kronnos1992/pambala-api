@@ -7,15 +7,22 @@ import {
   FiscalSettingsRepository,
 } from "../../shared/repositories/invoice.repository";
 import { OrderRepository } from "../../shared/repositories/order.repository";
-import { AgtClient, AgtCommunication } from "./agt.client";
-import { buildInvoicePayload } from "./payload";
-import { computeFiscalHash } from "./hash";
-import { buildQrPayload } from "./qr";
-import { toCents, roundCents, sumCents } from "./money";
+import { AgtClient } from "./agt.client";
+import {
+  buildRegistarFacturaPayload,
+  buildDocumentSignatureClaim,
+} from "./payload";
+import { buildDocumentNo } from "./constants";
+import { buildAgtQrUrl } from "./qr";
+import { signJws, generateRsaKeyPair } from "./signing";
+import { toCents, roundCents, roundUpCents, sumCents } from "./money";
 import {
   MAX_SERIES_PER_ESTABLISHMENT,
-  DEFAULT_SERIES_PREFIX,
   INVOICE_DOCUMENT_TYPES,
+  IVA_TAX_CODE_BY_RATE,
+  UNKNOWN_CUSTOMER_TAX_ID,
+  DOMESTIC_COUNTRY,
+  type InvoiceDocumentType,
 } from "./constants";
 import { BadRequestError, NotFoundError, InternalError } from "../../shared/errors";
 
@@ -59,10 +66,29 @@ function formatLocalDate(date: Date, timezone: string): string {
   return `${get("year")}-${get("month")}-${get("day")}`;
 }
 
-function agtStatusFor(comm: AgtCommunication): string {
-  if (comm.accepted) return "ACCEPTED";
-  if (comm.httpStatus) return "REJECTED";
-  return "FAILED";
+async function ensureSoftwareKey(settings: any, repo: FiscalSettingsRepository) {
+  if (!settings.signatureKeyPem) {
+    const pair = generateRsaKeyPair();
+    await repo.upsert({ signatureKeyPem: pair.privateKeyPem });
+    settings.signatureKeyPem = pair.privateKeyPem;
+  }
+  return settings;
+}
+
+async function ensureIssuerKey(profile: any, repo: StoreFiscalProfileRepository) {
+  if (!profile.signatureKeyPem) {
+    const pair = generateRsaKeyPair();
+    const updated = await repo.upsert(profile.storeId, {
+      signatureKeyPem: pair.privateKeyPem,
+    });
+    profile.signatureKeyPem = updated.signatureKeyPem || pair.privateKeyPem;
+  }
+  return profile;
+}
+
+function agtStatusForCommunication(communication: { submitted: boolean; offline: boolean }): string {
+  if (!communication.submitted) return "REJECTED";
+  return communication.offline ? "VALID" : "SUBMITTED";
 }
 
 export class InvoiceEmitter {
@@ -111,6 +137,10 @@ export class InvoiceEmitter {
     const timezone = settings.timezone || "Africa/Luanda";
     const issueDateStr = formatLocalDate(now, timezone);
 
+    // Garantir chaves de assinatura (software/produtor + contribuinte/loja).
+    await ensureSoftwareKey(settings, this.settings);
+    const issuerKey = await this.ensureIssuerKeyFromProfile(profile);
+
     const taxRate = taxRateForRegime(profile.vatRegime);
     const reasonExempt = exemptionReasonForRegime(profile.vatRegime);
 
@@ -119,17 +149,25 @@ export class InvoiceEmitter {
       const unitCents = toCents(item.price || 0);
       const discount = 0;
       const subtotal = roundCents(quantity * unitCents - discount);
-      const tax = roundCents((subtotal * taxRate) / 100);
+      const tax = roundUpCents((subtotal * taxRate) / 100);
       return {
         position: index + 1,
         productId: item.productId ?? null,
         productName: (item.product?.name as string) || "Artigo",
         productSku: item.productId ?? null,
+        operationType: "TB",
         quantity,
+        unitOfMeasure: "UN",
         unitPrice: unitCents,
+        unitPriceBase: unitCents,
         discountAmount: discount,
+        settlementAmount: 0,
         taxRate,
+        taxCode:
+          taxRate === 0 ? null : IVA_TAX_CODE_BY_RATE[taxRate] ?? "OUT",
         taxAmount: tax,
+        taxExemptionCode:
+          taxRate === 0 ? profile.vatExemptionCode || null : null,
         lineSubtotal: subtotal,
         lineTotal: subtotal + tax,
         reasonExempt: taxRate === 0 ? reasonExempt : null,
@@ -177,6 +215,32 @@ export class InvoiceEmitter {
       address: customerAddress || null,
     });
 
+    // ---------- Série (solicitarSerie) fora da transação ----------
+    let series = await this.series.findOpen(storeId, INVOICE_DOCUMENT_TYPE, year);
+    if (!series) {
+      const openCount = await this.series.countForYear(storeId, year);
+      if (openCount >= MAX_SERIES_PER_ESTABLISHMENT) {
+        throw new BadRequestError(
+          `Limite de ${MAX_SERIES_PER_ESTABLISHMENT} séries por estabelecimento/ano atingido`
+        );
+      }
+      series = await this.requestOrCreateSeries(
+        settings,
+        profile,
+        year,
+        issuerKey
+      );
+    }
+    if (!series.agtSeriesCode) {
+      throw new InternalError("Série sem código AGT: impossível emitir factura");
+    }
+    const seriesId = series.id;
+    const agtSeriesCode = series.agtSeriesCode;
+    const nextNumber = series.nextNumber;
+    const maxDocumentNumber = series.lastDocumentNo
+      ? parseInt(String(series.lastDocumentNo), 10)
+      : Infinity;
+
     let created: any = null;
     let isNew = false;
 
@@ -194,93 +258,88 @@ export class InvoiceEmitter {
       }
       isNew = true;
 
-      let series = await seriesRepo.findOpen(
-        storeId,
-        INVOICE_DOCUMENT_TYPE,
-        year
-      );
-      if (!series) {
-        const openCount = await seriesRepo.countForYear(storeId, year);
-        if (openCount >= MAX_SERIES_PER_ESTABLISHMENT) {
-          throw new BadRequestError(
-            `Limite de ${MAX_SERIES_PER_ESTABLISHMENT} séries por estabelecimento/ano atingido`
-          );
-        }
-        series = await seriesRepo.create({
-          storeId,
-          documentType: INVOICE_DOCUMENT_TYPE,
-          prefix: DEFAULT_SERIES_PREFIX,
-          year,
-          status: "OPEN",
-          nextNumber: 1,
-        });
+      const allocatedNumber = nextNumber;
+      if (allocatedNumber > maxDocumentNumber) {
+        throw new BadRequestError(
+          `Série ${agtSeriesCode} esgotada (limite ${series.lastDocumentNo}) — solicite extensão`
+        );
       }
+      await seriesRepo.allocateNumber(seriesId, allocatedNumber);
 
-      const number = series.nextNumber;
-      await seriesRepo.allocateNumber(series.id, number);
+      const documentNo = buildDocumentNo(
+        INVOICE_DOCUMENT_TYPE,
+        agtSeriesCode,
+        allocatedNumber
+      );
 
-      const fullNumber = `${series.prefix}/${year}/${number}`;
-      const invoiceId = randomUUID();
+      const customerTaxId = UNKNOWN_CUSTOMER_TAX_ID;
+      const customerCountry = DOMESTIC_COUNTRY;
 
-      const hash = computeFiscalHash({
-        emitterNif: profile.nif,
-        fullNumber,
-        issueDate: issueDateStr,
-        totalCents: total,
-        taxTotalCents: taxTotal,
-        secret: settings.hashSecret,
-      });
+      const signature = signJws(
+        buildDocumentSignatureClaim({
+          documentNo,
+          taxRegistrationNumber: profile.nif,
+          documentType: INVOICE_DOCUMENT_TYPE,
+          documentDate: issueDateStr,
+          customerTaxID: customerTaxId,
+          customerCountry,
+          companyName: profile.legalName,
+          documentTotals: {
+            taxPayable: fromCentsForSignature(taxTotal),
+            netTotal: fromCentsForSignature(subtotal),
+            grossTotal: fromCentsForSignature(total),
+          },
+        }),
+        issuerKey
+      );
 
-      const qrData = buildQrPayload({
-        emitterNif: profile.nif,
-        fullNumber,
-        issueDate: issueDateStr,
-        totalCents: total,
-        hash,
-      });
+      const qrUrl = buildAgtQrUrl(profile.nif, documentNo);
 
-      const payload = buildInvoicePayload({
+      const payload = buildRegistarFacturaPayload({
         settings,
         emitter: JSON.parse(emitterSnapshot),
         customer: JSON.parse(customerSnapshot),
-        documentType: INVOICE_DOCUMENT_TYPE as any,
-        fullNumber,
-        series: series.prefix,
-        number,
-        issueDate: now,
+        documentType: INVOICE_DOCUMENT_TYPE as InvoiceDocumentType,
+        documentNo,
+        issueDate: issueDateStr,
+        systemEntryDate: now,
         lines,
         subtotal,
         discountTotal,
         taxTotal,
         total,
         taxSummary,
-        hash,
+        signature,
+        production: this.agtClient.isConfigured(settings),
       });
+
+      const invoiceId = randomUUID();
 
       created = await invoiceRepo.create({
         id: invoiceId,
         storeId,
         orderId,
-        seriesId: series.id,
+        seriesId,
         fiscalProfileId: profile.id,
         documentType: INVOICE_DOCUMENT_TYPE,
-        number,
-        fullNumber,
+        number: allocatedNumber,
+        documentNo,
         status: "ACTIVE",
         issueDate: now,
+        systemEntryDate: now,
         emitterSnapshot,
         customerSnapshot,
+        customerTaxId,
+        customerCountry,
         currency: "AOA",
         subtotal,
         discountTotal,
         taxTotal,
         total,
         taxSummary: JSON.stringify(taxSummary),
-        hash,
-        qrData,
+        signature,
+        qrUrl,
         agtStatus: "PENDING",
-        agtReference: null,
-        issuedByUserId: issuedByUserId ?? null,
         lines: { create: lines },
         syncLogs: {
           create: [
@@ -302,38 +361,104 @@ export class InvoiceEmitter {
       return { invoice: created, created: false };
     }
 
-    const communication = await this.agtClient.communicate(
+    // ---------- Comunicação com a AGT (fora da transação) ----------
+    const payload = buildRegistarFacturaPayload({
       settings,
-      {
-        documentNumber: created.fullNumber,
-        documentType: created.documentType,
-        totalCents: created.total,
-        hash: created.hash,
-      },
-      created.id
-    );
+      emitter: JSON.parse(emitterSnapshot),
+      customer: JSON.parse(customerSnapshot),
+      documentType: INVOICE_DOCUMENT_TYPE as InvoiceDocumentType,
+      documentNo: created.documentNo,
+      issueDate: issueDateStr,
+      systemEntryDate: new Date(created.systemEntryDate),
+      lines,
+      subtotal,
+      discountTotal,
+      taxTotal,
+      total,
+      taxSummary,
+      signature: created.signature,
+      production: this.agtClient.isConfigured(settings),
+    });
 
-    const agtStatus = agtStatusFor(communication);
+    const communication = await this.agtClient.registerInvoice(settings, payload);
+    const agtStatus = agtStatusForCommunication(communication);
 
     await this.uow.run(async (tx) => {
       const invoiceRepo = tx.repository(this.invoices);
       await invoiceRepo.update(created.id, {
         agtStatus,
-        agtReference: communication.reference ?? null,
+        agtRequestId: communication.requestId ?? null,
+        agtReference: communication.offline
+          ? "dev-offline"
+          : communication.requestId ?? null,
         agtResponse: communication.response,
+        agtValidatedAt: communication.offline ? new Date() : null,
       });
       await invoiceRepo.addCommunicationLog(created.id, {
         attempt: 1,
         status: agtStatus,
         httpStatus: communication.httpStatus ?? null,
         responsePayload: communication.response,
-        error: communication.accepted ? null : communication.response,
+        error: communication.submitted ? null : communication.response,
       });
     });
 
     const final = await this.invoices.findByIdWithLines(created.id);
     return { invoice: final ?? created, created: true };
   }
+
+  private async ensureIssuerKeyFromProfile(profile: any): Promise<string> {
+    if (profile.signatureKeyPem) return profile.signatureKeyPem;
+    const pair = generateRsaKeyPair();
+    const updated = await this.profiles.update(profile.storeId, {
+      signatureKeyPem: pair.privateKeyPem,
+    });
+    return updated.signatureKeyPem || pair.privateKeyPem;
+  }
+
+  private async requestOrCreateSeries(
+    settings: any,
+    profile: any,
+    year: number,
+    issuerKey: string
+  ) {
+    const result = await this.agtClient.requestSeries(settings, {
+      taxRegistrationNumber: profile.nif,
+      seriesYear: year,
+      documentType: INVOICE_DOCUMENT_TYPE,
+      establishmentNumber: profile.establishmentNumber || "SEDE",
+      seriesContingencyIndicator: "N",
+      issuerPrivateKeyPem: issuerKey,
+    });
+
+    if (!result.seriesCode) {
+      throw new InternalError(
+        `Não foi possível obter série junto da AGT: ${
+          result.errorList?.map((e) => `${e.idError} ${e.descriptionError}`).join("; ") ||
+          result.response
+        }`
+      );
+    }
+
+    return this.series.create({
+      storeId: profile.storeId,
+      documentType: INVOICE_DOCUMENT_TYPE,
+      agtSeriesCode: result.seriesCode,
+      establishmentNumber: profile.establishmentNumber || "SEDE",
+      year,
+      status: "OPEN",
+      nextNumber: 1,
+      lastNumberUsed: null,
+      authorizedQuantity: result.authorizedQuantity ?? null,
+      firstDocumentNo: result.firstDocumentNo ?? null,
+      lastDocumentNo: result.lastDocumentNo ?? null,
+    });
+  }
+}
+
+// Converte cêntimos em unidades com 2 casas decimais para a assinatura JWS.
+function fromCentsForSignature(cents: number): number {
+  return (cents || 0) / 100;
 }
 
 export function isInvoiceDocumentType(value: string): boolean {

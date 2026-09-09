@@ -394,60 +394,72 @@ model OrderDisputeRead {
 
 // Configuração fiscal da plataforma (linha única, id = "global").
 // Identificação do software certificado + credenciais de comunicação com a AGT.
+// Especificações técnicas conforme o Decreto Executivo 683/25 (API de Faturação
+// Electrónica AGT) — assinaturas JWS RS256, comunicação JSON, validação síncrona
+// de séries e assíncrona de documentos (registar → obterEstado).
 model FiscalSettings {
-  id                  String    @id @default("global")
-  softwareName        String    @default("Pambala")
-  softwareVersion     String    @default("1.0.0")
-  softwareProvider    String    @default("Pambala")
-  certificationNumber String?   // nº de certificação AGT (ex.: FE/323/AGT/2026)
-  certificationDate   DateTime?
-  hashAlgorithm       String    @default("sha256")
-  hashSecret          String    @default("pambala-dev-secret")
-  agtBaseUrl          String?   // endpoint da API da AGT (vazio = modo desenvolvimento)
-  agtApiToken         String?
-  timezone            String    @default("Africa/Luanda")
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+  id                      String    @id @default("global")
+  productId               String    @default("Pambala")   // softwareInfoDetail.productId
+  productVersion          String    @default("1.0.0")      // softwareInfoDetail.productVersion
+  softwareValidationNumber String?  // softwareInfoDetail.softwareValidationNumber (nº de certificação, ex.: "C_134")
+  certificationDate       DateTime? // data da certificação AGT
+  signatureVersion        Int       @default(1)            // softwareInfoDetail.signatureVersion
+  signatureKeyPem         String?   // chave privada RSA do PRODUTOR (jwsSoftwareSignature)
+  schemaVersion           String    @default("2.0")        // schemaVersion das chamadas
+  agtBaseUrl              String?   // ex.: https://sifp.minfin.gov.ao (vazio = modo desenvolvimento)
+  agtUsername             String?   // Basic Auth — credenciais emitidas pela AGT
+  agtPassword             String?
+  timezone                String    @default("Africa/Luanda")
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
 }
 
 // Perfil fiscal de cada loja: cada loja é um emitente fiscal próprio.
 model StoreFiscalProfile {
-  id                     String    @id @default(cuid())
-  storeId                String    @unique
-  store                  Store     @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  nif                    String    // Número de Identificação Fiscal
-  legalName              String    // denominação social
-  address                String    // endereço completo
-  province               String
-  district               String?
-  industryCode           String?   // CAE
-  vatRegime              String    @default("GERAL") // GERAL | SIMPLIFICADO | EXCLUIDO | ISENTO
+  id                      String    @id @default(cuid())
+  storeId                 String    @unique
+  store                   Store     @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  nif                     String    // Número de Identificação Fiscal
+  legalName               String    // denominação social (companyName)
+  address                 String    // endereço completo
+  province                String
+  district                String?
+  industryCode            String?   // CAE
+  vatRegime               String    @default("GERAL") // GERAL | SIMPLIFICADO | EXCLUIDO | ISENTO
+  vatExemptionCode        String?   // código de isenção (anexo 6.4 do DE 683/25) — obrigatório quando aplicável
+  establishmentNumber     String    @default("SEDE")   // agência/estabelecimento registado no Portal do Contribuinte
   establishmentRegistered Boolean  @default(false) // registo do estabelecimento na AGT
-  isActive               Boolean   @default(true)
-  createdAt              DateTime  @default(now())
-  updatedAt              DateTime  @updatedAt
-  invoices               Invoice[]
+  signatureKeyPem         String?   // chave privada RSA do CONTRIBUINTE (jwsDocumentSignature)
+  isActive                Boolean   @default(true)
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+  invoices                Invoice[]
 }
 
-// Série de faturação autorizada (numeração inicia em 1 e reinicia por ano civil;
-// máx. 50 séries por estabelecimento/tipologia fiscal).
+// Série de numeração autorizada pela AGT (solicitarSerie). O código da série é
+// atribuído pela AGT; a emissão local mantém numeração sequencial, cronológica e
+// imutável dentro do intervalo autorizado (firstDocumentNo..lastDocumentNo).
 model InvoiceSeries {
-  id             String    @id @default(cuid())
-  storeId        String
-  store          Store     @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  documentType   String    // FT | NC | ND
-  prefix         String    // ex.: "A", "FT"
-  year           Int       // ano civil da série
-  status         String    @default("OPEN") // OPEN | CLOSED | CANCELLED
-  nextNumber     Int       @default(1)      // próximo número a atribuir (alocação atómica)
-  lastNumberUsed Int?
-  validFrom      DateTime  @default(now())
-  validUntil     DateTime?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  invoices       Invoice[]
+  id                String    @id @default(cuid())
+  storeId           String
+  store             Store     @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  documentType      String    // FT | NC | ND | ... (tipos do DE 683/25)
+  agtSeriesCode     String?   // código ATRIBUÍDO PELA AGT (ex.: "FT6325S2C")
+  establishmentNumber String  @default("SEDE")
+  year              Int       // ano civil da série
+  status            String    @default("PENDING") // PENDING | OPEN | CLOSED | CANCELLED | REJECTED
+  nextNumber        Int       @default(1)      // próximo número a atribuir (alocação atómica)
+  lastNumberUsed    Int?
+  authorizedQuantity Int?     // quantidade aprovada pela AGT
+  firstDocumentNo   String?   // primeiro documento autorizado (ex.: "1")
+  lastDocumentNo    String?   // último documento autorizado
+  validFrom         DateTime  @default(now())
+  validUntil        DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  invoices          Invoice[]
 
-  @@unique([storeId, documentType, prefix, year])
+  @@unique([storeId, documentType, agtSeriesCode, year])
   @@index([storeId])
 }
 
@@ -462,25 +474,30 @@ model Invoice {
   series            InvoiceSeries @relation(fields: [seriesId], references: [id])
   fiscalProfileId   String?
   fiscalProfile     StoreFiscalProfile? @relation(fields: [fiscalProfileId], references: [id])
-  documentType      String    // FT | NC | ND
+  documentType      String    // FT | NC | ND | ...
   number            Int       // sequência dentro da série
-  fullNumber        String    // ex.: "A/2026/1"
+  documentNo        String    // ex.: "FT FT6325S2C/10006" (DE 683/25)
   status            String    @default("ACTIVE") // ACTIVE | VOID
-  issueDate         DateTime  // data de emissão (momento relevante do imposto)
+  issueDate         DateTime  // data de emissão (documentDate)
+  systemEntryDate   DateTime  // timestamp de gravação no momento da assinatura
   dueDate           DateTime?
   emitterSnapshot   String    // JSON: denominação/NIF/endereço no momento da emissão
   customerSnapshot  String    // JSON: nome/NIF/endereço do cliente
+  customerTaxId     String?   // NIF do comprador ("999999999" se não identificado)
+  customerCountry   String    @default("AO") // ISO 3166-1-alpha-2
   currency          String    @default("AOA")
-  subtotal          Int       // cêntimos
+  subtotal          Int       // cêntimos (netTotal)
   discountTotal     Int       @default(0)
-  taxTotal          Int       @default(0)
-  total             Int       @default(0)
+  taxTotal          Int       @default(0)   // (taxPayable)
+  total             Int       @default(0)   // (grossTotal)
   taxSummary        String    // JSON por taxa: [{rate, baseCents, taxCents}]
-  hash              String    // código de validação AGT (SHA-256)
-  qrData            String?   // payload do QR Code
-  agtStatus         String    @default("PENDING") // PENDING | SENT | ACCEPTED | REJECTED | FAILED
+  signature         String    // jwsDocumentSignature (JWS RS256)
+  qrUrl             String?   // URL de consulta pública da AGT
+  agtStatus         String    @default("PENDING") // PENDING | SUBMITTED | VALID | INVALID | REJECTED | FAILED
   agtResponse       String?
+  agtRequestId      String?   // requestID devolvido pela AGT (registarFactura)
   agtReference      String?
+  agtValidatedAt    DateTime?
   originalInvoiceId String?
   originalInvoice   Invoice?  @relation("InvoiceCorrection", fields: [originalInvoiceId], references: [id])
   corrections       Invoice[] @relation("InvoiceCorrection")
@@ -507,14 +524,20 @@ model InvoiceLine {
   product        Product?    @relation(fields: [productId], references: [id])
   productName    String      // designação (snapshot)
   productSku     String?
+  operationType  String      @default("TB") // TB | SS | SG | ... (DE 683/25)
   quantity       Int
-  unitPrice      Int         // cêntimos
+  unitOfMeasure  String      @default("UN")
+  unitPrice      Int         // cêntimos (unitPrice, após descontos)
+  unitPriceBase  Int         // cêntimos (preço base, sem descontos/impostos)
   discountAmount Int         @default(0)
+  settlementAmount Int       @default(0) // total de descontos na linha
   taxRate        Int         // 0 | 5 | 7 | 14 (%)
+  taxCode        String?     // NOR | INT | RED | ISE | OUT
   taxAmount      Int         @default(0)
-  lineSubtotal   Int         @default(0) // (qty*unitPrice) - discount
+  taxExemptionCode String?   // 3 caracteres (anexo 6.4) quando taxCode = ISE / NS
+  lineSubtotal   Int         @default(0) // debitAmount (qty*unit)*0 descontos — sem imposto
   lineTotal      Int         @default(0) // subtotal + tax
-  reasonExempt   String?     // motivo da não liquidação do imposto (quando aplicável)
+  reasonExempt   String?     // motivo da não liquidação do imposto (legível)
   originalLineId String?
   originalLine   InvoiceLine? @relation("LineCorrection", fields: [originalLineId], references: [id])
   corrections    InvoiceLine[] @relation("LineCorrection")
@@ -529,8 +552,8 @@ model InvoiceCommunicationLog {
   invoiceId       String
   invoice         Invoice   @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
   attempt         Int       @default(1)
-  status          String    // PENDING | SENT | ACCEPTED | REJECTED | FAILED
-  requestPayload  String?   // payload SAF-T/JSON enviado
+  status          String    // PENDING | SUBMITTED | VALID | INVALID | REJECTED | FAILED
+  requestPayload  String?   // payload JSON enviado
   responsePayload String?
   httpStatus      Int?
   error           String?
