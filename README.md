@@ -33,7 +33,8 @@ src/
 │   ├── roles/            # Consulta e gestão de roles/responsabilidades
 │   ├── admin/            # Dashboard admin (stats, CRUD completo)
 │   ├── security/         # Handshake E2E (tweetnacl)
-│   └── translations/     # Tradução de conteúdo (OpenRouter)
+│   ├── translations/     # Tradução de conteúdo (OpenRouter)
+│   └── fiscal/           # Faturação AGT (perfil fiscal, séries, facturas)
 ├── handlers/             # Lógica de negócio desacoplada das rotas
 │   ├── roles.handlers.ts     # CRUD de roles + responsabilidades
 │   ├── uploads.handlers.ts   # Upload Cloudinary com fallback local
@@ -144,14 +145,19 @@ O sistema usa **roles dinâmicas** com responsabilidades M:N por utilizador (`Us
 | `orders.respond-payment` | Responder/validar pagamentos de pedidos |
 | `orders.confirm-payment` | Confirmar pagamento final |
 | `translations.translate` | Utilizar o agente de tradução |
+| `fiscal.settings.manage` | Gerir configuração fiscal da plataforma |
+| `fiscal.profile.manage` | Gerir perfil fiscal da própria loja |
+| `fiscal.series.manage` | Gerir séries de faturação da própria loja |
+| `fiscal.invoices.view` | Ver facturas da própria loja |
+| `fiscal.invoices.manage` | Emitir/forçar comunicação AGT de facturas |
 
 ### Roles de sistema (seed)
 
 | Role | Responsabilidades |
 |------|-------------------|
 | `ADMIN` | Todas |
-| `MANAGER` | `stores.create`, `stores.manage`, `products.manage`, `orders.view`, `orders.respond-payment`, `translations.translate` |
-| `SELLER` | `stores.manage`, `products.manage`, `orders.view`, `orders.respond-payment`, `translations.translate` |
+| `MANAGER` | `stores.create`, `stores.manage`, `products.manage`, `orders.view`, `orders.respond-payment`, `translations.translate`, `fiscal.profile.manage`, `fiscal.series.manage`, `fiscal.invoices.view`, `fiscal.invoices.manage` |
+| `SELLER` | `stores.manage`, `products.manage`, `orders.view`, `orders.respond-payment`, `translations.translate`, `fiscal.profile.manage`, `fiscal.series.manage`, `fiscal.invoices.view`, `fiscal.invoices.manage` |
 | `CLIENT` | Nenhuma (compra) |
 
 ### Regras
@@ -267,6 +273,19 @@ O sistema usa **roles dinâmicas** com responsabilidades M:N por utilizador (`Us
 | PUT | `/api/roles/responsibilities/:key` | Admin | Actualizar responsabilidade |
 | DELETE | `/api/roles/responsibilities/:key` | Admin | Eliminar responsabilidade (sistema é protegida) |
 
+### Fiscal (Regime Jurídico das Faturas — Decreto Presidencial n.º 71/25)
+| Método | Rota | Auth | Descrição |
+|--------|------|------|-----------|
+| GET | `/api/fiscal/settings` | Admin | Configuração fiscal da plataforma (software, certificação AGT, segredo do hash, credenciais da AGT) |
+| PUT | `/api/fiscal/settings` | Admin | Actualizar configuração fiscal da plataforma |
+| GET | `/api/fiscal/stores/:storeId/fiscal-profile` | Propr. loja/Admin | Perfil fiscal da loja (NIF, denominação, endereço, regime de IVA) |
+| PUT | `/api/fiscal/stores/:storeId/fiscal-profile` | Propr. loja/Admin | Criar/actualizar perfil fiscal da loja |
+| GET | `/api/fiscal/stores/:storeId/series` | Propr. loja/Admin | Listar séries de faturação da loja |
+| POST | `/api/fiscal/stores/:storeId/series` | Propr. loja/Admin | Abrir série (`{ documentType, prefix, year? }`; máx. 50 séries/estabelecimento/ano) |
+| GET | `/api/fiscal/orders/:orderId/invoice` | Buyer/Propr. loja/Admin | Facturas do pedido |
+| POST | `/api/fiscal/orders/:orderId/invoice` | Propr. loja/Admin | Emitir/recuperar factura do pedido (idempotente) |
+| GET | `/api/fiscal/invoices/:id` | Propr. loja/Admin | Detalhe da factura (linhas + série) |
+
 ### Admin
 | Método | Rota | Auth | Descrição |
 |--------|------|------|-----------|
@@ -290,6 +309,32 @@ O sistema usa **roles dinâmicas** com responsabilidades M:N por utilizador (`Us
 | DELETE | `/api/admin/reviews/:id` | Admin | Eliminar avaliação |
 | GET | `/api/admin/disputes` | Admin | Fila central de disputas (paginação, filtro por estado, busca por pedido/cliente; inclui `messagesCount`, `unreadMessages`, `lastMessage`, risco do comprovativo, cliente e vendedor) |
 | GET | `/api/admin/disputes/stats` | Admin | Contagens de disputas (`total`, `open`, `resolved`, `closed`) |
+
+## Módulo de Faturação (AGT)
+
+Implementa a emissão de facturas de acordo com o **Regime Jurídico das Faturas** (Decreto Presidencial n.º 71/25) e o formato estruturado do **Executive Decree n.º 683/25** (base SAF-T/JSON). O Pambala funciona como **sistema de faturação multi-tenant**: cada loja é um *emitente fiscal* com o seu próprio NIF, séries e regime de IVA.
+
+### Modelos
+
+| Modelo | Papel |
+|--------|-------|
+| `FiscalSettings` | Configuração da plataforma (linha única): identificação do software, nº de certificação AGT, algoritmo/segredo do hash, credenciais da API da AGT, fuso horário |
+| `StoreFiscalProfile` | Perfil fiscal da loja (1:1): NIF, denominação social, endereço, CAE, regime de IVA (`GERAL`/`SIMPLIFICADO`/`EXCLUIDO`/`ISENTO`), registo do estabelecimento |
+| `InvoiceSeries` | Série autorizada por loja/documento/ano: numeração inicia em 1 e reinicia por ano civil, máx. 50 séries por estabelecimento/tipologia |
+| `Invoice` | Documento fiscal imutável: número e série, snapshot do emitente e do cliente, montantes em **cêntimos de AOA**, resumo de IVA por taxa, código hash (SHA-256), payload QR, estado da comunicação AGT, referência à factura original (NC/ND) |
+| `InvoiceLine` | Linha da factura com snapshot (designação, quantidade, preço, taxa e imposto), motivo de não liquidação do imposto e referência à linha original (NC/ND parciais) |
+| `InvoiceCommunicationLog` | Trilho de auditoria/retry da comunicação com a AGT (payload enviado, resposta, estado, HTTP) |
+
+### Fluxo de emissão
+
+1. **Gatilho automático** — a factura `FT` é emitida na confirmação do pagamento (`PAID`, incluindo COD na entrega) e pode ser forçada/recuperada via `POST /api/fiscal/orders/:orderId/invoice` (idempotente).
+2. **Alocação atómica** — o número é retirado de uma série aberta (`InvoiceSeries.nextNumber`) dentro da mesma transação que cria a factura; se não existir série aberta, é criada a série default `A` do ano civil.
+3. **Imutabilidade** — emitente e cliente são gravados como *snapshots* (JSON) no momento da emissão; os montantes são inteiros em cêntimos para garantir exactidão e hash determinístico.
+4. **Hash + QR** — `hash = SHA256(NIF|fullNumber|data|total|imposto|segredo)` e payload QR derivado do hash (formato provisório, a alinhar com a especificação final da AGT).
+5. **Comunicação AGT** — `POST` à `agtBaseUrl` configurada; sem `agtBaseUrl`, a factura é marcada `ACCEPTED` em modo de desenvolvimento. Estados: `PENDING | SENT | ACCEPTED | REJECTED | FAILED`. A retransmissão é possível repetindo a emissão (idempotente).
+6. **IVA** — a taxa é derivada do regime da loja: `GERAL` → 14%, `SIMPLIFICADO` → 7%, `EXCLUIDO`/`ISENTO` → 0% (com motivo de isenção na linha).
+
+> **Nota:** as especificações finais da AGT (formato do `hash`, conteúdo/padrão do QR Code, endpoints e esquema exato do ficheiro de comunicação) devem ser confirmadas no portal da AGT antes da produção e da certificação do software.
 
 ## Agente de Comprovativos Anti-Fraude (`receipt_agent/`)
 
