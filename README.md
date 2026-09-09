@@ -221,6 +221,14 @@ O sistema usa **roles dinâmicas** com responsabilidades M:N por utilizador (`Us
 | GET | `/api/orders/:id/dispute` | Sim/Seller/Admin | Obter/iniciar disputa e histórico de mensagens tripartidas (Cliente, Vendedor, Admin) |
 | POST | `/api/orders/:id/dispute/messages` | Sim/Seller/Admin | Enviar mensagem no chat tripartido com suporte a anexos |
 | PUT | `/api/orders/:id/dispute/status` | Sim/Seller/Admin | Actualizar estado da disputa (`OPEN`, `UNDER_REVIEW`, `RESOLVED`, `CLOSED`) |
+| GET | `/api/orders/disputes/unread` | Sim | Mensagens não lidas do utilizador (badge/notificações): `total` + top 20 disputas com `unreadCount`, `orderNumber`, última mensagem (`lastMessage`) |
+| PUT | `/api/orders/:id/dispute/read` | Sim/Seller/Admin | Marcar todas as mensagens da disputa como lidas para o utilizador (`OrderDisputeRead`) |
+| GET | `/api/orders/:id/dispute/events` | Sim/Seller/Admin | **SSE** — stream de eventos em tempo real (substitui o polling do cliente). Fornece um snapshot inicial e empurra o estado completo da disputa (`text/event-stream`) sempre que há nova mensagem, mudança de estado ou ação de moderação no pedido. Caber `Authorization: Bearer`; eventos `update` + heartbeat `: keep-alive` a cada 30s |
+| POST | `/api/orders/:id/dispute/moderation` | Admin | Ação de moderação manual (autoridade): `MANUAL_OVERRIDE_ACCEPT` (aprovar comprovativo apesar do falso positivo da IA e liberar o pedido para o vendedor confirmar recebimento) ou `DEFINITIVE_REJECT` (encerrar tentativas, rejeitar pagamento e cancelar o pedido). Opcionalmente com `note`. Regista a ação no histórico e mensagem de sistema na mediação (`SYSTEM`) |
+| GET | `/api/orders/:id/timeline` | Sim/Seller/Admin | Linha do tempo do ciclo de vida do pedido (rastreamento): eventos normalizados (criado, pagamento, comprovativo/verificação, moderação, envio, entrega, receção), dados de envio (`carrierName`, `trackingCode`, `estimatedDelivery`, `shippedAt`, `deliveredAt`, `receivedAt`) e `capabilities` de ação conforme o papel (confirmar receção/recebimento, marcar enviado, marcar entregue) |
+| POST | `/api/orders/:id/ship` | Seller/Admin | Marcar pedido como **enviado** (avança para `SHIPPED`): exige `carrierName` + `trackingCode` (e `estimatedDelivery` opcional); requer pagamento confirmado (`PAYMENT_RECEIVED`/`PAID`) exceto `CASH_ON_DELIVERY`; regista o evento no histórico |
+| PUT | `/api/orders/:id/delivered` | Seller/Admin | Marcar pedido como **entregue** (avança para `DELIVERED`, exige `SHIPPED`); opcionalmente com `note`. Em `CASH_ON_DELIVERY` o pagamento é marcado automaticamente como `PAID` |
+| PUT | `/api/orders/:id/received` | Comprador/Admin | **Confirmar recepção** (avança para `RECEIVED`): o comprador confirma que recebeu a encomenda e fecha o ciclo de vida do pedido; exige `DELIVERED` |
 
 ### Reviews
 | Método | Rota | Auth | Descrição |
@@ -280,6 +288,8 @@ O sistema usa **roles dinâmicas** com responsabilidades M:N por utilizador (`Us
 | DELETE | `/api/admin/categories/:id` | Admin | Eliminar categoria |
 | GET | `/api/admin/reviews` | Admin | Listar todas as avaliações |
 | DELETE | `/api/admin/reviews/:id` | Admin | Eliminar avaliação |
+| GET | `/api/admin/disputes` | Admin | Fila central de disputas (paginação, filtro por estado, busca por pedido/cliente; inclui `messagesCount`, `unreadMessages`, `lastMessage`, risco do comprovativo, cliente e vendedor) |
+| GET | `/api/admin/disputes/stats` | Admin | Contagens de disputas (`total`, `open`, `resolved`, `closed`) |
 
 ## Agente de Comprovativos Anti-Fraude (`receipt_agent/`)
 
