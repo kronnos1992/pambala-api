@@ -273,17 +273,18 @@ O sistema usa **roles dinâmicas** com responsabilidades M:N por utilizador (`Us
 | PUT | `/api/roles/responsibilities/:key` | Admin | Actualizar responsabilidade |
 | DELETE | `/api/roles/responsibilities/:key` | Admin | Eliminar responsabilidade (sistema é protegida) |
 
-### Fiscal (Regime Jurídico das Faturas — Decreto Presidencial n.º 71/25)
+### Fiscal (Faturação Electrónica AGT — Executivo 683/25)
 | Método | Rota | Auth | Descrição |
 |--------|------|------|-----------|
-| GET | `/api/fiscal/settings` | Admin | Configuração fiscal da plataforma (software, certificação AGT, segredo do hash, credenciais da AGT) |
+| GET | `/api/fiscal/settings` | Admin | Configuração fiscal da plataforma (software certificado, nº de validação, chaves JWS, credenciais da AGT) |
 | PUT | `/api/fiscal/settings` | Admin | Actualizar configuração fiscal da plataforma |
-| GET | `/api/fiscal/stores/:storeId/fiscal-profile` | Propr. loja/Admin | Perfil fiscal da loja (NIF, denominação, endereço, regime de IVA) |
+| GET | `/api/fiscal/stores/:storeId/fiscal-profile` | Propr. loja/Admin | Perfil fiscal da loja (NIF, denominação, endereço, regime de IVA, estabelecimento) |
 | PUT | `/api/fiscal/stores/:storeId/fiscal-profile` | Propr. loja/Admin | Criar/actualizar perfil fiscal da loja |
 | GET | `/api/fiscal/stores/:storeId/series` | Propr. loja/Admin | Listar séries de faturação da loja |
-| POST | `/api/fiscal/stores/:storeId/series` | Propr. loja/Admin | Abrir série (`{ documentType, prefix, year? }`; máx. 50 séries/estabelecimento/ano) |
+| POST | `/api/fiscal/stores/:storeId/series` | Propr. loja/Admin | Abrir série junto da AGT (`{ documentType, establishmentNumber?, year? }`; máx. 5 séries/estabelecimento/ano) |
 | GET | `/api/fiscal/orders/:orderId/invoice` | Buyer/Propr. loja/Admin | Facturas do pedido |
 | POST | `/api/fiscal/orders/:orderId/invoice` | Propr. loja/Admin | Emitir/recuperar factura do pedido (idempotente) |
+| POST | `/api/fiscal/invoices/:id/refresh-status` | Propr. loja/Admin | Consultar estado na AGT (`obterEstado`) e actualizar `agtStatus` |
 | GET | `/api/fiscal/invoices/:id` | Propr. loja/Admin | Detalhe da factura (linhas + série) |
 
 ### Admin
@@ -310,31 +311,33 @@ O sistema usa **roles dinâmicas** com responsabilidades M:N por utilizador (`Us
 | GET | `/api/admin/disputes` | Admin | Fila central de disputas (paginação, filtro por estado, busca por pedido/cliente; inclui `messagesCount`, `unreadMessages`, `lastMessage`, risco do comprovativo, cliente e vendedor) |
 | GET | `/api/admin/disputes/stats` | Admin | Contagens de disputas (`total`, `open`, `resolved`, `closed`) |
 
-## Módulo de Faturação (AGT)
+## Módulo de Faturação (Faturação Electrónica AGT)
 
-Implementa a emissão de facturas de acordo com o **Regime Jurídico das Faturas** (Decreto Presidencial n.º 71/25) e o formato estruturado do **Executive Decree n.º 683/25** (base SAF-T/JSON). O Pambala funciona como **sistema de faturação multi-tenant**: cada loja é um *emitente fiscal* com o seu próprio NIF, séries e regime de IVA.
+Implementa a emissão de facturas de acordo com o **Regime Jurídico das Faturas** (Decreto Presidencial n.º 71/25) e a **API de Faturação Electrónica da AGT** (Executivo n.º 683/25). O Pambala funciona como **sistema de faturação multi-tenant**: cada loja é um *emitente fiscal* com o seu próprio NIF, séries e regime de IVA, e o software usa o **nº de validação/certificação AGT** do Pambala.
 
 ### Modelos
 
 | Modelo | Papel |
 |--------|-------|
-| `FiscalSettings` | Configuração da plataforma (linha única): identificação do software, nº de certificação AGT, algoritmo/segredo do hash, credenciais da API da AGT, fuso horário |
-| `StoreFiscalProfile` | Perfil fiscal da loja (1:1): NIF, denominação social, endereço, CAE, regime de IVA (`GERAL`/`SIMPLIFICADO`/`EXCLUIDO`/`ISENTO`), registo do estabelecimento |
-| `InvoiceSeries` | Série autorizada por loja/documento/ano: numeração inicia em 1 e reinicia por ano civil, máx. 50 séries por estabelecimento/tipologia |
-| `Invoice` | Documento fiscal imutável: número e série, snapshot do emitente e do cliente, montantes em **cêntimos de AOA**, resumo de IVA por taxa, código hash (SHA-256), payload QR, estado da comunicação AGT, referência à factura original (NC/ND) |
-| `InvoiceLine` | Linha da factura com snapshot (designação, quantidade, preço, taxa e imposto), motivo de não liquidação do imposto e referência à linha original (NC/ND parciais) |
+| `FiscalSettings` | Configuração da plataforma (linha única): identificação do software (`productId`, `productVersion`, `softwareValidationNumber`), versão de assinatura, chave privada JWS do produtor, credenciais da API da AGT (`agtBaseUrl`, `agtUsername`, `agtPassword`), fuso horário |
+| `StoreFiscalProfile` | Perfil fiscal da loja (1:1): NIF, denominação social, endereço, regime de IVA (`GERAL`/`SIMPLIFICADO`/`EXCLUIDO`/`ISENTO`), código de isenção (`vatExemptionCode`), estabelecimento (`SEDE`/filiais) e chave privada JWS do contribuinte |
+| `InvoiceSeries` | Série autorizada pela AGT via `solicitarSerie` por loja/documento/ano: código atribuído pela AGT (`agtSeriesCode`), `authorizedQuantity`, numeração sequencial cronológica (recomeça por ano civil) |
+| `Invoice` | Documento fiscal imutável: `documentNo` (`FT <códigoSérieAGT>/<seq>`), snapshot do emitente e do cliente, montantes em **cêntimos de AOA**, **assinatura JWS RS256**, **URL do QR Code de consulta pública**, `agtRequestId` e `agtStatus`, referência à factura original (NC/ND) |
+| `InvoiceLine` | Linha da factura com snapshot (designação, quantidade, preço, imposto), `operationType`, `taxCode`, `taxExemptionCode` e referência à linha original (NC/ND parciais) |
 | `InvoiceCommunicationLog` | Trilho de auditoria/retry da comunicação com a AGT (payload enviado, resposta, estado, HTTP) |
 
 ### Fluxo de emissão
 
 1. **Gatilho automático** — a factura `FT` é emitida na confirmação do pagamento (`PAID`, incluindo COD na entrega) e pode ser forçada/recuperada via `POST /api/fiscal/orders/:orderId/invoice` (idempotente).
-2. **Alocação atómica** — o número é retirado de uma série aberta (`InvoiceSeries.nextNumber`) dentro da mesma transação que cria a factura; se não existir série aberta, é criada a série default `A` do ano civil.
-3. **Imutabilidade** — emitente e cliente são gravados como *snapshots* (JSON) no momento da emissão; os montantes são inteiros em cêntimos para garantir exactidão e hash determinístico.
-4. **Hash + QR** — `hash = SHA256(NIF|fullNumber|data|total|imposto|segredo)` e payload QR derivado do hash (formato provisório, a alinhar com a especificação final da AGT).
-5. **Comunicação AGT** — `POST` à `agtBaseUrl` configurada; sem `agtBaseUrl`, a factura é marcada `ACCEPTED` em modo de desenvolvimento. Estados: `PENDING | SENT | ACCEPTED | REJECTED | FAILED`. A retransmissão é possível repetindo a emissão (idempotente).
-6. **IVA** — a taxa é derivada do regime da loja: `GERAL` → 14%, `SIMPLIFICADO` → 7%, `EXCLUIDO`/`ISENTO` → 0% (com motivo de isenção na linha).
+2. **Série** — se não existir série aberta, é chamado `solicitarSerie` à AGT (fora da transação); sem `agtBaseUrl` (dev), é sintetizada uma série local com código `FT<ano>S001N`.
+3. **Alocação atómica** — o número é retirado da série (`InvoiceSeries.nextNumber`) na mesma transação que cria a factura, garantindo numeração sequencial sem duplicados.
+4. **Imutabilidade** — emitente e cliente são gravados como *snapshots* (JSON) no momento da emissão; montantes em cêntimos de AOA e IVA arredondado **por excesso** ao cêntimo.
+5. **Assinaturas JWS (RS256)** — `jwsSoftwareSignature` (productId/productVersion/softwareValidationNumber, chave do produtor), `jwsDocumentSignature` (identificação + totais do documento, chave privada da loja) e `jwsSignature` por requisição; chaves RSA-2048 geradas e guardadas nas definições/perfil quando ausentes.
+6. **QR Code** — `https://quiosqueagt.minfin.gov.ao/facturacao-eletronica/consultar-fe?emissor=<NIF>&document=<documentNo>` (espaços → `%20`).
+7. **Comunicação AGT (assíncrona)** — `POST registarFactura` devolve `requestID`; o estado é obtido por `obterEstado` (manual via `refresh-status` ou job). Sem `agtBaseUrl`, a factura fica `VALID` em modo dev. `agtStatus`: `PENDING | SUBMITTED | VALID | INVALID | REJECTED | FAILED`.
+8. **IVA** — taxa derivada do regime da loja: `GERAL` → 14% (`NOR`), `SIMPLIFICADO` → 7% (`INT`), `EXCLUIDO`/`ISENTO` → 0% (com `taxExemptionCode` obrigatório); `NA` e `NS` aplicam isenção/outsiderscope.
 
-> **Nota:** as especificações finais da AGT (formato do `hash`, conteúdo/padrão do QR Code, endpoints e esquema exato do ficheiro de comunicação) devem ser confirmadas no portal da AGT antes da produção e da certificação do software.
+> **Nota:** as credenciais de API (Basic Auth) são emitidas pela AGT para o produtor do software; só ficam ativas os *environment/certificações* `HOMOLOG`/`PRODUCAO` (planos de faturação). Sem credenciais, o módulo opera em modo dev (séries sintéticas, `agtStatus=VALID` sem registo real).
 
 ## Agente de Comprovativos Anti-Fraude (`receipt_agent/`)
 
