@@ -26,6 +26,7 @@ import {
   paymentHistoryPush,
 } from "../shared/mappers";
 import { OrderInput } from "../lib/validators";
+import { InvoiceEmitter } from "../lib/fiscal/emitter";
 import {
   assertPermission,
   resolvePermissions,
@@ -519,7 +520,8 @@ export class UpdateOrderPaymentStatusCommandHandler
   constructor(
     private readonly orders: OrderRepository,
     private readonly stores: StoreRepository,
-    private readonly orderItems: OrderItemRepository
+    private readonly orderItems: OrderItemRepository,
+    private readonly emitter?: InvoiceEmitter
   ) {}
 
   async handle(command: UpdateOrderPaymentStatusCommand) {
@@ -607,7 +609,16 @@ export class UpdateOrderPaymentStatusCommandHandler
       paymentHistory: JSON.stringify(history),
     });
 
-    return { order: updated };
+    let invoice: any = null;
+    if (paymentStatus === "PAID" && this.emitter) {
+      try {
+        invoice = (await this.emitter.emitForOrder(order.id, userId)).invoice;
+      } catch (err) {
+        console.error(`[fiscal] Emissão de factura falhou (order ${order.id}):`, err);
+      }
+    }
+
+    return { order: updated, invoice };
   }
 }
 
@@ -897,7 +908,8 @@ export class MarkOrderDeliveredCommandHandler
   constructor(
     private readonly orders: OrderRepository,
     private readonly stores: StoreRepository,
-    private readonly orderItems: OrderItemRepository
+    private readonly orderItems: OrderItemRepository,
+    private readonly emitter?: InvoiceEmitter
   ) {}
 
   async handle(command: MarkOrderDeliveredCommand) {
@@ -960,7 +972,16 @@ export class MarkOrderDeliveredCommandHandler
 
     const updated = await this.orders.update(order.id, data);
 
-    return { order: updated };
+    let invoice: any = null;
+    if (data.paymentStatus === "PAID" && this.emitter) {
+      try {
+        invoice = (await this.emitter.emitForOrder(order.id, userId)).invoice;
+      } catch (err) {
+        console.error(`[fiscal] Emissão de factura falhou (order ${order.id}):`, err);
+      }
+    }
+
+    return { order: updated, invoice };
   }
 }
 

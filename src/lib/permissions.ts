@@ -28,6 +28,12 @@ export const PERMISSIONS = {
   // Disputas e Chat Tripartido
   disputesView: "disputes.view",
   disputesModerate: "disputes.moderate",
+  // Faturação (Regime Jurídico das Faturas)
+  fiscalSettingsManage: "fiscal.settings.manage",
+  fiscalProfileManage: "fiscal.profile.manage",
+  fiscalSeriesManage: "fiscal.series.manage",
+  fiscalInvoicesView: "fiscal.invoices.view",
+  fiscalInvoicesManage: "fiscal.invoices.manage",
 } as const;
 
 export type PermissionKey = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];

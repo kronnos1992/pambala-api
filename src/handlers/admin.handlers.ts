@@ -800,7 +800,10 @@ export class AdminUpdateOrderStatusCommandHandler
 export class AdminUpdateOrderPaymentCommandHandler
   implements ICommandHandler<AdminUpdateOrderPaymentCommand, any>
 {
-  constructor(private readonly orders: OrderRepository) {}
+  constructor(
+    private readonly orders: OrderRepository,
+    private readonly emitter?: any
+  ) {}
 
   async handle(command: AdminUpdateOrderPaymentCommand) {
     const { orderId, paymentStatus, note } = command;
@@ -849,7 +852,16 @@ export class AdminUpdateOrderPaymentCommandHandler
       { id: true, status: true, paymentStatus: true, validationStatus: true }
     );
 
-    return { order: updated };
+    let invoice: any = null;
+    if (paymentStatus === "PAID" && this.emitter) {
+      try {
+        invoice = (await this.emitter.emitForOrder(orderId, "admin")).invoice;
+      } catch (err) {
+        console.error(`[fiscal] Emissão de factura falhou (order ${orderId}):`, err);
+      }
+    }
+
+    return { order: updated, invoice };
   }
 }
 

@@ -89,6 +89,35 @@ export const reviewSchema = z.object({
   storeId: z.string().optional(),
 });
 
+export const fiscalProfileSchema = z.object({
+  nif: z.string().min(1).max(40),
+  legalName: z.string().min(1),
+  address: z.string().min(1),
+  province: z.string().min(1),
+  district: z.string().optional(),
+  industryCode: z.string().optional(),
+  vatRegime: z.enum(["GERAL", "SIMPLIFICADO", "EXCLUIDO", "ISENTO"]).default("GERAL"),
+  establishmentRegistered: z.boolean().optional(),
+});
+
+export const fiscalSeriesSchema = z.object({
+  documentType: z.enum(["FT", "NC", "ND"]),
+  prefix: z.string().min(1).max(10).regex(/^[A-Z0-9]+$/),
+  year: z.number().int().min(2000).max(2100).optional(),
+});
+
+export const fiscalSettingsSchema = z.object({
+  softwareName: z.string().min(1).optional(),
+  softwareVersion: z.string().min(1).optional(),
+  softwareProvider: z.string().min(1).optional(),
+  certificationNumber: z.string().optional().nullable(),
+  certificationDate: z.string().optional().nullable(),
+  hashSecret: z.string().min(8).optional(),
+  agtBaseUrl: z.string().url().optional().nullable(),
+  agtApiToken: z.string().optional().nullable(),
+  timezone: z.string().min(1).optional(),
+});
+
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;

@@ -213,6 +213,34 @@ import {
   ModerateDisputeCommand,
   ModerateDisputeCommandHandler,
 } from "./disputes.handlers";
+import {
+  InvoiceRepository,
+  InvoiceSeriesRepository,
+  StoreFiscalProfileRepository,
+  FiscalSettingsRepository,
+} from "../shared/repositories/invoice.repository";
+import { InvoiceEmitter } from "../lib/fiscal/emitter";
+import { AgtClient } from "../lib/fiscal/agt.client";
+import {
+  GetFiscalSettingsQuery,
+  GetFiscalSettingsQueryHandler,
+  UpsertFiscalSettingsCommand,
+  UpsertFiscalSettingsCommandHandler,
+  GetStoreFiscalProfileQuery,
+  GetStoreFiscalProfileQueryHandler,
+  UpsertStoreFiscalProfileCommand,
+  UpsertStoreFiscalProfileCommandHandler,
+  ListStoreSeriesQuery,
+  ListStoreSeriesQueryHandler,
+  OpenInvoiceSeriesCommand,
+  OpenInvoiceSeriesCommandHandler,
+  GetOrderInvoiceQuery,
+  GetOrderInvoiceQueryHandler,
+  GetInvoiceQuery,
+  GetInvoiceQueryHandler,
+  EmitOrderInvoiceCommand,
+  EmitOrderInvoiceCommandHandler,
+} from "./fiscal.handlers";
 
 export function registerHandlers(): void {
   const uow = new UnitOfWork();
@@ -228,6 +256,19 @@ export function registerHandlers(): void {
   const reviews = new ReviewRepository();
   const roles = new RoleRepository();
   const disputes = new OrderDisputeRepository();
+  const fiscalSettings = new FiscalSettingsRepository();
+  const fiscalProfiles = new StoreFiscalProfileRepository();
+  const fiscalSeries = new InvoiceSeriesRepository();
+  const invoices = new InvoiceRepository();
+  const invoiceEmitter = new InvoiceEmitter(
+    uow,
+    invoices,
+    fiscalSeries,
+    fiscalProfiles,
+    fiscalSettings,
+    orders,
+    new AgtClient()
+  );
 
   // auth
   mediator.register(
@@ -374,7 +415,12 @@ export function registerHandlers(): void {
   );
   mediator.register(
     UpdateOrderPaymentStatusCommand,
-    new UpdateOrderPaymentStatusCommandHandler(orders, stores, orderItems)
+    new UpdateOrderPaymentStatusCommandHandler(
+      orders,
+      stores,
+      orderItems,
+      invoiceEmitter
+    )
   );
   mediator.register(
     ShipOrderCommand,
@@ -382,7 +428,12 @@ export function registerHandlers(): void {
   );
   mediator.register(
     MarkOrderDeliveredCommand,
-    new MarkOrderDeliveredCommandHandler(orders, stores, orderItems)
+    new MarkOrderDeliveredCommandHandler(
+      orders,
+      stores,
+      orderItems,
+      invoiceEmitter
+    )
   );
   mediator.register(
     ConfirmOrderReceiptCommand,
@@ -494,7 +545,7 @@ export function registerHandlers(): void {
   );
   mediator.register(
     AdminUpdateOrderPaymentCommand,
-    new AdminUpdateOrderPaymentCommandHandler(orders)
+    new AdminUpdateOrderPaymentCommandHandler(orders, invoiceEmitter)
   );
   mediator.registerQuery(
     AdminStoresQuery,
@@ -572,5 +623,48 @@ export function registerHandlers(): void {
   mediator.register(
     DeleteResponsibilityCommand,
     new DeleteResponsibilityCommandHandler(roles)
+  );
+
+  // fiscal (Regime Jurídico das Faturas – Decreto Presidencial 71/25)
+  mediator.registerQuery(
+    GetFiscalSettingsQuery,
+    new GetFiscalSettingsQueryHandler(fiscalSettings)
+  );
+  mediator.register(
+    UpsertFiscalSettingsCommand,
+    new UpsertFiscalSettingsCommandHandler(fiscalSettings)
+  );
+  mediator.registerQuery(
+    GetStoreFiscalProfileQuery,
+    new GetStoreFiscalProfileQueryHandler(fiscalProfiles, stores)
+  );
+  mediator.register(
+    UpsertStoreFiscalProfileCommand,
+    new UpsertStoreFiscalProfileCommandHandler(fiscalProfiles, stores)
+  );
+  mediator.registerQuery(
+    ListStoreSeriesQuery,
+    new ListStoreSeriesQueryHandler(fiscalSeries, stores)
+  );
+  mediator.register(
+    OpenInvoiceSeriesCommand,
+    new OpenInvoiceSeriesCommandHandler(fiscalSeries, stores)
+  );
+  mediator.registerQuery(
+    GetOrderInvoiceQuery,
+    new GetOrderInvoiceQueryHandler(invoices, orders, stores)
+  );
+  mediator.registerQuery(
+    GetInvoiceQuery,
+    new GetInvoiceQueryHandler(invoices, stores)
+  );
+  mediator.register(
+    EmitOrderInvoiceCommand,
+    new EmitOrderInvoiceCommandHandler(
+      invoiceEmitter,
+      orders,
+      orderItems,
+      stores
+    )
   );
 }

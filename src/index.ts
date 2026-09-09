@@ -22,6 +22,7 @@ import adminRoutes from "./modules/admin/routes";
 import translationRoutes from "./modules/translations/routes";
 import securityRoutes from "./modules/security/routes";
 import roleRoutes from "./modules/roles/routes";
+import fiscalRoutes from "./modules/fiscal/routes";
 
 registerHandlers();
 
@@ -84,6 +85,7 @@ app.route("/api/uploads", uploadRoutes);
 app.route("/api/admin", adminRoutes);
 app.route("/api/roles", roleRoutes);
 app.route("/api/translations", translationRoutes);
+app.route("/api/fiscal", fiscalRoutes);
 
 app.get("/uploads/*", serveStatic({ root: "./" }));
 

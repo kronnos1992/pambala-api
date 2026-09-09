@@ -30,6 +30,7 @@ model User {
   roles     UserRole[]
   disputeMessages OrderDisputeMessage[]
   disputeReads OrderDisputeRead[]
+  issuedInvoices Invoice[]
 }
 
 model Role {
@@ -99,6 +100,9 @@ model Store {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   categories  StoreCategory[]
+  fiscalProfile StoreFiscalProfile?
+  invoiceSeries InvoiceSeries[]
+  invoices      Invoice[]
 }
 
 model StoreCategory {
@@ -171,6 +175,7 @@ model Product {
   cartItems    CartItem[]
   orderItems   OrderItem[]
   reviews      Review[]
+  invoiceLines InvoiceLine[]
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
 
@@ -245,6 +250,7 @@ model Order {
   items                  OrderItem[]
   dispute                OrderDispute?
   orderEvents            OrderEvent[]
+  invoices               Invoice[]
   createdAt              DateTime    @default(now())
   updatedAt              DateTime    @updatedAt
 
@@ -380,5 +386,159 @@ model OrderDisputeRead {
   createdAt  DateTime      @default(now())
 
   @@unique([disputeId, userId])
+}
+
+// ---------------------------------------------------------------------------
+// Módulo de Faturação (Regime Jurídico das Faturas – Decreto Presidencial 71/25)
+// ---------------------------------------------------------------------------
+
+// Configuração fiscal da plataforma (linha única, id = "global").
+// Identificação do software certificado + credenciais de comunicação com a AGT.
+model FiscalSettings {
+  id                  String    @id @default("global")
+  softwareName        String    @default("Pambala")
+  softwareVersion     String    @default("1.0.0")
+  softwareProvider    String    @default("Pambala")
+  certificationNumber String?   // nº de certificação AGT (ex.: FE/323/AGT/2026)
+  certificationDate   DateTime?
+  hashAlgorithm       String    @default("sha256")
+  hashSecret          String    @default("pambala-dev-secret")
+  agtBaseUrl          String?   // endpoint da API da AGT (vazio = modo desenvolvimento)
+  agtApiToken         String?
+  timezone            String    @default("Africa/Luanda")
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+}
+
+// Perfil fiscal de cada loja: cada loja é um emitente fiscal próprio.
+model StoreFiscalProfile {
+  id                     String    @id @default(cuid())
+  storeId                String    @unique
+  store                  Store     @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  nif                    String    // Número de Identificação Fiscal
+  legalName              String    // denominação social
+  address                String    // endereço completo
+  province               String
+  district               String?
+  industryCode           String?   // CAE
+  vatRegime              String    @default("GERAL") // GERAL | SIMPLIFICADO | EXCLUIDO | ISENTO
+  establishmentRegistered Boolean  @default(false) // registo do estabelecimento na AGT
+  isActive               Boolean   @default(true)
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+  invoices               Invoice[]
+}
+
+// Série de faturação autorizada (numeração inicia em 1 e reinicia por ano civil;
+// máx. 50 séries por estabelecimento/tipologia fiscal).
+model InvoiceSeries {
+  id             String    @id @default(cuid())
+  storeId        String
+  store          Store     @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  documentType   String    // FT | NC | ND
+  prefix         String    // ex.: "A", "FT"
+  year           Int       // ano civil da série
+  status         String    @default("OPEN") // OPEN | CLOSED | CANCELLED
+  nextNumber     Int       @default(1)      // próximo número a atribuir (alocação atómica)
+  lastNumberUsed Int?
+  validFrom      DateTime  @default(now())
+  validUntil     DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  invoices       Invoice[]
+
+  @@unique([storeId, documentType, prefix, year])
+  @@index([storeId])
+}
+
+// Documento fiscal emitido (imutável; montantes em cêntimos de AOA).
+model Invoice {
+  id                String    @id @default(cuid())
+  storeId           String
+  store             Store     @relation(fields: [storeId], references: [id])
+  orderId           String?
+  order             Order?    @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  seriesId          String
+  series            InvoiceSeries @relation(fields: [seriesId], references: [id])
+  fiscalProfileId   String?
+  fiscalProfile     StoreFiscalProfile? @relation(fields: [fiscalProfileId], references: [id])
+  documentType      String    // FT | NC | ND
+  number            Int       // sequência dentro da série
+  fullNumber        String    // ex.: "A/2026/1"
+  status            String    @default("ACTIVE") // ACTIVE | VOID
+  issueDate         DateTime  // data de emissão (momento relevante do imposto)
+  dueDate           DateTime?
+  emitterSnapshot   String    // JSON: denominação/NIF/endereço no momento da emissão
+  customerSnapshot  String    // JSON: nome/NIF/endereço do cliente
+  currency          String    @default("AOA")
+  subtotal          Int       // cêntimos
+  discountTotal     Int       @default(0)
+  taxTotal          Int       @default(0)
+  total             Int       @default(0)
+  taxSummary        String    // JSON por taxa: [{rate, baseCents, taxCents}]
+  hash              String    // código de validação AGT (SHA-256)
+  qrData            String?   // payload do QR Code
+  agtStatus         String    @default("PENDING") // PENDING | SENT | ACCEPTED | REJECTED | FAILED
+  agtResponse       String?
+  agtReference      String?
+  originalInvoiceId String?
+  originalInvoice   Invoice?  @relation("InvoiceCorrection", fields: [originalInvoiceId], references: [id])
+  corrections       Invoice[] @relation("InvoiceCorrection")
+  issuedByUserId    String?
+  issuedBy          User?     @relation(fields: [issuedByUserId], references: [id])
+  lines             InvoiceLine[]
+  syncLogs          InvoiceCommunicationLog[]
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@unique([seriesId, number])
+  @@unique([orderId, documentType])
+  @@index([storeId])
+  @@index([orderId])
+  @@index([issueDate])
+}
+
+model InvoiceLine {
+  id             String      @id @default(cuid())
+  invoiceId      String
+  invoice        Invoice     @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  position       Int
+  productId      String?
+  product        Product?    @relation(fields: [productId], references: [id])
+  productName    String      // designação (snapshot)
+  productSku     String?
+  quantity       Int
+  unitPrice      Int         // cêntimos
+  discountAmount Int         @default(0)
+  taxRate        Int         // 0 | 5 | 7 | 14 (%)
+  taxAmount      Int         @default(0)
+  lineSubtotal   Int         @default(0) // (qty*unitPrice) - discount
+  lineTotal      Int         @default(0) // subtotal + tax
+  reasonExempt   String?     // motivo da não liquidação do imposto (quando aplicável)
+  originalLineId String?
+  originalLine   InvoiceLine? @relation("LineCorrection", fields: [originalLineId], references: [id])
+  corrections    InvoiceLine[] @relation("LineCorrection")
+  createdAt      DateTime    @default(now())
+
+  @@index([invoiceId])
+}
+
+// Trilho de comunicação com a AGT (retry + auditoria).
+model InvoiceCommunicationLog {
+  id              String    @id @default(cuid())
+  invoiceId       String
+  invoice         Invoice   @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  attempt         Int       @default(1)
+  status          String    // PENDING | SENT | ACCEPTED | REJECTED | FAILED
+  requestPayload  String?   // payload SAF-T/JSON enviado
+  responsePayload String?
+  httpStatus      Int?
+  error           String?
+  sentAt          DateTime  @default(now())
+  nextRetryAt     DateTime?
+  createdAt       DateTime  @default(now())
+
+  @@index([invoiceId])
+  @@index([status])
 }
 

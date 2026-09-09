@@ -32,6 +32,11 @@ const RESPONSIBILITIES: SeedItem[] = [
   { key: "orders.respond-payment", name: "Responder a pagamentos", description: "Declarar que recebeu o pagamento (confirmação final é do admin)" },
   { key: "orders.confirm-payment", name: "Confirmar pagamentos", description: "Confirmar (PAID) ou rejeitar pagamentos" },
   { key: "translations.translate", name: "Traduzir conteúdo", description: "Gerar traduções de produtos, lojas e categorias" },
+  { key: "fiscal.settings.manage", name: "Gerir configuração fiscal da plataforma", description: "Certificação do software, segredo do hash e credenciais da AGT" },
+  { key: "fiscal.profile.manage", name: "Gerir perfil fiscal da loja", description: "NIF, denominação, endereço e regime de IVA da própria loja" },
+  { key: "fiscal.series.manage", name: "Gerir séries de faturação", description: "Abrir/fechar séries por ano civil (máx. 50 por estabelecimento/tipologia)" },
+  { key: "fiscal.invoices.view", name: "Ver facturas", description: "Consultar facturas emitidas pela loja" },
+  { key: "fiscal.invoices.manage", name: "Gerir facturas", description: "Emitir/anular facturas e forçar comunicação com a AGT" },
 ];
 
 const ROLES: (SeedItem & { responsibilities: string[] })[] = [
@@ -52,6 +57,10 @@ const ROLES: (SeedItem & { responsibilities: string[] })[] = [
       "orders.view",
       "orders.respond-payment",
       "translations.translate",
+      "fiscal.profile.manage",
+      "fiscal.series.manage",
+      "fiscal.invoices.view",
+      "fiscal.invoices.manage",
     ],
   },
   {
@@ -65,6 +74,10 @@ const ROLES: (SeedItem & { responsibilities: string[] })[] = [
       "orders.view",
       "orders.respond-payment",
       "translations.translate",
+      "fiscal.profile.manage",
+      "fiscal.series.manage",
+      "fiscal.invoices.view",
+      "fiscal.invoices.manage",
     ],
   },
   {
