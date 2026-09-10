@@ -84,7 +84,6 @@ export class AgtClient {
       productId: settings.productId || "Pambala",
       productVersion: settings.productVersion || "1.0.0",
       softwareValidationNumber: settings.softwareValidationNumber || "",
-      signatureVersion: settings.signatureVersion ?? 1,
     };
     const claim = {
       productId: detail.productId,
@@ -205,7 +204,7 @@ export class AgtClient {
 
     const payload = {
       schemaVersion: settings.schemaVersion || "2.0",
-      submissionUUID: randomUUID(),
+      submissionGUID: randomUUID(),
       taxRegistrationNumber,
       submissionTimeStamp: new Date().toISOString(),
       softwareInfo: this.softwareInfo(settings),
@@ -273,7 +272,7 @@ export class AgtClient {
 
     const payload = {
       schemaVersion: settings.schemaVersion || "2.0",
-      submissionUUID: randomUUID(),
+      submissionGUID: randomUUID(),
       taxRegistrationNumber: input.taxRegistrationNumber,
       submissionTimeStamp: new Date().toISOString(),
       softwareInfo: this.softwareInfo(settings),

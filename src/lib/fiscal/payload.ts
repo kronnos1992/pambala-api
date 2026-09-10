@@ -64,7 +64,6 @@ export function buildSoftwareInfo(settings: any) {
       productId: settings.productId || "Pambala",
       productVersion: settings.productVersion || "1.0.0",
       softwareValidationNumber: settings.softwareValidationNumber || "",
-      signatureVersion: settings.signatureVersion ?? 1,
     },
     jwsSoftwareSignature: buildSoftwareInfoClaim(settings),
   };
@@ -182,7 +181,6 @@ export function buildRegistarFacturaPayload(params: {
 
   const payloadLines = lines.map((l) => ({
     lineNumber: l.position,
-    operationType: l.operationType,
     productCode: l.productSku || l.productId || "ART",
     productDescription: l.productName,
     quantity: l.quantity,
@@ -204,7 +202,7 @@ export function buildRegistarFacturaPayload(params: {
 
   return {
     schemaVersion: settings.schemaVersion || "2.0",
-    submissionUUID: randomUUID(),
+    submissionGUID: randomUUID(),
     taxRegistrationNumber: emitter.nif,
     submissionTimeStamp: new Date().toISOString(),
     softwareInfo: buildSoftwareInfo(settings),
@@ -213,7 +211,7 @@ export function buildRegistarFacturaPayload(params: {
       {
         documentNo,
         documentStatus: "N",
-        jwsDocumentSignature: signature,
+        jwsSignature: signature,
         documentDate: issueDate,
         documentType,
         systemEntryDate: systemEntryDate.toISOString(),
