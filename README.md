@@ -323,7 +323,7 @@ Implementa a emissão de facturas de acordo com o **Regime Jurídico das Faturas
 | `StoreFiscalProfile` | Perfil fiscal da loja (1:1): NIF, denominação social, endereço, regime de IVA (`GERAL`/`SIMPLIFICADO`/`EXCLUIDO`/`ISENTO`), código de isenção (`vatExemptionCode`), estabelecimento (`SEDE`/filiais) e chave privada JWS do contribuinte |
 | `InvoiceSeries` | Série autorizada pela AGT via `solicitarSerie` por loja/documento/ano: código atribuído pela AGT (`agtSeriesCode`), `authorizedQuantity`, numeração sequencial cronológica (recomeça por ano civil) |
 | `Invoice` | Documento fiscal imutável: `documentNo` (`FT <códigoSérieAGT>/<seq>`), snapshot do emitente e do cliente, montantes em **cêntimos de AOA**, **assinatura JWS RS256**, **URL do QR Code de consulta pública**, `agtRequestId` e `agtStatus`, referência à factura original (NC/ND) |
-| `InvoiceLine` | Linha da factura com snapshot (designação, quantidade, preço, imposto), `operationType`, `taxCode`, `taxExemptionCode` e referência à linha original (NC/ND parciais) |
+| `InvoiceLine` | Linha da factura com snapshot (designação, quantidade, preço, imposto); `operationType` e `taxCode`/`taxExemptionCode` são mantidos na base de dados para auditoria mas **não** são enviados à AGT (o payload `registarFactura` do DS-120 usa `lineNumber`/`productCode`/`debitAmount`/`taxes`/`settlementAmount`) |
 | `InvoiceCommunicationLog` | Trilho de auditoria/retry da comunicação com a AGT (payload enviado, resposta, estado, HTTP) |
 
 ### Fluxo de emissão
@@ -332,12 +332,14 @@ Implementa a emissão de facturas de acordo com o **Regime Jurídico das Faturas
 2. **Série** — se não existir série aberta, é chamado `solicitarSerie` à AGT (fora da transação); sem `agtBaseUrl` (dev), é sintetizada uma série local com código `FT<ano>S001N`.
 3. **Alocação atómica** — o número é retirado da série (`InvoiceSeries.nextNumber`) na mesma transação que cria a factura, garantindo numeração sequencial sem duplicados.
 4. **Imutabilidade** — emitente e cliente são gravados como *snapshots* (JSON) no momento da emissão; montantes em cêntimos de AOA e IVA arredondado **por excesso** ao cêntimo.
-5. **Assinaturas JWS (RS256)** — `jwsSoftwareSignature` (productId/productVersion/softwareValidationNumber, chave do produtor), `jwsDocumentSignature` (identificação + totais do documento, chave privada da loja) e `jwsSignature` por requisição; chaves RSA-2048 geradas e guardadas nas definições/perfil quando ausentes.
+5. **Assinaturas JWS (RS256)** — `jwsSoftwareSignature` (productId/productVersion/softwareValidationNumber, chave do produtor; `softwareInfoDetail` não inclui versão de assinatura por ser alheia ao DS-120), assinatura do documento `jwsSignature` (identificação + totais, chave privada da loja) e `jwsSignature` por requisição; chaves RSA-2048 geradas e guardadas nas definições/perfil quando ausentes.
 6. **QR Code** — `https://quiosqueagt.minfin.gov.ao/facturacao-eletronica/consultar-fe?emissor=<NIF>&document=<documentNo>` (espaços → `%20`).
 7. **Comunicação AGT (assíncrona)** — `POST registarFactura` devolve `requestID`; o estado é obtido por `obterEstado` (manual via `refresh-status` ou job). Sem `agtBaseUrl`, a factura fica `VALID` em modo dev. `agtStatus`: `PENDING | SUBMITTED | VALID | INVALID | REJECTED | FAILED`.
 8. **IVA** — taxa derivada do regime da loja: `GERAL` → 14% (`NOR`), `SIMPLIFICADO` → 7% (`INT`), `EXCLUIDO`/`ISENTO` → 0% (com `taxExemptionCode` obrigatório); `NA` e `NS` aplicam isenção/outsiderscope.
 
 > **Nota:** as credenciais de API (Basic Auth) são emitidas pela AGT para o produtor do software; só ficam ativas os *environment/certificações* `HOMOLOG`/`PRODUCAO` (planos de faturação). Sem credenciais, o módulo opera em modo dev (séries sintéticas, `agtStatus=VALID` sem registo real).
+
+> **Alinhamento DS-120 (v1.0):** o payload de `registarFactura` usa `submissionGUID` (e não `submissionUUID`) e o campo do documento é `jwsSignature`; atualizado em conformidade. Os endpoints de série (`solicitarSerie`) existem apenas para compatibilidade — no DS-120 a abertura de séries é feita no **Portal do Parceiro AGT**; o `schemaVersion` enviado é definido em `FiscalSettings.schemaVersion` (a validar em homologação vs exemplos do manual).
 
 ## Agente de Comprovativos Anti-Fraude (`receipt_agent/`)
 
