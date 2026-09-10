@@ -239,6 +239,8 @@ import {
   GetOrderInvoiceQueryHandler,
   GetInvoiceQuery,
   GetInvoiceQueryHandler,
+  GetInvoicePdfQuery,
+  GetInvoicePdfQueryHandler,
   EmitOrderInvoiceCommand,
   EmitOrderInvoiceCommandHandler,
   RefreshInvoiceAgtStatusCommand,
@@ -667,6 +669,10 @@ export function registerHandlers(): void {
   mediator.registerQuery(
     GetInvoiceQuery,
     new GetInvoiceQueryHandler(invoices, stores)
+  );
+  mediator.registerQuery(
+    GetInvoicePdfQuery,
+    new GetInvoicePdfQueryHandler(invoices, orders, stores)
   );
   mediator.register(
     EmitOrderInvoiceCommand,

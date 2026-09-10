@@ -10,6 +10,7 @@ import {
   OpenInvoiceSeriesCommand,
   GetOrderInvoiceQuery,
   GetInvoiceQuery,
+  GetInvoicePdfQuery,
   EmitOrderInvoiceCommand,
   RefreshInvoiceAgtStatusCommand,
 } from "../../handlers/fiscal.handlers";
@@ -102,6 +103,23 @@ fiscal.get("/invoices/:id", authFilter, async (c) => {
 
   const result = await mediator.query(new GetInvoiceQuery(userId, roles, id));
   return c.json(result);
+});
+
+fiscal.get("/invoices/:id/pdf", authFilter, async (c) => {
+  const userId = (c as any).get("userId") as string;
+  const roles = (c as any).get("roles") as string[];
+  const id = c.req.param("id")!;
+
+  const result = (await mediator.query(
+    new GetInvoicePdfQuery(userId, roles, id)
+  )) as { pdf: Uint8Array; filename: string };
+  c.header("Content-Type", "application/pdf");
+  c.header(
+    "Content-Disposition",
+    `inline; filename="${result.filename.replace(/"/g, "")}"`
+  );
+  c.header("Cache-Control", "no-store");
+  return c.body(result.pdf as any);
 });
 
 fiscal.post("/invoices/:id/refresh-status", authFilter, async (c) => {

@@ -24,6 +24,7 @@ import {
 } from "../lib/permissions";
 import { BadRequestError, ForbiddenError, NotFoundError } from "../shared/errors";
 import { fiscalProfileSchema, fiscalSeriesSchema, fiscalSettingsSchema } from "../lib/validators";
+import { buildInvoicePdf } from "../lib/fiscal/pdf";
 
 export class GetFiscalSettingsQuery implements IQuery {
   constructor(public readonly roles: string[]) {}
@@ -83,6 +84,14 @@ export class GetInvoiceQuery implements IQuery {
     public readonly userId: string,
     public readonly roles: string[],
     public readonly id: string
+  ) {}
+}
+
+export class GetInvoicePdfQuery implements IQuery {
+  constructor(
+    public readonly userId: string,
+    public readonly roles: string[],
+    public readonly invoiceId: string
   ) {}
 }
 
@@ -324,14 +333,16 @@ export class GetOrderInvoiceQueryHandler
   ) {}
 
   async handle(query: GetOrderInvoiceQuery) {
-    await assertPermission(query.roles, PERMISSIONS.fiscalInvoicesView);
     const order = await this.orders.findByIdentifierWithDetails(query.orderId);
     if (!order) {
       throw new NotFoundError("Pedido não encontrado");
     }
 
     const admin = await isAdmin(query.roles);
-    if (!admin && order.userId !== query.userId) {
+    const isBuyer = order.userId === query.userId;
+    if (!admin && !isBuyer) {
+      // Vendedor/gestor: exige permissão de consulta + acesso à loja do pedido.
+      await assertPermission(query.roles, PERMISSIONS.fiscalInvoicesView);
       await assertStoreAccess(
         query.roles,
         query.userId,
@@ -366,6 +377,47 @@ export class GetInvoiceQueryHandler
       invoice.storeId
     );
     return { invoice };
+  }
+}
+
+export class GetInvoicePdfQueryHandler
+  implements IQueryHandler<GetInvoicePdfQuery, any>
+{
+  constructor(
+    private readonly invoices: InvoiceRepository,
+    private readonly orders: OrderRepository,
+    private readonly stores: StoreRepository
+  ) {}
+
+  async handle(query: GetInvoicePdfQuery) {
+    const invoice = await this.invoices.findByIdWithLines(query.invoiceId);
+    if (!invoice) {
+      throw new NotFoundError("Factura não encontrada");
+    }
+
+    // Direito de consulta: admin, vendedor da loja emitente, ou comprador do pedido.
+    const admin = await isAdmin(query.roles);
+    let buyer = false;
+    if (!admin && invoice.orderId) {
+      const order = await this.orders.findById(invoice.orderId);
+      buyer = Boolean(order && order.userId === query.userId);
+    }
+    if (!admin && !buyer) {
+      await assertPermission(query.roles, PERMISSIONS.fiscalInvoicesView);
+      await assertStoreAccess(
+        query.roles,
+        query.userId,
+        this.stores,
+        invoice.storeId
+      );
+    }
+
+    const pdf = await buildInvoicePdf(invoice);
+    const filename = `fatura-${String(invoice.documentNo || "documento")
+      .replace(/[^\w-]+/g, "-")
+      .replace(/^-+|-+$/g, "") || "documento"}.pdf`;
+
+    return { pdf, filename };
   }
 }
 
