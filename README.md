@@ -286,6 +286,7 @@ O sistema usa **roles dinâmicas** com responsabilidades M:N por utilizador (`Us
 | POST | `/api/fiscal/orders/:orderId/invoice` | Propr. loja/Admin | Emitir/recuperar factura do pedido (idempotente) |
 | POST | `/api/fiscal/invoices/:id/refresh-status` | Propr. loja/Admin | Consultar estado na AGT (`obterEstado`) e actualizar `agtStatus` |
 | GET | `/api/fiscal/invoices/:id` | Propr. loja/Admin | Detalhe da factura (linhas + série) |
+| GET | `/api/fiscal/invoices/:id/pdf` | Buyer/Propr. loja/Admin | Factura em **PDF (A4)** — o comprador do pedido, a loja emitente e o Admin têm direito de consulta |
 
 ### Admin
 | Método | Rota | Auth | Descrição |
@@ -325,6 +326,8 @@ Implementa a emissão de facturas de acordo com o **Regime Jurídico das Faturas
 | `Invoice` | Documento fiscal imutável: `documentNo` (`FT <códigoSérieAGT>/<seq>`), snapshot do emitente e do cliente, montantes em **cêntimos de AOA**, **assinatura JWS RS256**, **URL do QR Code de consulta pública**, `agtRequestId` e `agtStatus`, referência à factura original (NC/ND) |
 | `InvoiceLine` | Linha da factura com snapshot (designação, quantidade, preço, imposto); `operationType` e `taxCode`/`taxExemptionCode` são mantidos na base de dados para auditoria mas **não** são enviados à AGT (o payload `registarFactura` do DS-120 usa `lineNumber`/`productCode`/`debitAmount`/`taxes`/`settlementAmount`) |
 | `InvoiceCommunicationLog` | Trilho de auditoria/retry da comunicação com a AGT (payload enviado, resposta, estado, HTTP) |
+
+> **PDF da factura:** o `GET /api/fiscal/invoices/:id/pdf` gera o documento em formato PDF (A4) com `pdf-lib` (sem dependências nativas) a partir do registo imutável — emitente, cliente, linha(s), totais, resumo de impostos, URL do QR de consulta e referência da assinatura JWS. O acesso é autorizado a **admin**, **loja emitente** e ao **comprador do pedido** (dono do pedido), e o sumário de facturas de um pedido (`GET /api/fiscal/orders/:orderId/invoice`) também já está disponível ao comprador.
 
 ### Fluxo de emissão
 
