@@ -672,7 +672,7 @@ export function registerHandlers(): void {
   );
   mediator.registerQuery(
     GetInvoicePdfQuery,
-    new GetInvoicePdfQueryHandler(invoices, orders, stores)
+    new GetInvoicePdfQueryHandler(invoices, orders, stores, fiscalSettings)
   );
   mediator.register(
     EmitOrderInvoiceCommand,

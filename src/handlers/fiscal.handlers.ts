@@ -386,7 +386,8 @@ export class GetInvoicePdfQueryHandler
   constructor(
     private readonly invoices: InvoiceRepository,
     private readonly orders: OrderRepository,
-    private readonly stores: StoreRepository
+    private readonly stores: StoreRepository,
+    private readonly settings: FiscalSettingsRepository
   ) {}
 
   async handle(query: GetInvoicePdfQuery) {
@@ -412,7 +413,13 @@ export class GetInvoicePdfQueryHandler
       );
     }
 
-    const pdf = await buildInvoicePdf(invoice);
+    const streaming = await this.settings.getOrCreate();
+    const pdf = await buildInvoicePdf(invoice, {
+      productId: "PAMBALA",
+      productVersion: streaming?.productVersion ?? undefined,
+      softwareValidationNumber:
+        streaming?.softwareValidationNumber ?? undefined,
+    });
     const filename = `fatura-${String(invoice.documentNo || "documento")
       .replace(/[^\w-]+/g, "-")
       .replace(/^-+|-+$/g, "") || "documento"}.pdf`;
