@@ -41,7 +41,8 @@ src/
 │   ├── translations.handlers.ts
 │   └── ...               # Demais handlers por domínio
 ├── security/
-│   └── e2e-manager.ts    # Gere sessões E2E + cifra/decifra de payloads
+│   ├── e2e-manager.ts    # Gere sessões E2E + cifra/decifra de payloads
+│   └── e2e-do.ts         # Durable Object com estado E2E partilhado (keypair + sessões)
 ├── lib/
 │   ├── prisma.ts         # Cliente Prisma (singleton)
 │   ├── auth.ts           # JWT + middleware de auth
@@ -254,6 +255,8 @@ O sistema usa **roles dinâmicas** com responsabilidades M:N por utilizador (`Us
 | POST | `/api/security/handshake` | Não | Inicia sessão E2E (envia `clientPublicKey`, recebe `sessionId` + `serverPublicKey`) |
 | GET | `/api/security/public-key` | Não | Public key do servidor (trocas cifradas) |
 | GET | `/api/security/status` | Não | Debug: estado da E2E encryption |
+
+O estado E2E (keypair do servidor + sessões) é mantido no Durable Object `E2EStateDO` (binding `E2E_STATE`), partilhado e consistente entre todos os isolates do Worker — evita os `400 Decryption failed: Invalid session` causados pela memória por-isolate. Em dev local (sem binding) o `E2EManager` usa um fallback em memória.
 
 ### Translations
 | Método | Rota | Auth | Descrição |
