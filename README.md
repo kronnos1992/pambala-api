@@ -258,6 +258,8 @@ O sistema usa **roles dinâmicas** com responsabilidades M:N por utilizador (`Us
 
 O estado E2E (keypair do servidor + sessões) é mantido no Durable Object `E2EStateDO` (binding `E2E_STATE`), partilhado e consistente entre todos os isolates do Worker — evita os `400 Decryption failed: Invalid session` causados pela memória por-isolate. Em dev local (sem binding) o `E2EManager` usa um fallback em memória.
 
+**Transporte E2E**: pedidos `POST`/`PUT`/`PATCH` com body cifrado são decifrados antes de chegarem às regras (e só aí persistidos na BD); respostas `JSON` são cifradas para o cliente quando a sessão é válida — incluindo `GET`s com `X-Session-ID`. Sessão inválida/expirada num `GET` devolve `400 Invalid session` para o frontend re-executar o handshake (self-heal) e repetir o pedido.
+
 ### Translations
 | Método | Rota | Auth | Descrição |
 |--------|------|------|-----------|
