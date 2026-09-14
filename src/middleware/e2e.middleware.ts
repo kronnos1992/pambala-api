@@ -103,12 +103,29 @@ export function e2eEncryptMiddleware() {
 
     const sessionId = (c as any).sessionId
     const isEncrypted = (c as any).isEncryptedRequest
+    const isGet = c.req.method === 'GET'
 
-    // Se houver sessionId, a requisição veio criptografada e resposta for JSON, criptografa
-    if (sessionId && isEncrypted && c.res.status >= 200 && c.res.status < 300) {
+    // GETs também são cifrados quando há sessão válida. Em writes, apenas se a
+    // requisição veio cifrada (cliente E2E).
+    if (sessionId && c.res.status >= 200 && c.res.status < 300) {
       const contentType = c.res.headers.get('content-type') || ''
 
       if (contentType.includes('application/json')) {
+        if (isGet) {
+          // Sessão inválida/expirada num GET → 400 para o frontend re-executar
+          // o handshake (self-heal) e repetir o pedido já cifrado.
+          const valid = await E2EManager.hasValidSession(c.env, sessionId)
+          if (!valid) {
+            c.res = c.json(
+              { error: `Invalid session: ${sessionId}` } as any,
+              400 as any
+            )
+            return c.res
+          }
+        } else if (!isEncrypted) {
+          return
+        }
+
         try {
           const responseText = await c.res.text()
           const { encrypted, nonce } = await E2EManager.encryptForClient(

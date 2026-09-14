@@ -147,6 +147,20 @@ export class E2EManager {
   }
 
   /**
+   * Verifica se uma sessão está ativa e válida (sem lançar exceções).
+   * Usado para decidir se respostas GET devem ser cifradas.
+   */
+  static async hasValidSession(env: any, sessionId?: string): Promise<boolean> {
+    if (!sessionId) return false
+    try {
+      await this.getSession(env, sessionId)
+      return true
+    } catch {
+      return false
+    }
+  }
+
+  /**
    * Descriptografa dados recebidos do cliente
    */
   static async decryptFromClient(
