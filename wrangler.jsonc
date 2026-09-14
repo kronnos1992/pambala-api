@@ -1,0 +1,39 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "pambala-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-11",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "E2E_STATE",
+        "class_name": "E2EStateDO"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["E2EStateDO"]
+    }
+  ],
+  "d1_databases": [
+    {
+      "binding": "pambala_db",
+      "database_name": "pambala-db",
+      "database_id": "83d76898-2c2c-4595-b371-d33fcbeb1ae7"
+    }
+  ],
+  "vars": {
+    "NODE_ENV": "production",
+    "FRONTEND_URL": "https://pambala-ui.monait.workers.dev",
+    "API_BASE_URL": "https://pambala-api.monait.workers.dev",
+    "GOOGLE_CLIENT_ID": "275401256674-nafna0e6e1u1fbsj59gn32a07ep4ckem.apps.googleusercontent.com",
+    "CLOUDINARY_CLOUD_NAME": "mjnlbevx",
+    "OPENAI_BASE_URL": "https://openrouter.ai/api/v1",
+    "OPENAI_MODEL": "openai/gpt-4.1-nano"
+  }
+}

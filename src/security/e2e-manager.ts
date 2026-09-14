@@ -7,13 +7,26 @@ interface ClientSession {
   lastActivity: number
 }
 
+const SESSION_TIMEOUT = 24 * 60 * 60 * 1000 // 24 horas
+const DO_INSTANCE_NAME = 'global'
+
+/**
+ * Gestor E2E.
+ *
+ * Em produção (Cloudflare Workers) o estado é centralizado num Durable Object
+ * (`E2EStateDO`), porque a memória do Worker é por-isolate e as sessões "em
+ * memória" desapareciam entre requests (→ 400 "Invalid session").
+ *
+ * Em desenvolvimento local (node server sem binding DO) usa-se o fallback em
+ * memória, com o mesmo comportamento de antes.
+ */
 export class E2EManager {
   private static serverKeyPair: nacl.BoxKeyPair | null = null
   private static clientSessions = new Map<string, ClientSession>()
-  private static SESSION_TIMEOUT = 24 * 60 * 60 * 1000 // 24 horas
+  private static SESSION_TIMEOUT = SESSION_TIMEOUT
 
   /**
-   * Inicializa manager (run once na startup)
+   * Inicializa manager (only no fallback local).
    */
   static init() {
     if (!this.serverKeyPair) {
@@ -24,79 +37,142 @@ export class E2EManager {
   }
 
   /**
+   * Devolve o stub do Durable Object quando o binding existe (produção).
+   */
+  private static getDo(env: any): any {
+    if (!env || !env.E2E_STATE) return null
+    const ns = env.E2E_STATE
+    return ns.get(ns.idFromName(DO_INSTANCE_NAME))
+  }
+
+  /**
+   * Keypair do servidor compartilhado. Carrega do DO uma única vez por
+   * isolate e cacheia (o valor é imutável e igual em todos os isolates).
+   */
+  private static async loadServerKeyPair(env?: any): Promise<nacl.BoxKeyPair> {
+    if (this.serverKeyPair) return this.serverKeyPair
+
+    const doStub = this.getDo(env)
+    if (doStub) {
+      const res = await doStub.fetch(
+        'https://e2e-state.internal/?action=getServerKeyPair'
+      )
+      if (!res.ok) {
+        throw new Error('Failed to load server keypair from Durable Object')
+      }
+      const data: any = await res.json()
+      this.serverKeyPair = {
+        publicKey: Buffer.from(data.publicKeyBase64, 'base64'),
+        secretKey: Buffer.from(data.secretKeyBase64, 'base64'),
+      }
+      return this.serverKeyPair
+    }
+
+    if (!this.serverKeyPair) this.init()
+    return this.serverKeyPair!
+  }
+
+  /**
    * Retorna public key do servidor
    */
-  static getServerPublicKey(): string {
-    if (!this.serverKeyPair) this.init()
-    return Buffer.from(this.serverKeyPair!.publicKey).toString('base64')
+  static async getServerPublicKey(env?: any): Promise<string> {
+    const kp = await this.loadServerKeyPair(env)
+    return Buffer.from(kp.publicKey).toString('base64')
   }
 
   /**
    * Registra novo cliente (handshake)
    */
-  static registerClient(clientPublicKeyB64: string): string {
-    if (!this.serverKeyPair) this.init()
+  static async registerClient(
+    env: any,
+    clientPublicKeyB64: string
+  ): Promise<string> {
+    const doStub = this.getDo(env)
+    if (doStub) {
+      const res = await doStub.fetch(
+        'https://e2e-state.internal/?action=registerClient',
+        {
+          method: 'POST',
+          body: JSON.stringify({ clientPublicKey: clientPublicKeyB64 }),
+        }
+      )
+      const data: any = await res.json()
+      if (!res.ok) {
+        throw new Error(data?.error || 'registerClient failed')
+      }
+      return data.sessionId
+    }
 
+    if (!this.serverKeyPair) this.init()
     const sessionId = randomBytes(32).toString('hex')
-    
     this.clientSessions.set(sessionId, {
       clientPublicKey: clientPublicKeyB64,
       createdAt: Date.now(),
       lastActivity: Date.now(),
     })
-
     console.log(`✅ Client registered - Session: ${sessionId.slice(0, 8)}...`)
     return sessionId
   }
 
   /**
-   * Verifica se sessão é válida
+   * Devolve a clientPublicKey associada a uma sessão válida.
    */
-  static isValidSession(sessionId: string): boolean {
-    const session = this.clientSessions.get(sessionId)
-    if (!session) return false
-
-    const age = Date.now() - session.createdAt
-    return age < this.SESSION_TIMEOUT
-  }
-
-  /**
-   * Descriptografa dados recebidos do cliente
-   */
-  static decryptFromClient(
-    encryptedB64: string,
-    nonceB64: string,
+  private static async getSession(
+    env: any,
     sessionId: string
-  ): string {
-    if (!this.serverKeyPair) this.init()
+  ): Promise<{ clientPublicKey: string }> {
+    const doStub = this.getDo(env)
+    if (doStub) {
+      const res = await doStub.fetch(
+        `https://e2e-state.internal/?action=getSession&sessionId=${encodeURIComponent(
+          sessionId
+        )}`
+      )
+      const data: any = await res.json()
+      if (!res.ok) {
+        throw new Error(data?.error || `Invalid session: ${sessionId}`)
+      }
+      return data
+    }
 
     const session = this.clientSessions.get(sessionId)
     if (!session) {
       throw new Error(`Invalid session: ${sessionId}`)
     }
-
-    if (!this.isValidSession(sessionId)) {
+    const age = Date.now() - session.createdAt
+    if (age > this.SESSION_TIMEOUT) {
       throw new Error('Session expired')
     }
+    return { clientPublicKey: session.clientPublicKey }
+  }
+
+  /**
+   * Descriptografa dados recebidos do cliente
+   */
+  static async decryptFromClient(
+    env: any,
+    encryptedB64: string,
+    nonceB64: string,
+    sessionId: string
+  ): Promise<string> {
+    const keypair = await this.loadServerKeyPair(env)
+    const { clientPublicKey } = await this.getSession(env, sessionId)
 
     try {
       const encrypted = Buffer.from(encryptedB64, 'base64')
       const nonce = Buffer.from(nonceB64, 'base64')
-      const clientPublicKey = Buffer.from(session.clientPublicKey, 'base64')
+      const clientPublicKeyBytes = Buffer.from(clientPublicKey, 'base64')
 
       const decrypted = nacl.box.open(
         encrypted,
         nonce,
-        clientPublicKey,
-        this.serverKeyPair!.secretKey
+        clientPublicKeyBytes,
+        keypair.secretKey
       )
 
       if (!decrypted) {
         throw new Error('Decryption returned null')
       }
-
-      // Atualizar last activity
-      session.lastActivity = Date.now()
 
       return Buffer.from(decrypted).toString('utf-8')
     } catch (error: any) {
@@ -108,30 +184,24 @@ export class E2EManager {
   /**
    * Criptografa respostas para cliente
    */
-  static encryptForClient(plaintext: string, sessionId: string): {
-    encrypted: string
-    nonce: string
-  } {
-    if (!this.serverKeyPair) this.init()
-
-    const session = this.clientSessions.get(sessionId)
-    if (!session) {
-      throw new Error(`Invalid session: ${sessionId}`)
-    }
+  static async encryptForClient(
+    env: any,
+    plaintext: string,
+    sessionId: string
+  ): Promise<{ encrypted: string; nonce: string }> {
+    const keypair = await this.loadServerKeyPair(env)
+    const { clientPublicKey } = await this.getSession(env, sessionId)
 
     try {
       const nonce = nacl.randomBytes(24)
-      const clientPublicKey = Buffer.from(session.clientPublicKey, 'base64')
+      const clientPublicKeyBytes = Buffer.from(clientPublicKey, 'base64')
 
       const encrypted = nacl.box(
         Buffer.from(plaintext),
         nonce,
-        clientPublicKey,
-        this.serverKeyPair!.secretKey
+        clientPublicKeyBytes,
+        keypair.secretKey
       )
-
-      // Atualizar last activity
-      session.lastActivity = Date.now()
 
       return {
         encrypted: Buffer.from(encrypted).toString('base64'),
@@ -144,7 +214,7 @@ export class E2EManager {
   }
 
   /**
-   * Remove sessões expiradas (cleanup)
+   * Remove sessões expiradas (apenas fallback local)
    */
   private static cleanupExpiredSessions() {
     let removed = 0
@@ -163,13 +233,18 @@ export class E2EManager {
   /**
    * Retorna stats de sessões (para debug)
    */
-  static getStats() {
+  static async getStats(env?: any) {
+    const doStub = this.getDo(env)
+    if (doStub) {
+      const res = await doStub.fetch(
+        'https://e2e-state.internal/?action=stats'
+      )
+      return res.ok ? res.json() : { activeSessions: -1, serverPublicKey: 'error' }
+    }
+    const publicKey = await this.getServerPublicKey(env)
     return {
       activeSessions: this.clientSessions.size,
-      serverPublicKey: this.getServerPublicKey().slice(0, 16) + '...',
+      serverPublicKey: publicKey.slice(0, 16) + '...',
     }
   }
 }
-
-// Inicializar na importação
-E2EManager.init()

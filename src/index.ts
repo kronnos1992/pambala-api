@@ -23,6 +23,7 @@ import translationRoutes from "./modules/translations/routes";
 import securityRoutes from "./modules/security/routes";
 import roleRoutes from "./modules/roles/routes";
 import fiscalRoutes from "./modules/fiscal/routes";
+import { E2EStateDO } from "./security/e2e-do";
 
 registerHandlers();
 
@@ -103,10 +104,14 @@ app.notFound((c) => {
 
 const port = parseInt(process.env.PORT || "3001");
 
-console.log(`Pambala API running on port ${port}`);
+if (typeof process !== "undefined" && process.env?.PORT) {
+  console.log(`Pambala API running on port ${port}`);
+  serve({
+    fetch: app.fetch,
+    port,
+  });
+}
 
-serve({
-  fetch: app.fetch,
-  port,
-});
+export default app;
+export { E2EStateDO };
 // security-hardening v2

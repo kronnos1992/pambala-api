@@ -18,12 +18,13 @@ securityRoutes.post('/handshake', async (c) => {
     }
 
     // Registrar cliente e obter sessionId
-    const sessionId = E2EManager.registerClient(clientPublicKey)
+    const sessionId = await E2EManager.registerClient(c.env, clientPublicKey)
+    const serverPublicKey = await E2EManager.getServerPublicKey(c.env)
 
     return c.json({
       success: true,
       sessionId,
-      serverPublicKey: E2EManager.getServerPublicKey(),
+      serverPublicKey,
       message: 'E2E handshake successful',
     })
   } catch (error: any) {
@@ -36,9 +37,9 @@ securityRoutes.post('/handshake', async (c) => {
  * GET /api/security/public-key
  * Retorna public key do servidor (sem E2E, é pública)
  */
-securityRoutes.get('/public-key', (c) => {
+securityRoutes.get('/public-key', async (c) => {
   return c.json({
-    publicKey: E2EManager.getServerPublicKey(),
+    publicKey: await E2EManager.getServerPublicKey(c.env),
     timestamp: Date.now(),
   })
 })
@@ -47,10 +48,10 @@ securityRoutes.get('/public-key', (c) => {
  * GET /api/security/status
  * Debug: status da E2E encryption
  */
-securityRoutes.get('/status', (c) => {
+securityRoutes.get('/status', async (c) => {
   return c.json({
     status: 'active',
-    ...E2EManager.getStats(),
+    ...(await E2EManager.getStats(c.env)),
   })
 })
 

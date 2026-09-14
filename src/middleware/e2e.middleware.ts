@@ -41,7 +41,8 @@ export async function e2eDecryptMiddleware(c: Context, next: Next) {
           }
 
           try {
-            const decryptedData = E2EManager.decryptFromClient(
+            const decryptedData = await E2EManager.decryptFromClient(
+              c.env,
               body.encrypted,
               body.nonce,
               sessionId
@@ -110,7 +111,8 @@ export function e2eEncryptMiddleware() {
       if (contentType.includes('application/json')) {
         try {
           const responseText = await c.res.text()
-          const { encrypted, nonce } = E2EManager.encryptForClient(
+          const { encrypted, nonce } = await E2EManager.encryptForClient(
+            c.env,
             responseText,
             sessionId
           )
