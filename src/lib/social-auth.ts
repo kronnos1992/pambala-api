@@ -9,10 +9,15 @@ export interface SocialProfile {
   avatar?: string;
 }
 
-export const FRONTEND_URL =
-  process.env.FRONTEND_URL || "http://localhost:3000";
+export function getFrontendUrl(): string {
+  return process.env.FRONTEND_URL || "https://pambala-ui.monait.workers.dev";
+}
 
-const API_BASE_URL = process.env.API_BASE_URL || "http://localhost:3001";
+export function getApiBaseUrl(): string {
+  return process.env.API_BASE_URL || "https://pambala-api.monait.workers.dev";
+}
+
+export const FRONTEND_URL = getFrontendUrl();
 
 interface ProviderConfig {
   clientId: string;
@@ -25,7 +30,7 @@ interface ProviderConfig {
 }
 
 function redirectUri(provider: SocialProvider): string {
-  return `${API_BASE_URL}/api/auth/${provider}/callback`;
+  return `${getApiBaseUrl()}/api/auth/${provider}/callback`;
 }
 
 function getConfig(provider: SocialProvider): ProviderConfig | null {
