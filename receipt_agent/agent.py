@@ -282,7 +282,7 @@ def process_one(
 
 
 def cmd_check(args) -> int:
-    dbx = db_mod.ReceiptDatabase()
+    dbx = db_mod.connect()
     stats = dbx.stats()
     print("== Base ==")
     print(f"  sqlite: {dbx.db_path}")
@@ -322,7 +322,7 @@ def cmd_check(args) -> int:
 
 
 def cmd_process(args) -> int:
-    dbx = db_mod.ReceiptDatabase()
+    dbx = db_mod.connect()
     only = getattr(args, "order", None)
     pending = dbx.pending(limit=args.limit, only=only)
     if not pending:
@@ -371,7 +371,7 @@ def cmd_process(args) -> int:
 
 
 def cmd_report(args) -> int:
-    dbx = db_mod.ReceiptDatabase()
+    dbx = db_mod.connect()
     identifier = getattr(args, "id", "") or args.order
     validation = dbx.get_validation(identifier)
     if not validation:

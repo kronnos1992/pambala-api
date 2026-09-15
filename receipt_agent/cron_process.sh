@@ -11,6 +11,14 @@ if [ -n "${OPENAI_API_KEY:-}" ]; then
 	export OPENAI_API_KEY
 fi
 
+# Bridge HTTP para D1 (se definido, o agente ignora SQLite local).
+if [ -n "${RECEIPT_API_URL:-}" ]; then
+	export RECEIPT_API_URL
+fi
+if [ -n "${RECEIPT_API_KEY:-}" ]; then
+	export RECEIPT_API_KEY
+fi
+
 echo "$(date -Is) --- cron run ---" >>"$LOG"
 cd "$PYTHONPATH" || exit 1
 python3 -m receipt_agent.agent process --limit 50 >>"$LOG" 2>&1

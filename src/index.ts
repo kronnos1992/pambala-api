@@ -23,6 +23,7 @@ import translationRoutes from "./modules/translations/routes";
 import securityRoutes from "./modules/security/routes";
 import roleRoutes from "./modules/roles/routes";
 import fiscalRoutes from "./modules/fiscal/routes";
+import agentRoutes from "./modules/agent/routes";
 import { setPrismaD1 } from "./lib/prisma";
 import { E2EStateDO } from "./security/e2e-do";
 
@@ -119,6 +120,7 @@ app.route("/api/admin", adminRoutes);
 app.route("/api/roles", roleRoutes);
 app.route("/api/translations", translationRoutes);
 app.route("/api/fiscal", fiscalRoutes);
+app.route("/api/agent", agentRoutes);
 
 app.get("/uploads/*", serveStatic({ root: "./" }));
 

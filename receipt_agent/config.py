@@ -10,6 +10,8 @@ Lê variáveis de ambiente (ou o ficheiro .env do pambala-api):
   - OPENAI_VISION_MODEL   modelo de visão para autenticidade (default gpt-4o-mini)
   - RECEIPT_AGENT_PASS    score mínimo para PASS (default 80)
   - RECEIPT_AGENT_FAIL    score máximo para FAIL (default 40)
+  - RECEIPT_API_URL       base URL do bridge HTTP da API (ex.: https://pambala-api.monait.workers.dev/api/agent)
+  - RECEIPT_API_KEY       chave do bridge HTTP (header X-Agent-Key; obrigatória se RECEIPT_API_URL)
 
 Caminhos por omissão assumem que este package vive em:
   <repo>/pambala-api/receipt_agent/
@@ -87,6 +89,14 @@ def database_path() -> Path:
     raise RuntimeError(
         f"Este agente suporta apenas SQLite (DATABASE_URL a começar por 'file:'). Obtido: {url}"
     )
+
+
+def api_url() -> str:
+    return (os.environ.get("RECEIPT_API_URL") or "").strip().rstrip("/")
+
+
+def api_key() -> str:
+    return os.environ.get("RECEIPT_API_KEY") or ""
 
 
 def llm_config() -> dict:

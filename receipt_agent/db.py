@@ -21,6 +21,19 @@ import sqlite3
 from typing import Any, Dict, List, Optional
 
 from . import config
+from . import http_transport
+
+
+def connect():
+    """Devolve o transporte ativo: SQLite local ou bridge HTTP para a D1.
+
+    Se `RECEIPT_API_URL` estiver definida, o agente consome/grava a fila e os
+    pedidos na API (Cloudflare D1) via `/api/agent/*`. Caso contrário, usa o
+    SQLite local (dev local).
+    """
+    if config.api_url():
+        return http_transport.connect()
+    return ReceiptDatabase()
 
 
 def _iso_now() -> str:

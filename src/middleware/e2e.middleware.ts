@@ -12,6 +12,7 @@ export async function e2eDecryptMiddleware(c: Context, next: Next) {
     '/api/health',
     '/uploads',
     '/api/uploads',
+    '/api/agent',
   ]
 
   const shouldSkip = skipRoutes.some((route) => c.req.path.startsWith(route))
@@ -164,7 +165,7 @@ export async function e2eDecryptMiddleware(c: Context, next: Next) {
 export function e2eEncryptMiddleware() {
   return async (c: Context, next: Next) => {
     // Rotas que não precisam criptografar
-    const skipRoutes = ['/api/health', '/uploads', '/api/uploads']
+    const skipRoutes = ['/api/health', '/uploads', '/api/uploads', '/api/agent']
     const shouldSkip = skipRoutes.some((route) => c.req.path.startsWith(route))
 
     if (shouldSkip) {
