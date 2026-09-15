@@ -1,17 +1,36 @@
 import { PrismaLibSql } from "@prisma/adapter-libsql";
+import { PrismaD1 } from "@prisma/adapter-d1";
 import { PrismaClient } from "@prisma/client";
 
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient;
-};
+let currentPrisma: PrismaClient | null = null;
 
-function createPrismaClient() {
-  const adapter = new PrismaLibSql({
-    url: process.env.DATABASE_URL || "file:./dev.db",
-  });
-  return new PrismaClient({ adapter });
+export function setPrismaD1(d1Database: any) {
+  if (!currentPrisma || !(currentPrisma as any)._isD1) {
+    const adapter = new PrismaD1(d1Database);
+    currentPrisma = new PrismaClient({ adapter });
+    (currentPrisma as any)._isD1 = true;
+  }
 }
 
-export const prisma = globalForPrisma.prisma || createPrismaClient();
+function getDefaultPrisma(): PrismaClient {
+  if (!currentPrisma) {
+    const adapter = new PrismaLibSql({
+      url: process.env.DATABASE_URL || "file:./dev.db",
+      authToken: process.env.DATABASE_AUTH_TOKEN,
+    });
+    currentPrisma = new PrismaClient({ adapter });
+  }
+  return currentPrisma;
+}
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+export const prisma: PrismaClient = new Proxy({} as PrismaClient, {
+  get(_target, prop) {
+    const client = currentPrisma || getDefaultPrisma();
+    const value = (client as any)[prop];
+    if (typeof value === "function") {
+      return value.bind(client);
+    }
+    return value;
+  },
+});
+

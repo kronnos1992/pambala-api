@@ -11,7 +11,8 @@
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
     "db:seed": "tsx src/seed.ts",
-    "db:seed:rbac": "tsx src/seed-rbac.ts"
+    "db:seed:rbac": "tsx src/seed-rbac.ts",
+    "deploy:cloudflare": "wrangler deploy"
   },
   "repository": {
     "type": "git",
@@ -28,6 +29,7 @@
     "@hono/node-server": "^2.1.1",
     "@libsql/client": "^0.17.4",
     "@pdf-lib/fontkit": "^1.1.1",
+    "@prisma/adapter-d1": "^7.10.0",
     "@prisma/adapter-libsql": "^7.9.1",
     "@prisma/client": "^7.9.1",
     "bcryptjs": "^3.0.3",
