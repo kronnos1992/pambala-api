@@ -108,6 +108,8 @@ python3 -m receipt_agent.agent report pedido_X           # relatório guardado
 | Variável                | Default                          | Descrição                                   |
 | ----------------------- | -------------------------------- | ------------------------------------------- |
 | `DATABASE_URL`          | `file:./dev.db`                  | caminho SQLite (`file:` prefix)             |
+| `RECEIPT_API_URL`       | — (usar SQLite)                  | bridge HTTP da API (`.../api/agent`) p/ gravar na D1 de produção |
+| `RECEIPT_API_KEY`       | —                                | chave `X-Agent-Key` do bridge (obrigatória com `RECEIPT_API_URL`) |
 | `RECEIPTS_DIR`          | `<repo>/pambala-api/uploads`     | pasta com os comprovativos                  |
 | `TESSDATA_DIR`          | `<repo>/pambala-api/langdata`    | pasta com `por.traineddata`                 |
 | `OPENAI_API_KEY`        | — (só visão LLM)                 | chave OpenRouter/OpenAI                     |
@@ -125,6 +127,13 @@ Num servidor (cron):
 ```bash
 */10 * * * * cd /srv/pambala/pambala-api && python3 -m receipt_agent.agent process --limit 50 >> /var/log/pambala-receipts.log 2>&1
 ```
+
+> Em produção a API corre em Cloudflare (D1), por isso defina `RECEIPT_API_URL`
+> e `RECEIPT_API_KEY` para o agente consumir/gravar a fila via `/api/agent`
+> (bridge HTTP) em vez do SQLite local — que não vê os uploads feitos na D1.
+> Endpoints: `GET /receipts/pending`, `POST /receipts/:orderId/claim`,
+> `POST /receipts/:orderId/complete`, `POST /receipts/:orderId/fail`,
+> `GET /stats`. A autenticação usa o header `X-Agent-Key`.
 
 Ou integrar na própria arranque da API se preferir processamento síncrono
 com fila. O agente é idempotente: pode ser corrido repetidamente sem custo.

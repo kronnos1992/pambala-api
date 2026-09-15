@@ -324,6 +324,23 @@ Permanecem em claro por design: endpoints de bootstrap (`/api/security/public-ke
 | GET | `/api/admin/disputes` | Admin | Fila central de disputas (paginação, filtro por estado, busca por pedido/cliente; inclui `messagesCount`, `unreadMessages`, `lastMessage`, risco do comprovativo, cliente e vendedor) |
 | GET | `/api/admin/disputes/stats` | Admin | Contagens de disputas (`total`, `open`, `resolved`, `closed`) |
 
+### Bridge interno do agente de comprovativos (`/api/agent`)
+
+Endpoints reservados ao `receipt_agent` (cron/VPS) para consumir e gravar a fila de comprovativos na D1 de produção. Autenticação: header `X-Agent-Key` (secret `RECEIPT_AGENT_KEY`). Não passam pelo cifragem E2E.
+
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| GET | `/api/agent/receipts/pending?limit=&only=` | Comprovativos pendentes na fila (espelha `ReceiptDatabase.pending`) |
+| POST | `/api/agent/receipts/:orderId/claim` | Marca PROCESSING + incrementa tentativas |
+| POST | `/api/agent/receipts/:orderId/complete` | Grava `validationResult`/`validationStatus` + `AGENT_REVIEW` no histórico + marca fila DONE |
+| POST | `/api/agent/receipts/:orderId/fail` | Re-enfileira (PENDING) ou marca FAILED conforme tentativas |
+| GET | `/api/agent/receipts/:identifier/validation` | Estado de validação de um pedido (id ou orderNumber) |
+| GET | `/api/agent/receipts/duplicates/hash?orderId=&hash=` | Deteta comprovativo físico duplicado (SHA-256) |
+| GET | `/api/agent/receipts/duplicates/fingerprint?orderId=&fingerprint=` | Deteta transação bancária duplicada (fingerprint) |
+| GET | `/api/agent/stats` | Estatísticas globais (envios, fila, estados, revistos) |
+
+Para o agente usar este bridge em vez do SQLite local, defina `RECEIPT_API_URL` (`https://<api>/api/agent`) e `RECEIPT_API_KEY` no ambiente do cron. Ver `receipt_agent/README.md`.
+
 ## Módulo de Faturação (Faturação Electrónica AGT)
 
 Implementa a emissão de facturas de acordo com o **Regime Jurídico das Faturas** (Decreto Presidencial n.º 71/25) e a **API de Faturação Electrónica da AGT** (Executivo n.º 683/25). O Pambala funciona como **sistema de faturação multi-tenant**: cada loja é um *emitente fiscal* com o seu próprio NIF, séries e regime de IVA, e o software usa o **nº de validação/certificação AGT** do Pambala.
