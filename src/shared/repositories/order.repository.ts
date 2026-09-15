@@ -203,6 +203,19 @@ export class OrderRepository extends BaseRepository {
     });
   }
 
+  findForChart(from: Date, to: Date) {
+    return this.client.order.findMany({
+      where: { createdAt: { gte: from, lt: to }, status: { not: "CANCELLED" } },
+      select: { total: true, createdAt: true },
+    });
+  }
+
+  findForStats() {
+    return this.client.order.findMany({
+      select: { total: true, status: true, createdAt: true },
+    });
+  }
+
   groupByStatus() {
     return this.client.order.groupBy({ by: ["status"], _count: true });
   }

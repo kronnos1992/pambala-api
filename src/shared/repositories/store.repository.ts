@@ -215,6 +215,10 @@ export class StoreRepository extends BaseRepository {
     return this.client.store.count({ where: { isVerified: false } });
   }
 
+  findForStats() {
+    return this.client.store.findMany({ select: { isVerified: true } });
+  }
+
   groupByProvince(take: number) {
     return this.client.store.groupBy({
       by: ["province"],

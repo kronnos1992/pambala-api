@@ -296,6 +296,10 @@ export class ProductRepository extends BaseRepository {
     return this.client.product.aggregate({ _avg: { price: true } });
   }
 
+  findForStats() {
+    return this.client.product.findMany({ select: { isActive: true } });
+  }
+
   countCreatedSince(date: Date) {
     return this.client.product.count({ where: { createdAt: { gte: date } } });
   }

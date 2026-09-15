@@ -189,18 +189,34 @@ export class RevenueChartQueryHandler
   constructor(private readonly orders: OrderRepository) {}
 
   async handle(query: RevenueChartQuery) {
+    const days = Math.max(1, Math.min(query.days || 30, 90));
+    const { dayStart: totalStart } = dayRange(days - 1);
+    const { dayEnd: totalEnd } = dayRange(0);
+
+    const orders = await this.orders.findForChart(
+      totalStart,
+      new Date(totalEnd.getTime() + 1)
+    );
+
+    const map = new Map<string, { revenue: number; count: number }>();
+    for (const o of orders) {
+      const d = new Date(o.createdAt).toISOString().split("T")[0];
+      const cur = map.get(d) || { revenue: 0, count: 0 };
+      cur.revenue += o.total || 0;
+      cur.count += 1;
+      map.set(d, cur);
+    }
+
     const results: any[] = [];
-    for (let i = query.days - 1; i >= 0; i--) {
-      const { dayStart, dayEnd } = dayRange(i);
-      const [rev, orderCount] = await Promise.all([
-        this.orders.revenueBetween(dayStart, new Date(dayEnd.getTime() + 1)),
-        this.orders.countBetween(dayStart, new Date(dayEnd.getTime() + 1)),
-      ]);
+    for (let i = days - 1; i >= 0; i--) {
+      const { dayStart } = dayRange(i);
+      const key = dayStart.toISOString().split("T")[0];
+      const dayData = map.get(key) || { revenue: 0, count: 0 };
       results.push({
-        date: dayStart.toISOString().split("T")[0],
+        date: key,
         label: `${dayStart.getDate()}/${dayStart.getMonth() + 1}`,
-        revenue: rev._sum.total || 0,
-        orders: orderCount,
+        revenue: Math.round(dayData.revenue * 100) / 100,
+        orders: dayData.count,
       });
     }
     return { data: results };
@@ -213,17 +229,29 @@ export class UsersChartQueryHandler
   constructor(private readonly users: UserRepository) {}
 
   async handle(query: UsersChartQuery) {
+    const days = Math.max(1, Math.min(query.days || 30, 90));
+    const { dayStart: totalStart } = dayRange(days - 1);
+    const { dayEnd: totalEnd } = dayRange(0);
+
+    const userList = await this.users.findForChart(
+      totalStart,
+      new Date(totalEnd.getTime() + 1)
+    );
+
+    const map = new Map<string, number>();
+    for (const u of userList) {
+      const d = new Date(u.createdAt).toISOString().split("T")[0];
+      map.set(d, (map.get(d) || 0) + 1);
+    }
+
     const results: any[] = [];
-    for (let i = query.days - 1; i >= 0; i--) {
-      const { dayStart, dayEnd } = dayRange(i);
-      const count = await this.users.countBetween(
-        dayStart,
-        new Date(dayEnd.getTime() + 1)
-      );
+    for (let i = days - 1; i >= 0; i--) {
+      const { dayStart } = dayRange(i);
+      const key = dayStart.toISOString().split("T")[0];
       results.push({
-        date: dayStart.toISOString().split("T")[0],
+        date: key,
         label: `${dayStart.getDate()}/${dayStart.getMonth() + 1}`,
-        users: count,
+        users: map.get(key) || 0,
       });
     }
     return { data: results };
@@ -463,34 +491,41 @@ export class DashboardStatsQueryHandler
     const thisWeek = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
     const [
-      totalUsers,
-      totalBuyers,
-      totalSellers,
-      totalProducts,
-      activeProducts,
-      totalOrders,
-      totalStores,
-      verifiedStores,
+      users,
+      products,
+      orders,
+      stores,
       totalReviews,
-      revenue,
       recentOrders,
-      usersThisWeek,
-      ordersThisWeek,
     ] = await Promise.all([
-      this.users.countAll(),
-      this.users.countByRoleKey("CLIENT"),
-      this.users.countByRoleKey("SELLER"),
-      this.products.countAll(),
-      this.products.countActive(),
-      this.orders.countAll(),
-      this.stores.countAll(),
-      this.stores.countVerified(),
+      this.users.findForStats(),
+      this.products.findForStats(),
+      this.orders.findForStats(),
+      this.stores.findForStats(),
       this.reviews.countAll(),
-      this.orders.revenueAll(),
       this.orders.recentOrders(5),
-      this.users.countCreatedSince(thisWeek),
-      this.orders.countSince(thisWeek),
     ]);
+
+    const totalUsers = users.length;
+    const totalBuyers = users.filter((u) => u.role === "CLIENT").length;
+    const totalSellers = users.filter((u) => u.role === "SELLER").length;
+    const usersThisWeek = users.filter(
+      (u) => new Date(u.createdAt) >= thisWeek
+    ).length;
+
+    const totalProducts = products.length;
+    const activeProducts = products.filter((p) => p.isActive).length;
+
+    const totalOrders = orders.length;
+    const ordersThisWeek = orders.filter(
+      (o) => new Date(o.createdAt) >= thisWeek
+    ).length;
+    const totalRevenue = orders
+      .filter((o) => o.status !== "CANCELLED")
+      .reduce((sum, o) => sum + (o.total || 0), 0);
+
+    const totalStores = stores.length;
+    const verifiedStores = stores.filter((s) => s.isVerified).length;
 
     return {
       totalUsers,
@@ -504,17 +539,17 @@ export class DashboardStatsQueryHandler
       verifiedStores,
       unverifiedStores: totalStores - verifiedStores,
       totalReviews,
-      totalRevenue: revenue._sum.total || 0,
+      totalRevenue: Math.round(totalRevenue * 100) / 100,
       usersThisWeek,
       ordersThisWeek,
-      recentOrders: recentOrders.map((o) => ({
+      recentOrders: (recentOrders || []).map((o) => ({
         id: o.id,
         orderNumber: o.orderNumber,
         total: o.total,
         status: o.status,
         createdAt: o.createdAt,
         userName: o.user?.name || "N/A",
-        itemsCount: o.items.length,
+        itemsCount: o.items?.length || 0,
       })),
     };
   }
