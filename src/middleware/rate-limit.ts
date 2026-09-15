@@ -14,13 +14,16 @@ interface RateLimitOptions {
 
 const store = new Map<string, RateLimitEntry>();
 
-function cleanup() {
+let lastCleanup = 0;
+function maybeCleanup() {
   const now = Date.now();
-  for (const [key, entry] of store) {
-    if (entry.resetAt <= now) store.delete(key);
+  if (now - lastCleanup > 60_000) {
+    lastCleanup = now;
+    for (const [key, entry] of store) {
+      if (entry.resetAt <= now) store.delete(key);
+    }
   }
 }
-setInterval(cleanup, 60_000);
 
 export function rateLimit(opts: RateLimitOptions) {
   const {
@@ -31,6 +34,8 @@ export function rateLimit(opts: RateLimitOptions) {
   } = opts;
 
   return async (c: Context, next: Next) => {
+    if (c.req.method === "OPTIONS") return next();
+    maybeCleanup();
     const key = await keyGenerator(c);
     const now = Date.now();
     const entry = store.get(key);

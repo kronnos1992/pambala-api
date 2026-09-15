@@ -23,26 +23,45 @@ import translationRoutes from "./modules/translations/routes";
 import securityRoutes from "./modules/security/routes";
 import roleRoutes from "./modules/roles/routes";
 import fiscalRoutes from "./modules/fiscal/routes";
+import { setPrismaD1 } from "./lib/prisma";
 import { E2EStateDO } from "./security/e2e-do";
 
 registerHandlers();
 
 const app = new Hono();
 
+// Cloudflare D1 database attachment middleware
+app.use("*", async (c, next) => {
+  const env = (c.env || {}) as any;
+  if (env.pambala_db) {
+    setPrismaD1(env.pambala_db);
+  }
+  await next();
+});
+
 const defaultOrigins = [
   "http://localhost:3000",
   "http://127.0.0.1:3000",
   "http://localhost:3002",
 ];
-const allowedOrigins = process.env.ALLOWED_ORIGINS
-  ? process.env.ALLOWED_ORIGINS.split(",").map((o) => o.trim())
-  : defaultOrigins;
 
 app.use("*", logger());
 app.use(
   "*",
   cors({
-    origin: allowedOrigins,
+    origin: (origin) => {
+      if (!origin) return "*";
+      if (
+        origin.includes("localhost") ||
+        origin.includes("127.0.0.1") ||
+        origin.endsWith(".pages.dev") ||
+        origin.endsWith(".workers.dev") ||
+        origin.includes("pambala")
+      ) {
+        return origin;
+      }
+      return defaultOrigins[0];
+    },
     allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowHeaders: [
       "Content-Type",
@@ -50,7 +69,14 @@ app.use(
       "X-Session-ID",
       "X-E2E-Params",
       "X-E2E-Auth",
+      "Accept",
+      "Origin",
+      "X-Requested-With",
+      "Cache-Control",
+      "Pragma",
     ],
+    exposeHeaders: ["Content-Length", "X-Session-ID"],
+    credentials: true,
     maxAge: 86400,
   })
 );
