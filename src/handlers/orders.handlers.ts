@@ -13,6 +13,8 @@ import { CartRepository } from "../shared/repositories/cart.repository";
 import { ProductRepository } from "../shared/repositories/product.repository";
 import { StoreRepository } from "../shared/repositories/store.repository";
 import { UnitOfWork } from "../shared/unit-of-work";
+import { Prisma } from "@prisma/client";
+import { prisma } from "../lib/prisma";
 import {
   BadRequestError,
   ForbiddenError,
@@ -246,71 +248,75 @@ export class CreateOrderCommandHandler
   async handle(command: CreateOrderCommand) {
     const { userId, data } = command;
 
-    return this.uow.run(async (uow) => {
-      const cartRepo = uow.repository(this.carts);
-      const orderRepo = uow.repository(this.orders);
-      const storeRepo = uow.repository(this.stores);
-      const productRepo = uow.repository(this.products);
+    const cartRepo = this.uow.repository(this.carts);
+    const orderRepo = this.uow.repository(this.orders);
+    const storeRepo = this.uow.repository(this.stores);
+    const productRepo = this.uow.repository(this.products);
 
-      const cartRecord = await cartRepo.findWithItems(userId);
+    const cartRecord = await cartRepo.findWithItems(userId);
 
-      if (!cartRecord || cartRecord.items.length === 0) {
-        throw new BadRequestError("Carrinho vazio");
-      }
+    if (!cartRecord || cartRecord.items.length === 0) {
+      throw new BadRequestError("Carrinho vazio");
+    }
 
-      const store = await storeRepo.findById(data.storeId);
+    const store = await storeRepo.findById(data.storeId);
 
-      if (!store) {
-        throw new NotFoundError("Loja não encontrada");
-      }
+    if (!store) {
+      throw new NotFoundError("Loja não encontrada");
+    }
 
-      const storeItems = cartRecord.items.filter(
-        (item: any) => item.product.storeId === data.storeId
-      );
+    const storeItems = cartRecord.items.filter(
+      (item: any) => item.product.storeId === data.storeId
+    );
 
-      if (storeItems.length === 0) {
-        throw new BadRequestError("Nenhum item desta loja no carrinho");
-      }
+    if (storeItems.length === 0) {
+      throw new BadRequestError("Nenhum item desta loja no carrinho");
+    }
 
-      for (const item of storeItems) {
-        if (item.product.stock < item.quantity) {
-          throw new BadRequestError(
-            `Estoque insuficiente para ${item.product.name}`
-          );
-        }
-      }
-
-      const total = storeItems.reduce(
-        (sum: number, item: any) =>
-          sum + item.product.price * item.quantity,
-        0
-      );
-
-      const paymentMethods = parsePaymentMethods(store.paymentMethods);
-      const method = paymentMethods.find(
-        (m: any) => m.type === data.paymentMethod
-      );
-
-      if (data.paymentMethod !== "CASH_ON_DELIVERY" && !method?.enabled) {
+    for (const item of storeItems) {
+      if (item.product.stock < item.quantity) {
         throw new BadRequestError(
-          "Método de pagamento indisponível para esta loja"
+          `Estoque insuficiente para ${item.product.name}`
         );
       }
+    }
 
-      const paymentDetails =
-        data.paymentMethod === "CASH_ON_DELIVERY"
-          ? null
-          : JSON.stringify(method);
+    const total = storeItems.reduce(
+      (sum: number, item: any) =>
+        sum + item.product.price * item.quantity,
+      0
+    );
 
-      const orderNumber = generateOrderNumber();
+    const paymentMethods = parsePaymentMethods(store.paymentMethods);
+    const method = paymentMethods.find(
+      (m: any) => m.type === data.paymentMethod
+    );
 
-      let paymentCode = generatePaymentCode();
-      for (let attempt = 0; attempt < 5; attempt++) {
-        if (!(await orderRepo.findByPaymentCode(paymentCode))) break;
-        paymentCode = generatePaymentCode();
-      }
+    if (data.paymentMethod !== "CASH_ON_DELIVERY" && !method?.enabled) {
+      throw new BadRequestError(
+        "Método de pagamento indisponível para esta loja"
+      );
+    }
 
-      const order = await orderRepo.create({
+    const paymentDetails =
+      data.paymentMethod === "CASH_ON_DELIVERY"
+        ? null
+        : JSON.stringify(method);
+
+    const orderNumber = generateOrderNumber();
+
+    let paymentCode = generatePaymentCode();
+    for (let attempt = 0; attempt < 5; attempt++) {
+      if (!(await orderRepo.findByPaymentCode(paymentCode))) break;
+      paymentCode = generatePaymentCode();
+    }
+
+    const removedIds = storeItems.map((item: any) => item.id);
+
+    // D1 não suporta transações interactivas: as escritas são executadas num
+    // único batch (`$transaction([])`), que é atómico no driver D1.
+    const writeOps: Prisma.PrismaPromise<any>[] = [
+      orderRepo.create({
         orderNumber,
         paymentCode,
         total,
@@ -341,19 +347,22 @@ export class CreateOrderCommandHandler
             storeId: item.product.storeId,
           })),
         },
-      });
+      }),
+    ];
 
-      const removedIds = storeItems.map((item: any) => item.id);
-      for (const item of storeItems) {
-        await productRepo.update(item.productId, {
+    for (const item of storeItems) {
+      writeOps.push(
+        productRepo.update(item.productId, {
           stock: { decrement: item.quantity },
-        });
-      }
+        })
+      );
+    }
 
-      await cartRepo.deleteItems(removedIds);
+    writeOps.push(cartRepo.deleteItems(removedIds));
 
-      return { order };
-    });
+    const [order] = await prisma.$transaction(writeOps);
+
+    return { order };
   }
 }
 

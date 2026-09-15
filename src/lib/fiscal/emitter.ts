@@ -1,5 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { UnitOfWork } from "../../shared/unit-of-work";
+import { Prisma } from "@prisma/client";
+import { prisma } from "../../lib/prisma";
 import {
   InvoiceRepository,
   InvoiceSeriesRepository,
@@ -241,81 +243,75 @@ export class InvoiceEmitter {
       ? parseInt(String(series.lastDocumentNo), 10)
       : Infinity;
 
-    let created: any = null;
-    let isNew = false;
+    // D1 não suporta transações interactivas: a verificação de duplicado é feita
+    // antes e as escritas correm num único batch ($transaction([]), atómico no D1).
+    const existing = await this.invoices.findByOrderAndType(
+      orderId,
+      INVOICE_DOCUMENT_TYPE
+    );
+    if (existing) {
+      return { invoice: existing, created: false };
+    }
 
-    await this.uow.run(async (tx) => {
-      const invoiceRepo = tx.repository(this.invoices);
-      const seriesRepo = tx.repository(this.series);
-
-      const inTxDuplicate = await invoiceRepo.findByOrderAndType(
-        orderId,
-        INVOICE_DOCUMENT_TYPE
+    const allocatedNumber = nextNumber;
+    if (allocatedNumber > maxDocumentNumber) {
+      throw new BadRequestError(
+        `Série ${agtSeriesCode} esgotada (limite ${series.lastDocumentNo}) — solicite extensão`
       );
-      if (inTxDuplicate) {
-        created = inTxDuplicate;
-        return;
-      }
-      isNew = true;
+    }
 
-      const allocatedNumber = nextNumber;
-      if (allocatedNumber > maxDocumentNumber) {
-        throw new BadRequestError(
-          `Série ${agtSeriesCode} esgotada (limite ${series.lastDocumentNo}) — solicite extensão`
-        );
-      }
-      await seriesRepo.allocateNumber(seriesId, allocatedNumber);
+    const documentNo = buildDocumentNo(
+      INVOICE_DOCUMENT_TYPE,
+      agtSeriesCode,
+      allocatedNumber
+    );
 
-      const documentNo = buildDocumentNo(
-        INVOICE_DOCUMENT_TYPE,
-        agtSeriesCode,
-        allocatedNumber
-      );
+    const customerTaxId = UNKNOWN_CUSTOMER_TAX_ID;
+    const customerCountry = DOMESTIC_COUNTRY;
 
-      const customerTaxId = UNKNOWN_CUSTOMER_TAX_ID;
-      const customerCountry = DOMESTIC_COUNTRY;
-
-      const signature = signJws(
-        buildDocumentSignatureClaim({
-          documentNo,
-          taxRegistrationNumber: profile.nif,
-          documentType: INVOICE_DOCUMENT_TYPE,
-          documentDate: issueDateStr,
-          customerTaxID: customerTaxId,
-          customerCountry,
-          companyName: profile.legalName,
-          documentTotals: {
-            taxPayable: fromCentsForSignature(taxTotal),
-            netTotal: fromCentsForSignature(subtotal),
-            grossTotal: fromCentsForSignature(total),
-          },
-        }),
-        issuerKey
-      );
-
-      const qrUrl = buildAgtQrUrl(profile.nif, documentNo);
-
-      const payload = buildRegistarFacturaPayload({
-        settings,
-        emitter: JSON.parse(emitterSnapshot),
-        customer: JSON.parse(customerSnapshot),
-        documentType: INVOICE_DOCUMENT_TYPE as InvoiceDocumentType,
+    const signature = signJws(
+      buildDocumentSignatureClaim({
         documentNo,
-        issueDate: issueDateStr,
-        systemEntryDate: now,
-        lines,
-        subtotal,
-        discountTotal,
-        taxTotal,
-        total,
-        taxSummary,
-        signature,
-        production: this.agtClient.isConfigured(settings),
-      });
+        taxRegistrationNumber: profile.nif,
+        documentType: INVOICE_DOCUMENT_TYPE,
+        documentDate: issueDateStr,
+        customerTaxID: customerTaxId,
+        customerCountry,
+        companyName: profile.legalName,
+        documentTotals: {
+          taxPayable: fromCentsForSignature(taxTotal),
+          netTotal: fromCentsForSignature(subtotal),
+          grossTotal: fromCentsForSignature(total),
+        },
+      }),
+      issuerKey
+    );
 
-      const invoiceId = randomUUID();
+    const qrUrl = buildAgtQrUrl(profile.nif, documentNo);
 
-      created = await invoiceRepo.create({
+    const payload = buildRegistarFacturaPayload({
+      settings,
+      emitter: JSON.parse(emitterSnapshot),
+      customer: JSON.parse(customerSnapshot),
+      documentType: INVOICE_DOCUMENT_TYPE as InvoiceDocumentType,
+      documentNo,
+      issueDate: issueDateStr,
+      systemEntryDate: now,
+      lines,
+      subtotal,
+      discountTotal,
+      taxTotal,
+      total,
+      taxSummary,
+      signature,
+      production: this.agtClient.isConfigured(settings),
+    });
+
+    const invoiceId = randomUUID();
+
+    const [created] = await prisma.$transaction([
+      this.series.allocateNumber(seriesId, allocatedNumber),
+      this.invoices.create({
         id: invoiceId,
         storeId,
         orderId,
@@ -350,19 +346,11 @@ export class InvoiceEmitter {
             },
           ],
         },
-      });
-    });
-
-    if (created === null) {
-      throw new InternalError("Não foi possível registar a factura");
-    }
-
-    if (!isNew) {
-      return { invoice: created, created: false };
-    }
+      }),
+    ] as Prisma.PrismaPromise<any>[]);
 
     // ---------- Comunicação com a AGT (fora da transação) ----------
-    const payload = buildRegistarFacturaPayload({
+    const agtPayload = buildRegistarFacturaPayload({
       settings,
       emitter: JSON.parse(emitterSnapshot),
       customer: JSON.parse(customerSnapshot),
@@ -380,12 +368,11 @@ export class InvoiceEmitter {
       production: this.agtClient.isConfigured(settings),
     });
 
-    const communication = await this.agtClient.registerInvoice(settings, payload);
+    const communication = await this.agtClient.registerInvoice(settings, agtPayload);
     const agtStatus = agtStatusForCommunication(communication);
 
-    await this.uow.run(async (tx) => {
-      const invoiceRepo = tx.repository(this.invoices);
-      await invoiceRepo.update(created.id, {
+    await prisma.$transaction([
+      this.invoices.update(created.id, {
         agtStatus,
         agtRequestId: communication.requestId ?? null,
         agtReference: communication.offline
@@ -393,15 +380,15 @@ export class InvoiceEmitter {
           : communication.requestId ?? null,
         agtResponse: communication.response,
         agtValidatedAt: communication.offline ? new Date() : null,
-      });
-      await invoiceRepo.addCommunicationLog(created.id, {
+      }),
+      this.invoices.addCommunicationLog(created.id, {
         attempt: 1,
         status: agtStatus,
         httpStatus: communication.httpStatus ?? null,
         responsePayload: communication.response,
         error: communication.submitted ? null : communication.response,
-      });
-    });
+      }),
+    ] as Prisma.PrismaPromise<any>[]);
 
     const final = await this.invoices.findByIdWithLines(created.id);
     return { invoice: final ?? created, created: true };

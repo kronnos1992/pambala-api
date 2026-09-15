@@ -57,17 +57,20 @@ export class RoleRepository extends BaseRepository {
   }
 
   setRoleResponsibilities(roleId: string, responsibilityKeys: string[]) {
-    return this.client.$transaction(async (tx) => {
-      await tx.roleResponsibility.deleteMany({ where: { roleId } });
-      if (responsibilityKeys.length > 0) {
-        await tx.roleResponsibility.createMany({
-          data: responsibilityKeys.map((key) => ({
-            roleId,
-            responsibilityId: key,
-          })),
-        });
-      }
-    });
+    // D1 não suporta transações interactivas; batch atómico via $transaction([])
+    return this.client.$transaction([
+      this.client.roleResponsibility.deleteMany({ where: { roleId } }),
+      ...(responsibilityKeys.length > 0
+        ? [
+            this.client.roleResponsibility.createMany({
+              data: responsibilityKeys.map((key) => ({
+                roleId,
+                responsibilityId: key,
+              })),
+            }),
+          ]
+        : []),
+    ]);
   }
 
   createResponsibility(data: { key: string; name: string; description?: string }) {

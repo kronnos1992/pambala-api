@@ -77,14 +77,17 @@ export class UserRepository extends BaseRepository {
       where: { key: { in: roleKeys } },
     });
 
-    await this.client.$transaction(async (tx) => {
-      await tx.userRole.deleteMany({ where: { userId } });
-      if (roles.length > 0) {
-await tx.userRole.createMany({
-        data: roles.map((role) => ({ userId, roleId: role.id })),
-      });
-      }
-    });
+    // D1 não suporta transações interactivas; batch atómico via $transaction([])
+    await this.client.$transaction([
+      this.client.userRole.deleteMany({ where: { userId } }),
+      ...(roles.length > 0
+        ? [
+            this.client.userRole.createMany({
+              data: roles.map((role) => ({ userId, roleId: role.id })),
+            }),
+          ]
+        : []),
+    ]);
 
     return this.syncPrimaryRole(userId);
   }
@@ -221,6 +224,19 @@ await tx.userRole.createMany({
   countBetween(from: Date, to: Date) {
     return this.client.user.count({
       where: { createdAt: { gte: from, lt: to } },
+    });
+  }
+
+  findForChart(from: Date, to: Date) {
+    return this.client.user.findMany({
+      where: { createdAt: { gte: from, lt: to } },
+      select: { createdAt: true },
+    });
+  }
+
+  findForStats() {
+    return this.client.user.findMany({
+      select: { role: true, createdAt: true },
     });
   }
 
