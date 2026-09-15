@@ -23,6 +23,8 @@ export async function e2eDecryptMiddleware(c: Context, next: Next) {
   try {
     const sessionId = c.req.header('X-Session-ID')
 
+    let bodyConsumed = false
+
     // Se é POST/PUT/PATCH, descriptografa body se estiver criptografado
     if (['POST', 'PUT', 'PATCH'].includes(c.req.method)) {
       const contentType = c.req.header('Content-Type') || ''
@@ -31,6 +33,7 @@ export async function e2eDecryptMiddleware(c: Context, next: Next) {
         let body: any
         try {
           body = await c.req.json()
+          bodyConsumed = true
         } catch {
           body = null
         }
@@ -74,6 +77,75 @@ export async function e2eDecryptMiddleware(c: Context, next: Next) {
       }
     }
 
+    // Envelope de query params e auth (qualquer método): nada deve trafegar em
+    // claro — nem a query string nem o header Authorization.
+    const e2eParamsHeader = c.req.header('X-E2E-Params')
+    const e2eAuthHeader = c.req.header('X-E2E-Auth')
+
+    if ((e2eParamsHeader || e2eAuthHeader) && sessionId) {
+      let url: URL | null = null
+      let headers: Headers | null = null
+
+      if (e2eParamsHeader) {
+        try {
+          const { encrypted, nonce } = JSON.parse(e2eParamsHeader)
+          const decrypted = await E2EManager.decryptFromClient(
+            c.env,
+            encrypted,
+            nonce,
+            sessionId
+          )
+          const params = JSON.parse(decrypted) as Record<string, unknown>
+
+          url = new URL(c.req.raw.url)
+          for (const [k, v] of Object.entries(params ?? {})) {
+            if (v === undefined || v === null) continue
+            if (Array.isArray(v)) {
+              for (const item of v) url.searchParams.append(k, String(item))
+            } else {
+              url.searchParams.set(k, String(v))
+            }
+          }
+        } catch (error: any) {
+          console.error('E2E Params decryption error:', error.message)
+          return c.json(
+            { error: `Params decryption failed: ${error.message}` },
+            400
+          )
+        }
+      }
+
+      if (e2eAuthHeader) {
+        try {
+          const { encrypted, nonce } = JSON.parse(e2eAuthHeader)
+          const decrypted = await E2EManager.decryptFromClient(
+            c.env,
+            encrypted,
+            nonce,
+            sessionId
+          )
+          headers = new Headers(c.req.raw.headers)
+          headers.set('Authorization', JSON.parse(decrypted))
+        } catch (error: any) {
+          console.error('E2E Auth decryption error:', error.message)
+          return c.json(
+            { error: `Auth decryption failed: ${error.message}` },
+            400
+          )
+        }
+      }
+
+      const raw = c.req.raw
+      const method = raw.method
+      const noBody = ['GET', 'HEAD'].includes(method)
+
+      ;(c.req as any).raw = new Request(url ? url.toString() : raw.url, {
+        method,
+        headers: headers ?? raw.headers,
+        body: noBody || bodyConsumed ? undefined : raw.body,
+      })
+    }
+
     // Adicionar sessionId no contexto se disponível
     if (sessionId) {
       ;(c as any).sessionId = sessionId
@@ -103,16 +175,17 @@ export function e2eEncryptMiddleware() {
 
     const sessionId = (c as any).sessionId
     const isEncrypted = (c as any).isEncryptedRequest
-    const isGet = c.req.method === 'GET'
+    const isNoBody = ['GET', 'DELETE', 'HEAD'].includes(c.req.method)
 
-    // GETs também são cifrados quando há sessão válida. Em writes, apenas se a
-    // requisição veio cifrada (cliente E2E).
+    // Qualquer resposta (GET/DELETE/HEAD ou write com body cifrado) é cifrada
+    // quando há sessão válida. Requests sem body usam 400 p/ self-heal quando a
+    // sessão é inválida; writes sem body cifrado ficam plain (compatibilidade).
     if (sessionId && c.res.status >= 200 && c.res.status < 300) {
       const contentType = c.res.headers.get('content-type') || ''
 
       if (contentType.includes('application/json')) {
-        if (isGet) {
-          // Sessão inválida/expirada num GET → 400 para o frontend re-executar
+        if (isNoBody) {
+          // Sessão inválida/expirada → 400 para o frontend re-executar
           // o handshake (self-heal) e repetir o pedido já cifrado.
           const valid = await E2EManager.hasValidSession(c.env, sessionId)
           if (!valid) {

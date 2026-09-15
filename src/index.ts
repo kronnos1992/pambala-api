@@ -44,7 +44,13 @@ app.use(
   cors({
     origin: allowedOrigins,
     allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowHeaders: ["Content-Type", "Authorization", "X-Session-ID"],
+    allowHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Session-ID",
+      "X-E2E-Params",
+      "X-E2E-Auth",
+    ],
     maxAge: 86400,
   })
 );
