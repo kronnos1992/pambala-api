@@ -477,76 +477,86 @@ export class UserDisputeUnreadQueryHandler
   ) {}
 
   async handle(query: UserDisputeUnreadQuery) {
-    const effective = await resolvePermissions(query.roles);
-    const isAdmin =
-      query.roles.includes("ADMIN") ||
-      query.roles.includes("MANAGER") ||
-      effective.has(PERMISSIONS.adminOrdersManage) ||
-      effective.has(PERMISSIONS.disputesModerate);
+    try {
+      const roles = Array.isArray(query.roles) ? query.roles : [];
+      const effective = await resolvePermissions(roles);
+      const isAdmin =
+        roles.includes("ADMIN") ||
+        roles.includes("MANAGER") ||
+        effective.has(PERMISSIONS.adminOrdersManage) ||
+        effective.has(PERMISSIONS.disputesModerate);
 
-    let storeIds: string[] = [];
-    if (!isAdmin) {
-      const stores = await this.stores.findStoreIdsByOwner(query.userId);
-      storeIds = stores.map((s: any) => s.id);
-    }
+      let storeIds: string[] = [];
+      if (!isAdmin && query.userId) {
+        const stores = await this.stores.findStoreIdsByOwner(query.userId);
+        storeIds = stores.map((s: any) => s.id);
+      }
 
-    const disputes = await this.disputes.listUserDisputes(
-      query.userId,
-      storeIds,
-      isAdmin
-    );
+      const disputes = await this.disputes.listUserDisputes(
+        query.userId,
+        storeIds,
+        isAdmin
+      );
 
-    const readMap = await this.disputes.getReadMap(
-      disputes.map((d: any) => d.id),
-      query.userId
-    );
+      if (!disputes || !disputes.length) {
+        return { total: 0, items: [] };
+      }
 
-    const messages = await this.disputes.messagesToOthers(
-      disputes.map((d: any) => d.id),
-      query.userId
-    );
+      const readMap = await this.disputes.getReadMap(
+        disputes.map((d: any) => d.id),
+        query.userId
+      );
 
-    // Filtrar apenas mensagens mais recentes que o lastReadAt (ou nenhuma leitura = todas contam)
-    const items = disputes.map((d: any) => {
-      const lastReadAt = readMap.get(d.id);
-      const unread = messages
-        .filter((m: any) => m.disputeId === d.id)
-        .filter(
-          (m: any) => !lastReadAt || new Date(m.createdAt) > new Date(lastReadAt)
-        );
+      const messages = await this.disputes.messagesToOthers(
+        disputes.map((d: any) => d.id),
+        query.userId
+      );
 
-      const lastMessage = unread[0]
-        ? {
-            id: unread[0].id,
-            senderRole: unread[0].senderRole,
-            senderId: unread[0].senderId,
-            senderName: unread[0].sender?.name || unread[0].senderRole,
-            content: unread[0].content,
-            createdAt: unread[0].createdAt,
-          }
-        : undefined;
+      // Filtrar apenas mensagens mais recentes que o lastReadAt (ou nenhuma leitura = todas contam)
+      const items = disputes.map((d: any) => {
+        const lastReadAt = readMap.get(d.id);
+        const unread = messages
+          .filter((m: any) => m.disputeId === d.id)
+          .filter(
+            (m: any) => !lastReadAt || new Date(m.createdAt) > new Date(lastReadAt)
+          );
+
+        const lastMessage = unread[0]
+          ? {
+              id: unread[0].id,
+              senderRole: unread[0].senderRole,
+              senderId: unread[0].senderId,
+              senderName: unread[0].sender?.name || unread[0].senderRole,
+              content: unread[0].content,
+              createdAt: unread[0].createdAt,
+            }
+          : undefined;
+
+        return {
+          disputeId: d.id,
+          orderId: d.order?.id,
+          orderNumber: d.order?.orderNumber || d.orderId,
+          status: d.status,
+          unreadCount: unread.length,
+          lastMessage,
+        };
+      });
+
+      const withUnread = items.filter((i: any) => i.unreadCount > 0);
+      withUnread.sort((a: any, b: any) => {
+        const at = a.lastMessage ? new Date(a.lastMessage.createdAt).getTime() : 0;
+        const bt = b.lastMessage ? new Date(b.lastMessage.createdAt).getTime() : 0;
+        return bt - at;
+      });
 
       return {
-        disputeId: d.id,
-        orderId: d.order?.id,
-        orderNumber: d.order?.orderNumber || d.orderId,
-        status: d.status,
-        unreadCount: unread.length,
-        lastMessage,
+        total: withUnread.reduce((s: number, i: any) => s + i.unreadCount, 0),
+        items: withUnread.slice(0, 20),
       };
-    });
-
-    const withUnread = items.filter((i: any) => i.unreadCount > 0);
-    withUnread.sort((a: any, b: any) => {
-      const at = a.lastMessage ? new Date(a.lastMessage.createdAt).getTime() : 0;
-      const bt = b.lastMessage ? new Date(b.lastMessage.createdAt).getTime() : 0;
-      return bt - at;
-    });
-
-    return {
-      total: withUnread.reduce((s: number, i: any) => s + i.unreadCount, 0),
-      items: withUnread.slice(0, 20),
-    };
+    } catch (err) {
+      console.error("UserDisputeUnreadQueryHandler error:", err);
+      return { total: 0, items: [] };
+    }
   }
 }
 
