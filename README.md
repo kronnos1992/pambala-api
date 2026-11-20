@@ -297,6 +297,7 @@ Permanecem em claro por design: endpoints de bootstrap (`/api/security/public-ke
 | GET | `/api/fiscal/orders/:orderId/invoice` | Buyer/Propr. loja/Admin | Facturas do pedido |
 | POST | `/api/fiscal/orders/:orderId/invoice` | Propr. loja/Admin | Emitir/recuperar factura do pedido (idempotente) |
 | POST | `/api/fiscal/invoices/:id/refresh-status` | Propr. loja/Admin | Consultar estado na AGT (`obterEstado`) e actualizar `agtStatus` |
+| POST | `/api/fiscal/webhooks/agt` | AGT (token/Basic) | **Webhook de notificação da AGT** — recebe o resultado da validação diferida (V/I) e actualiza `agtStatus` em tempo real |
 | GET | `/api/fiscal/invoices/:id` | Propr. loja/Admin | Detalhe da factura (linhas + série) |
 | GET | `/api/fiscal/invoices/:id/pdf` | Buyer/Propr. loja/Admin | Factura em **PDF (A4)** — o comprador do pedido, a loja emitente e o Admin têm direito de consulta |
 
@@ -349,7 +350,7 @@ Implementa a emissão de facturas de acordo com o **Regime Jurídico das Faturas
 
 | Modelo | Papel |
 |--------|-------|
-| `FiscalSettings` | Configuração da plataforma (linha única): identificação do software (`productId`, `productVersion`, `softwareValidationNumber`), versão de assinatura, chave privada JWS do produtor, credenciais da API da AGT (`agtBaseUrl`, `agtUsername`, `agtPassword`), fuso horário |
+| `FiscalSettings` | Configuração da plataforma (linha única): identificação do software (`productId`, `productVersion`, `softwareValidationNumber`), versão de assinatura, chave privada JWS do produtor, credenciais da API da AGT (`agtBaseUrl`, `agtUsername`, `agtPassword`), notificações AGT (`agtCallbackUrl`, `agtWebhookToken`), fuso horário |
 | `StoreFiscalProfile` | Perfil fiscal da loja (1:1): NIF, denominação social, endereço, regime de IVA (`GERAL`/`SIMPLIFICADO`/`EXCLUIDO`/`ISENTO`), código de isenção (`vatExemptionCode`), estabelecimento (`SEDE`/filiais) e chave privada JWS do contribuinte |
 | `InvoiceSeries` | Série autorizada pela AGT via `solicitarSerie` por loja/documento/ano: código atribuído pela AGT (`agtSeriesCode`), `authorizedQuantity`, numeração sequencial cronológica (recomeça por ano civil) |
 | `Invoice` | Documento fiscal imutável: `documentNo` (`FT <códigoSérieAGT>/<seq>`), snapshot do emitente e do cliente, montantes em **cêntimos de AOA**, **assinatura JWS RS256**, **URL do QR Code de consulta pública**, `agtRequestId` e `agtStatus`, referência à factura original (NC/ND) |
@@ -366,8 +367,22 @@ Implementa a emissão de facturas de acordo com o **Regime Jurídico das Faturas
 4. **Imutabilidade** — emitente e cliente são gravados como *snapshots* (JSON) no momento da emissão; montantes em cêntimos de AOA e IVA arredondado **por excesso** ao cêntimo.
 5. **Assinaturas JWS (RS256)** — `jwsSoftwareSignature` (productId/productVersion/softwareValidationNumber, chave do produtor; `softwareInfoDetail` não inclui versão de assinatura por ser alheia ao DS-120), assinatura do documento `jwsSignature` (identificação + totais, chave privada da loja) e `jwsSignature` por requisição; chaves RSA-2048 geradas e guardadas nas definições/perfil quando ausentes.
 6. **QR Code** — `https://quiosqueagt.minfin.gov.ao/facturacao-eletronica/consultar-fe?emissor=<NIF>&document=<documentNo>` (espaços → `%20`).
-7. **Comunicação AGT (assíncrona)** — `POST registarFactura` devolve `requestID`; o estado é obtido por `obterEstado` (manual via `refresh-status` ou job). Sem `agtBaseUrl`, a factura fica `VALID` em modo dev. `agtStatus`: `PENDING | SUBMITTED | VALID | INVALID | REJECTED | FAILED`.
+7. **Comunicação AGT (assíncrona)** — `POST registarFactura` devolve `requestID`; o estado é obtido por `obterEstado` (manual via `refresh-status`, polling) **ou recebido em tempo real via webhook** (`POST /api/fiscal/webhooks/agt`). Sem `agtBaseUrl`, a factura fica `VALID` em modo dev. `agtStatus`: `PENDING | SUBMITTED | VALID | INVALID | REJECTED | FAILED`.
 8. **IVA** — taxa derivada do regime da loja: `GERAL` → 14% (`NOR`), `SIMPLIFICADO` → 7% (`INT`), `EXCLUIDO`/`ISENTO` → 0% (com `taxExemptionCode` obrigatório); `NA` e `NS` aplicam isenção/outsiderscope.
+
+### Notificações AGT (callback/webhook)
+
+O `GET /api/fiscal/settings` devolve `webhookUrl` (computado): **`<API_BASE_URL>/api/fiscal/webhooks/agt`** — é o endereço a inserir no campo *"URL para receber respostas automáticas"* pedido pela AGT no processo de homologação. A AGT fará `POST` para esse endpoint com o resultado da validação diferida de cada factura (`requestID` + `documentStatusList` com `documentStatus` **V**/**I**).
+
+- **Endpoint:** `POST /api/fiscal/webhooks/agt` (público, sem `authFilter`; fica fora do rate-limit geral e do pipeline E2E).
+- **Autenticação do remetente** (em `FiscalSettings`, geridos pelo admin):
+  - `agtWebhookToken` definido → o header `X-Agt-Webhook-Token` (ou `X-AgtToken`) tem de corresponder (comparação em tempo constante);
+  - sem token → valida por **Basic Auth** com `agtUsername`/`agtPassword`;
+  - sem nenhum configurado → aceita em modo dev (nunca altera documentos reais sem registo).
+- **Processamento:** localiza as facturas por `agtRequestId` (recomendado) e, em alternativa, por `documentNo`; actualiza `agtStatus` (`V`→`VALID`, `I`→`INVALID`), `agtResponse` e `agtValidatedAt`, e regista o evento em `InvoiceCommunicationLog`.
+- **Resposta:** `200 {"ok":true,"processed":N}` (ack) ou `401` se o remetente não for autenticado.
+
+> **Aviso:** à data, a documentação oficial da AGT indica que o mecanismo de **callback** está *"disponível nas próximas versões"*; até lá o estado deve ser obtido por polling (`obterEstado` via `refresh-status`). Este endpoint está preparado para quando o push for activado e já é seguro por construção.
 
 > **Nota:** as credenciais de API (Basic Auth) são emitidas pela AGT para o produtor do software; só ficam ativas os *environment/certificações* `HOMOLOG`/`PRODUCAO` (planos de faturação). Sem credenciais, o módulo opera em modo dev (séries sintéticas, `agtStatus=VALID` sem registo real).
 
