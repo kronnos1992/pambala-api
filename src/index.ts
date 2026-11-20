@@ -97,8 +97,12 @@ app.use("*", async (c, next) => {
 });
 app.onError(errorFilter);
 
-// 🛡️ Rate limit global
-app.use("*", generalRateLimit);
+// 🛡️ Rate limit global (os webhooks da AGT são autenticados por token e podem
+// ter volumes altos em picos de validação — ficam fora da limitação geral)
+app.use("*", async (c, next) => {
+  if (c.req.path.startsWith("/api/fiscal/webhooks")) return next();
+  return generalRateLimit(c, next);
+});
 
 // 🔐 E2E Decryption Middleware (ANTES das rotas)
 app.use("*", e2eDecryptMiddleware);

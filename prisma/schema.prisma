@@ -409,6 +409,8 @@ model FiscalSettings {
   agtBaseUrl              String?   // ex.: https://sifp.minfin.gov.ao (vazio = modo desenvolvimento)
   agtUsername             String?   // Basic Auth — credenciais emitidas pela AGT
   agtPassword             String?
+  agtCallbackUrl          String?   // URL de callback registada na AGT (recebe notificações de validação)
+  agtWebhookToken         String?   // segredo partilhado para autenticar os callbacks da AGT (header X-Agt-Webhook-Token)
   timezone                String    @default("Africa/Luanda")
   createdAt               DateTime  @default(now())
   updatedAt               DateTime  @updatedAt

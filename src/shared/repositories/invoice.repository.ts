@@ -9,6 +9,20 @@ export class InvoiceRepository extends BaseRepository {
     return this.client.invoice.findUnique({ where: { id } });
   }
 
+  findByAgtRequestId(requestId: string) {
+    return this.client.invoice.findMany({
+      where: { agtRequestId: requestId },
+      include: { lines: { orderBy: { position: "asc" } } },
+    });
+  }
+
+  findByDocumentNo(documentNo: string) {
+    return this.client.invoice.findFirst({
+      where: { documentNo },
+      include: { lines: { orderBy: { position: "asc" } } },
+    });
+  }
+
   findByIdWithLines(id: string) {
     return this.client.invoice.findUnique({
       where: { id },

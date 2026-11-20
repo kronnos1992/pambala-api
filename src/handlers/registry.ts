@@ -245,6 +245,8 @@ import {
   EmitOrderInvoiceCommandHandler,
   RefreshInvoiceAgtStatusCommand,
   RefreshInvoiceAgtStatusCommandHandler,
+  ProcessAgtWebhookCommand,
+  ProcessAgtWebhookCommandHandler,
 } from "./fiscal.handlers";
 
 export function registerHandlers(): void {
@@ -692,5 +694,9 @@ export function registerHandlers(): void {
       stores,
       new AgtClient()
     )
+  );
+  mediator.register(
+    ProcessAgtWebhookCommand,
+    new ProcessAgtWebhookCommandHandler(invoices, fiscalSettings)
   );
 }

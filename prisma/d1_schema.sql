@@ -395,6 +395,8 @@ CREATE TABLE "FiscalSettings" (
     "agtBaseUrl" TEXT,
     "agtUsername" TEXT,
     "agtPassword" TEXT,
+    "agtCallbackUrl" TEXT,
+    "agtWebhookToken" TEXT,
     "timezone" TEXT NOT NULL DEFAULT 'Africa/Luanda',
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL

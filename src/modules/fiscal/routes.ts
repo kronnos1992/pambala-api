@@ -13,6 +13,7 @@ import {
   GetInvoicePdfQuery,
   EmitOrderInvoiceCommand,
   RefreshInvoiceAgtStatusCommand,
+  ProcessAgtWebhookCommand,
 } from "../../handlers/fiscal.handlers";
 
 const fiscal = new Hono();
@@ -131,6 +132,46 @@ fiscal.post("/invoices/:id/refresh-status", authFilter, async (c) => {
     new RefreshInvoiceAgtStatusCommand(userId, roles, id)
   );
   return c.json(result);
+});
+
+// Webhook de notificação da AGT: recebe o resultado da validação diferida das
+// facturas em tempo real (documentStatus V/I) e atualiza o agtStatus local.
+// Endpoint público (sem authFilter) — a autenticação é feita por token
+// partilhado ou Basic Auth, conforme FiscalSettings.
+fiscal.post("/webhooks/agt", async (c) => {
+  let payload: any = {};
+  try {
+    payload = await c.req.json();
+  } catch {
+    payload = {};
+  }
+
+  const token =
+    c.req.header("x-agt-webhook-token") ||
+    c.req.header("x-agttoken") ||
+    "";
+
+  let basicAuth: { username?: string; password?: string } | null = null;
+  const authorization = c.req.header("authorization") || "";
+  if (authorization.toLowerCase().startsWith("basic ")) {
+    const decoded = Buffer.from(authorization.slice(6), "base64").toString(
+      "utf8"
+    );
+    const idx = decoded.indexOf(":");
+    if (idx >= 0) {
+      basicAuth = {
+        username: decoded.slice(0, idx),
+        password: decoded.slice(idx + 1),
+      };
+    }
+  }
+
+  const result = (await mediator.send(
+    new ProcessAgtWebhookCommand(payload, token, basicAuth)
+  )) as any;
+
+  const status = result?.status === 401 ? 401 : 200;
+  return c.json(result, status);
 });
 
 export default fiscal;

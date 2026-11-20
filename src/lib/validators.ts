@@ -117,6 +117,8 @@ export const fiscalSettingsSchema = z.object({
   agtBaseUrl: z.string().url().optional().nullable(),
   agtUsername: z.string().optional().nullable(),
   agtPassword: z.string().optional().nullable(),
+  agtCallbackUrl: z.string().url().optional().nullable(),
+  agtWebhookToken: z.string().min(8).optional().nullable(),
   timezone: z.string().min(1).optional(),
 });
 

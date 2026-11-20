@@ -100,7 +100,8 @@ export class AgtClient {
   private async post(
     settings: AgtSettings,
     endpoint: string,
-    payload: Record<string, unknown>
+    payload: Record<string, unknown>,
+    timeoutMs = 15000
   ): Promise<{ status: number; raw: string; parsed: any }> {
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
@@ -109,19 +110,31 @@ export class AgtClient {
     const auth = this.authHeader(settings);
     if (auth) headers["Authorization"] = auth;
 
-    const response = await fetch(`${this.baseUrl(settings)}${endpoint}`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify(payload),
-    });
-    const raw = await response.text();
-    let parsed: any = {};
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
     try {
-      parsed = raw ? JSON.parse(raw) : {};
-    } catch {
-      parsed = { raw };
+      const response = await fetch(`${this.baseUrl(settings)}${endpoint}`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(payload),
+        signal: controller.signal,
+      });
+      const raw = await response.text();
+      let parsed: any = {};
+      try {
+        parsed = raw ? JSON.parse(raw) : {};
+      } catch {
+        parsed = { raw };
+      }
+      return { status: response.status, raw, parsed };
+    } catch (err: any) {
+      if (err?.name === "AbortError") {
+        throw new Error(`AGT não respondeu em ${timeoutMs / 1000}s (timeout)`);
+      }
+      throw err;
+    } finally {
+      clearTimeout(timer);
     }
-    return { status: response.status, raw, parsed };
   }
 
   // -- registarFactura -------------------------------------------------------

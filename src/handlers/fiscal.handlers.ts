@@ -25,6 +25,11 @@ import {
 import { BadRequestError, ForbiddenError, NotFoundError } from "../shared/errors";
 import { fiscalProfileSchema, fiscalSeriesSchema, fiscalSettingsSchema } from "../lib/validators";
 import { buildInvoicePdf } from "../lib/fiscal/pdf";
+import {
+  mapAgtResultStatus,
+  mapAgtNotificationStatus,
+  type AgtDocumentStatus,
+} from "../lib/fiscal/status";
 
 export class GetFiscalSettingsQuery implements IQuery {
   constructor(public readonly roles: string[]) {}
@@ -111,6 +116,14 @@ export class RefreshInvoiceAgtStatusCommand implements ICommand {
   ) {}
 }
 
+export class ProcessAgtWebhookCommand implements ICommand {
+  constructor(
+    public readonly payload: any,
+    public readonly webhookToken?: string | null,
+    public readonly basicAuth?: { username?: string | null; password?: string | null } | null
+  ) {}
+}
+
 async function isAdmin(roles: string[]): Promise<boolean> {
   const effective = await resolvePermissions(roles);
   return (
@@ -138,7 +151,10 @@ export class GetFiscalSettingsQueryHandler
 
   async handle(query: GetFiscalSettingsQuery) {
     await assertPermission(query.roles, PERMISSIONS.fiscalSettingsManage);
-    return { settings: await this.settings.getOrCreate() };
+    const settings = await this.settings.getOrCreate();
+    const base = (process.env.API_BASE_URL || "https://pambala-api.monait.workers.dev").replace(/\/+$/, "");
+    const webhookUrl = `${base}/api/fiscal/webhooks/agt`;
+    return { settings: { ...settings, webhookUrl } };
   }
 }
 
@@ -151,6 +167,12 @@ export class UpsertFiscalSettingsCommandHandler
     await assertPermission(command.roles, PERMISSIONS.fiscalSettingsManage);
     const data = fiscalSettingsSchema.parse(command.data);
     const clean: any = { ...data };
+    if (clean.agtBaseUrl) {
+      clean.agtBaseUrl = clean.agtBaseUrl.trim().replace(/\)+$/, "");
+    }
+    if (clean.agtWebhookToken) {
+      clean.agtWebhookToken = clean.agtWebhookToken.trim();
+    }
     if (clean.certificationDate) {
       clean.certificationDate = new Date(clean.certificationDate);
     } else {
@@ -507,20 +529,12 @@ export class RefreshInvoiceAgtStatusCommandHandler
     });
 
     // Mapeia o estado assíncrono da AGT para agtStatus do documento.
-    let agtStatus = invoice.agtStatus;
     const list = status.documentStatusList ?? [];
+    let agtStatus = invoice.agtStatus;
     if (status.error) {
       agtStatus = "FAILED";
-    } else if (status.resultCode === "0") {
-      agtStatus = "VALID";
-    } else if (status.resultCode === "1") {
-      agtStatus = list.some((d) => d.documentStatus === "I") ? "INVALID" : "VALID";
-    } else if (status.resultCode === "2") {
-      agtStatus = "INVALID";
-    } else if (status.resultCode === "9") {
-      agtStatus = "FAILED";
-    } else if (status.resultCode === "7" || status.resultCode === "8") {
-      agtStatus = "SUBMITTED"; // ainda em processamento
+    } else {
+      agtStatus = mapAgtResultStatus(status.resultCode, list);
     }
 
     const responseData = JSON.stringify({
@@ -545,4 +559,116 @@ export class RefreshInvoiceAgtStatusCommandHandler
 
     return { invoice: { ...invoice, agtStatus, agtResponse: responseData }, refreshed: true };
   }
+}
+
+export class ProcessAgtWebhookCommandHandler
+  implements ICommandHandler<ProcessAgtWebhookCommand, any>
+{
+  constructor(
+    private readonly invoices: InvoiceRepository,
+    private readonly settings: FiscalSettingsRepository
+  ) {}
+
+  async handle(command: ProcessAgtWebhookCommand) {
+    const settings = await this.settings.getOrCreate();
+
+    // Autenticação do remetente: token partilhado (X-Agt-Webhook-Token) ou
+    // Basic Auth com as credenciais da AGT. Sem autenticação configurada,
+    // aceita (modo dev) mas nunca altera documentos reais sem registo.
+    const expectedToken = settings.agtWebhookToken;
+    if (expectedToken) {
+      const provided = command.webhookToken || "";
+      const valid =
+        provided.length === expectedToken.length &&
+        timingSafeEqual(provided, expectedToken);
+      if (!valid) {
+        return { ok: false, error: "Token inválido", processed: 0, status: 401 };
+      }
+    } else if (settings.agtUsername || settings.agtPassword) {
+      const credentialsOk =
+        command.basicAuth?.username === settings.agtUsername &&
+        command.basicAuth?.password === settings.agtPassword;
+      if (!credentialsOk) {
+        return { ok: false, error: "Credenciais inválidas", processed: 0, status: 401 };
+      }
+    }
+
+    const payload = command.payload ?? {};
+    const requestId = payload.requestID ?? payload.requestId ?? null;
+    const rawList = Array.isArray(payload.documentStatusList)
+      ? payload.documentStatusList
+      : Array.isArray(payload.documents)
+        ? payload.documents
+        : [];
+
+    // Associa o aviso de validação às facturas locais: primeiro por requestID
+    // (recomendado pela AGT); se não houver correspondência, recorre ao
+    // documentNo trazido na lista de documentos.
+    const invoices = new Map<string, { invoice: any; status: AgtDocumentStatus }>();
+    if (requestId) {
+      const found = await this.invoices.findByAgtRequestId(String(requestId));
+      for (const inv of found) {
+        const doc = rawList.find(
+          (d: any) =>
+            d.documentNo === inv.documentNo ||
+            d.documentNumber === inv.documentNo
+        );
+        invoices.set(inv.id, { invoice: inv, status: doc ?? {} });
+      }
+    }
+    if (invoices.size === 0) {
+      for (const doc of rawList) {
+        const id = doc.documentNo ?? doc.documentNumber;
+        if (!id) continue;
+        const inv = await this.invoices.findByDocumentNo(String(id));
+        if (inv) invoices.set(inv.id, { invoice: inv, status: doc });
+      }
+    }
+
+    const responseData = JSON.stringify(payload);
+    let processed = 0;
+
+    for (const { invoice, status: doc } of invoices.values()) {
+      const errored = Boolean(
+        doc.errorList && Array.isArray(doc.errorList) && doc.errorList.length > 0
+      );
+      const agtStatus = mapAgtNotificationStatus(
+        doc.documentStatus ?? (doc as any).state ?? doc.status,
+        errored
+      );
+
+      await this.invoices.update(invoice.id, {
+        agtStatus,
+        agtResponse: responseData,
+        agtValidatedAt:
+          agtStatus === "VALID" || agtStatus === "INVALID"
+            ? new Date()
+            : (invoice.agtValidatedAt ?? null),
+      });
+      await this.invoices.addCommunicationLog(invoice.id, {
+        attempt: 2,
+        status: agtStatus,
+        httpStatus: 200,
+        responsePayload: responseData,
+        error: null,
+      });
+      processed++;
+    }
+
+    return {
+      ok: true,
+      processed,
+      requestId: requestId ?? null,
+      status: 200,
+    };
+  }
+}
+
+function timingSafeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) {
+    diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return diff === 0;
 }
